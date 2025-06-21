@@ -1,0 +1,14 @@
+{
+  "name": "lara-bot-v1",
+  "version": "1.0.0",
+  "author": "Leonel Miguins",
+  "scripts": {
+    "start": "node src/bot.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.18",
+    "pino": "^8.0.0",
+    "qrcode-terminal": "^0.12.0",
+    "sharp": "^0.34.2"
+  }
+}
