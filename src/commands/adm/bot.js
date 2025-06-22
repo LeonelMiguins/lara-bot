@@ -1,4 +1,5 @@
 const os = require('os');
+const config = require('../../config/config');
 
 module.exports = async (sock, msg, args) => {
   const from = msg.key.remoteJid;
@@ -47,16 +48,17 @@ module.exports = async (sock, msg, args) => {
     };
 
     const info = `
-╭━━━〔 *INFORMAÇÕES* 〕━━━╮
+╭━━━〔 *INFORMAÇÕES* 〕
 
-*Nome:* ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎
-*Versão:* 1.0.0
-*Criador:* Leonel Miguins
-*Colaboradores:* Cipher, Isabella
+*Nome:* ${config.botName}
+*Versão:* ${config.version}
+*Criador:* ${config.author}
+*Colaboradores:* ${config.collaborators}
 *Número bot:* wa.me/${botNumber}
 *Ativo há:* ${formatUptime(uptime)}
+*github do bot:* ${config.github}
 
-╭━━━〔 *COMANDOS* 〕━━━╮
+╭━━━〔 *COMANDOS* 〕
 
   !bot server
     `.trim();

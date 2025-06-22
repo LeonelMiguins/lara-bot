@@ -7,7 +7,7 @@ async function tagall(sock, msg) {
   const from = msg.key.remoteJid;
 
   if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: '❌ Este comando só pode ser usado em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só pode ser usado em grupos.' });
     return;
   }
 
@@ -16,7 +16,7 @@ async function tagall(sock, msg) {
   const isAdmin = metadata.participants.find(p => p.id === sender)?.admin;
 
   if (!isAdmin) {
-    await sock.sendMessage(from, { text: '❌ Apenas administradores podem usar este comando.' });
+    await sock.sendMessage(from, { text: '❗ Apenas administradores podem usar este comando.' });
     return;
   }
 
@@ -24,7 +24,7 @@ async function tagall(sock, msg) {
   const membersToTag = metadata.participants.slice(0, 30);
 
   const mentions = membersToTag.map(m => m.id);
-  const text = '🏷️ *Marcando todos os membros do grupo*:\n\n'+mentions.map(m => `@${m.split('@')[0]}`).join(' ');
+  const text = `╭━━━〔 *MEMBROS* 〕\n\n🏷️ *Marcando todos os membros do grupo*:\n\n`+mentions.map(m => `@${m.split('@')[0]}`).join(' ');
 
   await sock.sendMessage(from, { text, mentions });
 }

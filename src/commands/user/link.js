@@ -10,7 +10,7 @@ module.exports = async (sock, msg) => {
   const from = msg.key.remoteJid;
 
   if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: '❌ Este comando só pode ser usado em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só pode ser usado em grupos.' });
     return;
   }
 
@@ -20,7 +20,7 @@ module.exports = async (sock, msg) => {
   const botIsAdmin = groupMetadata.participants.find(p => p.id === botNumber && p.admin);
 
   if (!botIsAdmin) {
-    await sock.sendMessage(from, { text: '🚫 Eu preciso ser *admin* para gerar o link do grupo.' });
+    await sock.sendMessage(from, { text: '❗ Eu preciso ser *admin* para gerar o link do grupo.' });
     return;
   }
 
@@ -28,7 +28,7 @@ module.exports = async (sock, msg) => {
     const groupInviteCode = await sock.groupInviteCode(from);
     const inviteLink = `https://chat.whatsapp.com/${groupInviteCode}`;
 
-    const caption = `╭━━━〔 *LINK DO GRUPO* 〕━━━╮ ⭑\n` +
+    const caption = `╭━━━〔 *LINK DO GRUPO* 〕 ⭑\n` +
                     `                     `+
                     ` 👥 *${groupName}*\n` +
                     `\n` +
@@ -40,6 +40,6 @@ module.exports = async (sock, msg) => {
 
   } catch (err) {
     console.error('Erro ao gerar link do grupo:', err);
-    await sock.sendMessage(from, { text: '❌ Não foi possível obter o link do grupo.' });
+    await sock.sendMessage(from, { text: '❗ Não foi possível obter o link do grupo.' });
   }
 };

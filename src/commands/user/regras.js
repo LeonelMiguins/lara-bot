@@ -12,11 +12,12 @@ module.exports = async (sock, msg) => {
   const nomeGrupo = metadata.subject;
 
   const texto = 
-`╭━━━〔 *REGRAS DO GRUPO* 〕━━━╮
+`╭━━━〔 *REGRAS DO GRUPO* 〕
 
-📛 Grupo: *${nomeGrupo}*
+👥 Grupo: *${nomeGrupo}*
 
 *O que NÃO pode:*
+
 🚫 Links de grupos, canais e comunidades
 🚫 Conteúdo adulto ou ofensivo
 🚫 Spam ou flood de mensagens
@@ -25,15 +26,16 @@ module.exports = async (sock, msg) => {
 🚫 Divulgação de apostas, pirâmides ou golpes
 
 *O que PODE:*
+
 ✅ Compartilhar memes e vídeos leves
 ✅ Fazer amizades e bater papo
 ✅ Divulgar seu Instagram, TikTok e projetos
 ✅ Tirar dúvidas e conversar sobre o tema do grupo
 ✅ Participar de enquetes e jogos quando tiver
 
-🛡️ O não cumprimento das regras pode levar a *banimento imediato* sem aviso.
+🚫 O não cumprimento das regras pode levar a *banimento imediato* sem aviso.
 
-══════╝`;
+`;
 
   await sock.sendMessage(from, { text: texto });
 };

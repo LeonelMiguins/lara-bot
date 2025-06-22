@@ -19,14 +19,14 @@ module.exports = async (sock, msg, args) => {
   const quoted = contextInfo.participant; // Se for uma resposta de mensagem
 
   if (!isGroup) {
-    await sock.sendMessage(from, { text: '❌ Este comando só pode ser usado em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só pode ser usado em grupos.' });
     return;
   }
 
   const rankPath = path.join(__dirname, '..', '..', 'json', `rank-${from}.json`);
   if (!fs.existsSync(rankPath)) {
     await sock.sendMessage(from, {
-      text: '🚫 O sistema de moedas ainda não está ativo neste grupo. Use *!rank on* para iniciar.',
+      text: `❗ O sistema de moedas ainda não está ativo neste grupo. Use *${config.prefix}rank on* para iniciar.` ,
     });
     return;
   }
@@ -58,7 +58,7 @@ module.exports = async (sock, msg, args) => {
   if (args[0] === 'all') {
     if (userMoney < priceAll) {
       await sock.sendMessage(from, {
-        text: `💸 Você não tem moedas suficientes. São necessárias *${priceAll} moedas* para pagar bebida pra geral!`,
+        text: `❗ Você não tem moedas suficientes. São necessárias *${priceAll} moedas* para pagar bebida pra geral!`,
       });
       return;
     }
@@ -83,7 +83,7 @@ finalMessage = fraseAll
 
     if (userMoney < pricePerDrink) {
       await sock.sendMessage(from, {
-        text: `💸 Você precisa de pelo menos *${pricePerDrink} moedas* para oferecer uma bebida.`,
+        text: `❗ Você precisa de pelo menos *${pricePerDrink} moedas* para oferecer uma bebida.`,
       });
       return;
     }
@@ -105,7 +105,7 @@ finalMessage = fraseAll
   // USO INCORRETO
   } else {
     await sock.sendMessage(from, {
-      text: `❗ Use o comando assim:\n\n*!drink @usuário* ou respondendo uma menssagem com *!drink* — Custa ${pricePerDrink} moedas\n\n*!drink* respondendo alguém\n*!drink all* — Rodada pra todos por ${priceAll} moedas`,
+      text: `❗ Use o comando assim:\n\n*${config.prefix}drink @usuário* ou respondendo uma menssagem com *${config.prefix}drink* (Custo: ${pricePerDrink} moedas)\n\n*${config.prefix}drink all* — Rodada pra todos os membros! (Custo: ${priceAll} moedas)`,
     });
     return;
   }

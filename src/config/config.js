@@ -3,7 +3,7 @@ module.exports =
 
   botName: 'ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎',
   version: '1.0.0',
-  prefix: '!',
+  prefix: '#',
   author: 'Leonel Miguins',
   collaborators: 'Isabella, Cipher',
   github: '',

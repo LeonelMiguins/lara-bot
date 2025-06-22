@@ -1,9 +1,11 @@
+const config = require('../../config/config');
+
 async function ban(sock, msg) {
   const from = msg.key.remoteJid;
 
   // Verifica se é grupo
   if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: 'Este comando só funciona em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só funciona em grupos.' });
     return;
   }
 
@@ -17,7 +19,7 @@ async function ban(sock, msg) {
   const sender = msg.key.participant || msg.key.remoteJid;
 
   if (!admins.includes(sender)) {
-    await sock.sendMessage(from, { text: 'Apenas administradores podem usar este comando.' });
+    await sock.sendMessage(from, { text: '❗ Apenas administradores podem usar este comando.' });
     return;
   }
 
@@ -41,7 +43,7 @@ async function ban(sock, msg) {
   }
 
   if (!target) {
-    await sock.sendMessage(from, { text: '❗ Como usar o comando *!ban:*\n\n*!ban @* - Mencionando Membro\n*!ban* - Respondendo uma menssagem com !ban' });
+    await sock.sendMessage(from, { text: `❗ Responda uma menssagem com *${config.prefix}ban* ou mencionando o membro *${config.prefix}ban* @` });
     return;
   }
 

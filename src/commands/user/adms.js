@@ -24,7 +24,7 @@ async function adms(sock, msg) {
   const mentions = admins.map(a => a.id);
   const groupName = metadata.subject || 'este grupo';
 
-  const text = `🔔 Solicitando a atenção de todos os administradores de *${groupName}*:\n\n@${mentions.map(m => m.split('@')[0]).join(' @')}\n\n⚠️ Por favor, fiquem atentos às mensagens e às solicitações do grupo.`;
+  const text = `╭━━━〔 *ADMINISTRADORES* 〕\n\n🔔 Solicitando a atenção de todos os administradores de *${groupName}*:\n\n@${mentions.map(m => m.split('@')[0]).join(' @')}\n\n⚠️ Por favor, fiquem atentos às mensagens e às solicitações do grupo.`;
 
   await sock.sendMessage(from, { text, mentions });
 }

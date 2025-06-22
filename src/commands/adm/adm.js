@@ -3,11 +3,12 @@
  * @param {import('@whiskeysockets/baileys').WASocket} sock
  * @param {import('@whiskeysockets/baileys').proto.IWebMessageInfo} msg
  */
+const config = require('../../config/config');
 async function adm(sock, msg) {
   const from = msg.key.remoteJid;
 
   if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: 'Este comando só funciona em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só funciona em grupos.' });
     return;
   }
 
@@ -21,7 +22,7 @@ async function adm(sock, msg) {
 
   // Só admins podem usar
   if (!admins.includes(sender)) {
-    await sock.sendMessage(from, { text: 'Apenas administradores podem usar este comando.' });
+    await sock.sendMessage(from, { text: '❗ Apenas administradores podem usar este comando.' });
     return;
   }
 
@@ -38,20 +39,20 @@ async function adm(sock, msg) {
   }
 
   if (!target) {
-    await sock.sendMessage(from, { text: 'Marque o usuário com @ ou responda a mensagem dele para promover a administrador.' });
+    await sock.sendMessage(from, { text: `❗ Marque o usuário com @ ou responda a mensagem dele com *${config.prefix}adm* para promove-lo a administrador.` });
     return;
   }
 
   // Verifica se já é admin
   if (admins.includes(target)) {
-    await sock.sendMessage(from, { text: 'Este usuário já é administrador.' });
+    await sock.sendMessage(from, { text: '❗ Este usuário já é administrador.' });
     return;
   }
 
   try {
     await sock.groupParticipantsUpdate(from, [target], 'promote');
-    await sock.sendMessage(from, { text: `Usuário promovido a administrador com sucesso.` });
-    console.log(`Usuário ${target} foi promovido a administrador no grupo ${from}`);
+    await sock.sendMessage(from, { text: `✅ Usuário promovido a administrador com sucesso.` });
+    console.log(`[ADM] Usuário ${target} foi promovido a administrador no grupo ${from}`);
   } catch (err) {
     await sock.sendMessage(from, { text: `Erro ao promover usuário: ${err.message}` });
   }

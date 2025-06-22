@@ -15,20 +15,20 @@ module.exports = async (sock, msg, args) => {
   const userData = rankData[sender];
 
   if (!userData) {
-    await sock.sendMessage(from, { text: '🚫 Você ainda não está no sistema de rank.' });
+    await sock.sendMessage(from, { text: '❗ Você ainda não está no sistema de rank.' });
     return;
   }
 
   const codigo = args[0]?.toLowerCase();
   if (!codigo || !loja[codigo]) {
-    await sock.sendMessage(from, { text: '❌ Código inválido. Use `!shop` para ver os itens disponíveis.' });
+    await sock.sendMessage(from, { text: `❗ Código inválido. Use ${config.prefix}shop para ver os itens disponíveis.` });
     return;
   }
 
   const item = loja[codigo];
 
   if (userData.money < item.preco) {
-    await sock.sendMessage(from, { text: `💸 Você não tem saldo suficiente para comprar *${item.nome}*.` });
+    await sock.sendMessage(from, { text: `❗ Você não tem saldo suficiente para comprar *${item.nome}*.` });
     return;
   }
 

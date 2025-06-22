@@ -117,8 +117,11 @@ pm2 start npm --name lara-bot -- start
 pm2 save
 pm2 startup
 ```
-
 ---
+
+## Uso
+
+Envie o comando <b>#menu</b> para iniciar o bot.
 
 
 ## Créditos/Autores

@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getHourMinute} = require('../../functions/globalFunctions');
+const config = require('../../config/config');
 
 /**
  * Comando para ativar, desativar ou mostrar ajuda do sistema de rank no grupo
@@ -13,7 +14,7 @@ async function rank(sock, msg, args) {
   const from = msg.key.remoteJid;
 
   if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: '❌ Este comando só pode ser usado em grupos.' });
+    await sock.sendMessage(from, { text: '❗ Este comando só pode ser usado em grupos.' });
     return;
   }
 
@@ -22,12 +23,12 @@ async function rank(sock, msg, args) {
   const isAdmin = metadata.participants.find(p => p.id === sender)?.admin;
 
   if (!isAdmin) {
-    await sock.sendMessage(from, { text: '❌ Apenas administradores podem usar este comando.' });
+    await sock.sendMessage(from, { text: '❗ Apenas administradores podem usar este comando.' });
     return;
   }
 
   if (!args.length) {
-    await sock.sendMessage(from, { text: '❓ Use: *!rank on*, *!rank off* ou *!rank help*.' });
+    await sock.sendMessage(from, { text: `╭━━━〔 *RANK MENU* 〕\n\n❗ Como usar os comandos do *RANK*:\n\n*${config.prefix}rank on* - Ativa o modo rank no grupo.\n\n*${config.prefix}rank off* - Desativa o modo rank no grupo.\n\n*${config.prefix}rank help - Exibe o funcionamento do rank.*.` });
     return;
   }
 
@@ -68,7 +69,7 @@ async function rank(sock, msg, args) {
   if (action === 'on') {
     // CHECA ANTES DE TUDO
     if (fs.existsSync(filePath)) {
-      await sock.sendMessage(from, { text: '⚠️ O sistema de rank já está ativado neste grupo.' });
+      await sock.sendMessage(from, { text: '❗ O sistema de rank já está ativado neste grupo.' });
       return;
     }
 
@@ -98,7 +99,7 @@ async function rank(sock, msg, args) {
     }
 
     fs.unlinkSync(filePath);
-    await sock.sendMessage(from, { text: '🛑 Sistema de rank desativado e dados apagados com sucesso!' });
+    await sock.sendMessage(from, { text: '❌ Sistema de rank desativado e dados apagados com sucesso!' });
     console.log(`🛑[${timestamp}] [RANK] Rank desativado no grupo "${metadata.subject}"`);
     return;
   }

@@ -1,4 +1,5 @@
 const { formatUserName, getHourMinute} = require('../../functions/globalFunctions');
+const config = require('../../config/config');
 
 /**
  * Evento para boas-vindas automáticas com nome e foto do perfil
@@ -28,7 +29,7 @@ async function setupWelcome(sock) {
 
           // Mensagem personalizada
           const timestamp = getHourMinute();
-          const welcomeMessage = `╭━━━〔 *BEM VINDO!* 〕━━━╮\n\n👋 Olá, *${name}*!\nSeja bem-vindo(a) ao *${groupName}*!\n\n✅ Divirta-se e respeite as regras do grupo!\n❗ Não invada PV sem permisão! É *BAN!!*\n\nEnvie *!regras* para ver regras.\nEnvie *!menu* para usar o bot`;
+          const welcomeMessage = `╭━━━〔 *BEM VINDO!* 〕\n\n👋 Olá, *${name}*!\nSeja bem-vindo(a) ao *${groupName}*!\n\n✅ Divirta-se e respeite as regras do grupo!\n❗ *NÃO* invada PV sem permisão! É *BAN!!*\n\nEnvie *${config.prefix}regras* para ver regras.\nEnvie *${config.prefix}menu* para usar o bot`;
 
           console.log(`[${timestamp}] [👤 NOVO MEMBRO] Entrou no ${groupName}!`);
 

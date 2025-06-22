@@ -1,4 +1,5 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const config = require('./config/config');
 const { getHourMinute, loadCommands } = require('./functions/globalFunctions');
 const P = require('pino');
 const qrcode = require('qrcode-terminal');
@@ -47,8 +48,8 @@ async function startBot() {
     }
 
     if (connection === 'open') {
-      console.log('✅ Conectado com sucesso!');
-      console.log('✅ Rodando ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎');
+      console.log('✅ Conectado com sucesso!' );
+      console.log(`✅ Rodando ${config.botName}` );
     }
   });
 
@@ -63,7 +64,7 @@ async function startBot() {
 
     await antiLink(sock, msg);
 
-    const isCommand = body.startsWith('!');
+    const isCommand = body.startsWith(config.prefix); // prefixo do bot no arquivo config.js 
     if (!isCommand) {
       await processRank(sock, msg);
       return;

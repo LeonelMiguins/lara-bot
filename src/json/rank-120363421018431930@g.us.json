@@ -10,7 +10,7 @@
     "money": 100,
     "achievements": [],
     "inventory": [],
-    "points": 12,
+    "points": 24,
     "status": "👤 Membro Comum",
     "notifications": []
   },
@@ -32,21 +32,23 @@
     "status": "👤 Membro Comum"
   },
   "5521975156159@s.whatsapp.net": {
-    "money": 731,
+    "money": 781,
     "achievements": [
-      "👑 Top ADM"
+      "👑 Top ADM",
+      "💎 Alcançou Membro Vip"
     ],
     "inventory": [
       "🐱 Gatinho Sapeca",
       "🎩 Chapéu de Bruxa"
     ],
-    "points": 1404,
-    "status": "🥇 Membro Ouro",
+    "points": 1552,
+    "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
       "prata",
       "topadm",
-      "ouro"
+      "ouro",
+      "vip"
     ]
   },
   "5521983876725@s.whatsapp.net": {
@@ -156,10 +158,10 @@
     "notifications": []
   },
   "558896407818@s.whatsapp.net": {
-    "money": 1400,
+    "money": 1450,
     "achievements": [],
     "inventory": [],
-    "points": 1392,
+    "points": 1484,
     "status": "🥇 Membro Ouro",
     "notifications": [
       "bronze",
@@ -168,14 +170,14 @@
     ]
   },
   "558897220973@s.whatsapp.net": {
-    "money": 3326,
+    "money": 3426,
     "achievements": [
       "👑 Top ADM",
       "💎 Alcançou Membro Vip",
       "🔥 Lendário!"
     ],
     "inventory": [],
-    "points": 3084,
+    "points": 3240,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
@@ -212,14 +214,14 @@
     "money": 150,
     "achievements": [],
     "inventory": [],
-    "points": 56,
+    "points": 84,
     "status": "👤 Membro Comum",
     "notifications": []
   },
   "5511945171462@s.whatsapp.net": {
     "money": 50,
     "achievements": [],
-    "points": 595,
+    "points": 611,
     "status": "🥈 Membro Prata",
     "notifications": [
       "bronze",
@@ -230,6 +232,13 @@
     "money": 0,
     "achievements": [],
     "points": 4,
+    "status": "👤 Membro Comum",
+    "notifications": []
+  },
+  "5521959001457@s.whatsapp.net": {
+    "money": 0,
+    "achievements": [],
+    "points": 12,
     "status": "👤 Membro Comum",
     "notifications": []
   }

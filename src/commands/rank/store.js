@@ -16,23 +16,22 @@ module.exports = async (sock, msg) => {
   const userData = rankData[sender];
 
   if (!userData) {
-    await sock.sendMessage(from, { text: '🚫 Você ainda não está no sistema de rank.' });
+    await sock.sendMessage(from, { text: '❗ Você ainda não está no sistema de rank.' });
     return;
   }
 
   const saldo = userData.money;
-  let texto = `╭━━━〔 *🏪 LOJA DO GRUPO* 〕━━━╮\n`;
+  let texto = `╭━━━〔 *🏪 LOJA DO GRUPO* 〕\n`;
   texto += `┃ 💰 Saldo: *${saldo} moedas*\n`;
   texto += `┃ 📦 Itens disponíveis:\n\n`;
 
   for (const codigo in loja) {
     const item = loja[codigo];
-    texto += ` ├─ ${item.nome}\n`;
-    texto += `    💵 ${item.preco} moedas\n`;
-    texto += `    🔖 Código: \`${codigo}\`\n`;
+    texto += ` ├─ *${item.nome}*\n`;
+    texto += `    💵 ${item.preco} moedas | Código: \`${codigo}\`\n\n`;
   }
 
-  texto += `╰━━━━━━━━━━━━━━━━━━━━━━━╯\n📥 Use: *!buy <código>* para comprar.`;
+  texto += `╰━━━━━━━━━━━━━━━━━━━━━━━╯\n📥 Use: *${config.prefix}buy <código>* para comprar.`;
 
   await sock.sendMessage(from, { text: texto });
 };

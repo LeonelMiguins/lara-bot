@@ -2,6 +2,7 @@
   "name": "lara-bot-v1",
   "version": "1.0.0",
   "author": "Leonel Miguins",
+  "collaborators": "Isabella, Cipher",
   "scripts": {
     "start": "node src/bot.js"
   },
@@ -9,6 +10,6 @@
     "@whiskeysockets/baileys": "^6.7.18",
     "pino": "^8.0.0",
     "qrcode-terminal": "^0.12.0",
-    "sharp": "^0.34.2"
+    "wa-sticker-formatter": "^4.4.4"
   }
 }

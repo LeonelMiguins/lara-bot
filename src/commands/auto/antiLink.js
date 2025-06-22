@@ -1,5 +1,5 @@
 const { getHourMinute} = require('../../functions/globalFunctions');
-const config = require('../../config/config'); // ou '../../config/config' dependendo da pasta
+const config = require('../../config/config');
 
 function extractText(msg) {
   if (!msg.message) return null;
