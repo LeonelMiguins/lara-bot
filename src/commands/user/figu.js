@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { exec } = require('child_process');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 const config = require('../../config/config');
@@ -24,9 +25,7 @@ module.exports = async (sock, msg) => {
   }
 
   try {
-
-    // Envia mensagem de espera
-    const waitMsg = await sock.sendMessage(from, {
+    await sock.sendMessage(from, {
       text: '⏳ Aguarde, gerando sua figurinha...'
     });
 
@@ -38,18 +37,28 @@ module.exports = async (sock, msg) => {
 
     fs.writeFileSync(inputPath, buffer);
 
-    // Usa npx para garantir compatibilidade
-    exec(`npx cwebp "${inputPath}" -q 80 -o "${outputPath}"`, async (error) => {
-      if (error) {
-        console.error('❗ Erro ao converter imagem:', error);
+    const ffmpegPath = os.platform() === 'win32'
+      ? 'C:/ffmpeg/bin/ffmpeg.exe'
+      : 'ffmpeg';
+
+    const comando = `"${ffmpegPath}" -i "${inputPath}" -vcodec libwebp -filter:v fps=15 -lossless 1 -preset default -loop 0 -an -vsync 0 "${outputPath}"`;
+
+    exec(comando, async (error) => {
+      if (error || !fs.existsSync(outputPath)) {
+        console.error('❗ Erro ao converter imagem com FFmpeg:', error);
         return await sock.sendMessage(from, { text: '❗ Ocorreu um erro ao converter a imagem para figurinha.' });
       }
 
       const webpBuffer = fs.readFileSync(outputPath);
       await sock.sendMessage(from, { sticker: webpBuffer });
 
-      fs.unlinkSync(inputPath);
-      fs.unlinkSync(outputPath);
+      // Apaga arquivos temporários
+      try {
+        fs.unlinkSync(inputPath);
+        fs.unlinkSync(outputPath);
+      } catch (e) {
+        console.warn('⚠️ Falha ao apagar arquivos temporários:', e);
+      }
     });
 
   } catch (err) {

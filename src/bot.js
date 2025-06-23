@@ -9,7 +9,6 @@ const path = require('path');
 const setupWelcome = require('./commands/auto/welcome');
 const antiLink = require('./commands/auto/antiLink');
 const processRank = require('./commands/rank/func/rankSystem');
-const goodbyeHandler = require('./commands/auto/goodbye');
 
 async function startBot() {
   const { state, saveCreds } = await useMultiFileAuthState('./auth');
@@ -17,19 +16,6 @@ async function startBot() {
   const sock = makeWASocket({
     logger: P({ level: 'silent' }),
     auth: state,
-  });
-
-  sock.ev.on('group-participants.update', async (update) => {
-    try {
-      await goodbyeHandler(sock, {
-        messages: [{
-          message: { groupParticipantsUpdate: update },
-          key: { remoteJid: update.id + '@g.us' }
-        }]
-      });
-    } catch (err) {
-      console.error('[Goodbye] erro no handler:', err);
-    }
   });
 
   setupWelcome(sock);
@@ -48,8 +34,8 @@ async function startBot() {
     }
 
     if (connection === 'open') {
-      console.log('✅ Conectado com sucesso!' );
-      console.log(`✅ Rodando ${config.botName}` );
+      console.log('✅ Conectado com sucesso!');
+      console.log(`✅ Rodando ${config.botName}`);
     }
   });
 
