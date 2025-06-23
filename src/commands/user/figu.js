@@ -37,9 +37,12 @@ module.exports = async (sock, msg) => {
 
     fs.writeFileSync(inputPath, buffer);
 
-    const ffmpegPath = os.platform() === 'win32'
+    /*const ffmpegPath = os.platform() === 'win32'
       ? 'C:/ffmpeg/bin/ffmpeg.exe'
-      : 'ffmpeg';
+      : 'ffmpeg';*/
+
+    const ffmpegPath = 'ffmpeg';
+
 
     const comando = `"${ffmpegPath}" -i "${inputPath}" -vcodec libwebp -filter:v fps=15 -lossless 1 -preset default -loop 0 -an -vsync 0 "${outputPath}"`;
 

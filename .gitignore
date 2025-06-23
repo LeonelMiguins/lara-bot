@@ -1,5 +1,14 @@
+# Ignorar node_modules e a pasta auth
 node_modules/
 auth/
+
+# Ignorar arquivos sensíveis e desnecessários
 .env
 *.sqlite
 *.log
+
+# Ignorar tudo dentro de src/json
+src/json/**
+
+# Exceto o leia-me.txt
+!src/json/leia-me.txt

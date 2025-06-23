@@ -23,7 +23,6 @@
 ## 🚀 Recursos principais
 
 - ✅ Boas-vindas automáticas personalizadas para novos membros
-- ✅ Mensagens de despedida ao detectar a saída de um integrante
 - ✅ Criação de figurinhas (stickers) a partir de imagens
 - ✅ Comandos administrativos: banir, promover e muito mais
 - ✅ Sistema anti-links inteligente: bloqueia links de grupos, sites adultos e casas de aposta
@@ -36,26 +35,29 @@
 
 ## Termux (Android)
 
-### 1. Instale o Nodejs e o Git
+### 1. Atualize o termux
 
 ```bash
 pkg update && pkg upgrade -y
+```
+
+### 2. Instale o Node e o Git
+
+```bash
 pkg install git nodejs -y
 ```
 
-### 2. Installe
-
-É necessário instalar os pacotes de desenvolvimento essenciais.
+### 2. Instale o ffmpeg
 
 ```bash
-pkg install binutils clang make libwebp
+pkg install ffmpeg
 ```
+🎥 O FFmpeg é essencial para criação de figurinhas e manipulação de mídias.
 
 ### 2. Clone o repositorio
 
 ```bash
 git clone https://github.com/LeonelMiguins/lara-bot.git
-cd lara-bot
 ```
 
 ### 3. Instalar as dependências do projeto
@@ -69,10 +71,7 @@ npm install
 npm start
 ```
 
-## Oracle VPS (Ubuntu/Debian)
-É necessário ter uma conta gratuita na Oracle Cloud e uma instância VPS (máquina virtual) configurada com Ubuntu ou Debian.  
-Crie sua conta aqui: [https://www.oracle.com/cloud/free/](https://www.oracle.com/cloud/free/)
-
+## Linux (Ubuntu/Debian)
 
 ### 1. Atualize o sistema
 
@@ -97,21 +96,27 @@ sudo apt install -y nodejs
 
 ```bash
 git clone https://github.com/LeonelMiguins/lara-bot.git
-cd lara-bot
 ```
-### 4. Instale dependências do sharp
+### 4. Instale o ffmpeg
 
 ```bash
-sudo apt update
-sudo apt install -y build-essential libvips-dev
+sudo apt install ffmpeg -y
 ```
+🎥 O FFmpeg é essencial para criação de figurinhas e manipulação de mídias.
 
-### 4. Instale as dependências do projeto
+### 5. Instale as dependências do projeto
 
 ```bash
 npm install
 ```
-### 7. Instale o PM2
+
+## VPS (Ubuntu/Debian)
+* É necessário ter uma conta gratuita na Oracle Cloud e uma instância VPS (máquina virtual) configurada com Ubuntu ou Debian. 
+Crie sua conta aqui: [https://www.oracle.com/cloud/free/](https://www.oracle.com/cloud/free/)
+
+* Segue a instalação normal do linux no passo anterior, a única diferença e que você ira precisar do ```pm2``` instalado para deixa o bot rodando como um processo do sistema linux.
+
+### 1. Instale o PM2
 
 Se você fechar o terminal ou perder a conexão SSH, o bot irá parar. Para mantê-lo sempre ativo como um serviço no Ubuntu, instale o PM2:
 
@@ -119,7 +124,7 @@ Se você fechar o terminal ou perder a conexão SSH, o bot irá parar. Para mant
 sudo npm install -g pm2
 ```
 
-### 7. Inicie o bot com:
+### 2. Inicie o bot com:
 
 ```bash
 pm2 start npm --name lara-bot -- start
@@ -132,8 +137,10 @@ pm2 startup
 
 Envie o comando <b>#menu</b> para iniciar o bot.
 
+* O prefixo padrão é ```#```, mas você pode alteralo em ```src/config/config.js```
 
-## Créditos/Autores
+
+## Colaboradores
 
 <table>
   <tr>
