@@ -41,7 +41,7 @@
       "🐱 Gatinho Sapeca",
       "🎩 Chapéu de Bruxa"
     ],
-    "points": 1552,
+    "points": 1564,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
@@ -158,15 +158,18 @@
     "notifications": []
   },
   "558896407818@s.whatsapp.net": {
-    "money": 1450,
-    "achievements": [],
+    "money": 1500,
+    "achievements": [
+      "💎 Alcançou Membro Vip"
+    ],
     "inventory": [],
-    "points": 1484,
-    "status": "🥇 Membro Ouro",
+    "points": 1500,
+    "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
       "prata",
-      "ouro"
+      "ouro",
+      "vip"
     ]
   },
   "558897220973@s.whatsapp.net": {
@@ -177,7 +180,7 @@
       "🔥 Lendário!"
     ],
     "inventory": [],
-    "points": 3240,
+    "points": 3244,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
