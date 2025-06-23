@@ -7,18 +7,20 @@
     "status": "👤 Membro Comum"
   },
   "5518991440054@s.whatsapp.net": {
-    "money": 100,
+    "money": 150,
     "achievements": [],
     "inventory": [],
-    "points": 24,
-    "status": "👤 Membro Comum",
-    "notifications": []
+    "points": 148,
+    "status": "🥉 Membro Bronze",
+    "notifications": [
+      "bronze"
+    ]
   },
   "5518996279946@s.whatsapp.net": {
     "money": 400,
     "achievements": [],
     "inventory": [],
-    "points": 312,
+    "points": 304,
     "status": "🥉 Membro Bronze",
     "notifications": [
       "bronze"
@@ -32,30 +34,32 @@
     "status": "👤 Membro Comum"
   },
   "5521975156159@s.whatsapp.net": {
-    "money": 781,
+    "money": 1101,
     "achievements": [
       "👑 Top ADM",
-      "💎 Alcançou Membro Vip"
+      "💎 Alcançou Membro Vip",
+      "🔥 Lendário!"
     ],
     "inventory": [
       "🐱 Gatinho Sapeca",
       "🎩 Chapéu de Bruxa"
     ],
-    "points": 1564,
+    "points": 2364,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
       "prata",
       "topadm",
       "ouro",
-      "vip"
+      "vip",
+      "lendario"
     ]
   },
   "5521983876725@s.whatsapp.net": {
     "money": 150,
     "achievements": [],
     "inventory": [],
-    "points": 156,
+    "points": 168,
     "status": "🥉 Membro Bronze",
     "notifications": [
       "bronze"
@@ -86,10 +90,10 @@
     "status": "👤 Membro Comum"
   },
   "554499246508@s.whatsapp.net": {
-    "money": 350,
+    "money": 400,
     "achievements": [],
     "inventory": [],
-    "points": 240,
+    "points": 388,
     "status": "🥉 Membro Bronze",
     "notifications": [
       "bronze"
@@ -106,26 +110,28 @@
     "money": 100,
     "achievements": [],
     "inventory": [],
-    "points": 16,
+    "points": 24,
     "status": "👤 Membro Comum",
     "notifications": []
   },
   "556593314744@s.whatsapp.net": {
-    "money": 200,
+    "money": 350,
     "achievements": [],
     "inventory": [],
-    "points": 124,
-    "status": "🥉 Membro Bronze",
+    "points": 412,
+    "status": "🥈 Membro Prata",
     "notifications": [
-      "bronze"
+      "bronze",
+      "prata"
     ]
   },
   "557399436648@s.whatsapp.net": {
     "money": 100,
     "achievements": [],
     "inventory": [],
-    "points": 0,
-    "status": "👤 Membro Comum"
+    "points": 16,
+    "status": "👤 Membro Comum",
+    "notifications": []
   },
   "557799210015@s.whatsapp.net": {
     "money": 100,
@@ -142,45 +148,49 @@
     "status": "👤 Membro Comum"
   },
   "558581065461@s.whatsapp.net": {
-    "money": 150,
+    "money": 200,
     "achievements": [],
     "inventory": [],
-    "points": 48,
-    "status": "👤 Membro Comum",
-    "notifications": []
+    "points": 112,
+    "status": "🥉 Membro Bronze",
+    "notifications": [
+      "bronze"
+    ]
   },
   "558894631054@s.whatsapp.net": {
     "money": 100,
     "achievements": [],
     "inventory": [],
-    "points": 44,
+    "points": 36,
     "status": "👤 Membro Comum",
     "notifications": []
   },
   "558896407818@s.whatsapp.net": {
-    "money": 1500,
+    "money": 1750,
     "achievements": [
-      "💎 Alcançou Membro Vip"
+      "💎 Alcançou Membro Vip",
+      "🔥 Lendário!"
     ],
     "inventory": [],
-    "points": 1500,
+    "points": 2080,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
       "prata",
       "ouro",
-      "vip"
+      "vip",
+      "lendario"
     ]
   },
   "558897220973@s.whatsapp.net": {
-    "money": 3426,
+    "money": 4366,
     "achievements": [
       "👑 Top ADM",
       "💎 Alcançou Membro Vip",
       "🔥 Lendário!"
     ],
     "inventory": [],
-    "points": 3244,
+    "points": 5120,
     "status": "💎 Membro Vip",
     "notifications": [
       "bronze",
@@ -214,34 +224,54 @@
     "status": "👤 Membro Comum"
   },
   "923304278444@s.whatsapp.net": {
-    "money": 150,
+    "money": 200,
     "achievements": [],
     "inventory": [],
-    "points": 84,
+    "points": 156,
+    "status": "🥉 Membro Bronze",
+    "notifications": [
+      "bronze"
+    ]
+  },
+  "5511945171462@s.whatsapp.net": {
+    "money": 3000,
+    "achievements": [
+      "👑 Top ADM"
+    ],
+    "points": 1267,
+    "status": "🥇 Membro Ouro",
+    "notifications": [
+      "bronze",
+      "prata",
+      "ouro",
+      "topadm"
+    ]
+  },
+  "5516988048396@s.whatsapp.net": {
+    "money": 0,
+    "achievements": [],
+    "points": 96,
     "status": "👤 Membro Comum",
     "notifications": []
   },
-  "5511945171462@s.whatsapp.net": {
-    "money": 50,
-    "achievements": [],
-    "points": 611,
-    "status": "🥈 Membro Prata",
-    "notifications": [
-      "bronze",
-      "prata"
-    ]
-  },
-  "555191637887@s.whatsapp.net": {
+  "554491578192@s.whatsapp.net": {
     "money": 0,
     "achievements": [],
-    "points": 4,
+    "points": 24,
     "status": "👤 Membro Comum",
     "notifications": []
   },
   "5521959001457@s.whatsapp.net": {
     "money": 0,
     "achievements": [],
-    "points": 12,
+    "points": 28,
+    "status": "👤 Membro Comum",
+    "notifications": []
+  },
+  "556892481622@s.whatsapp.net": {
+    "money": 0,
+    "achievements": [],
+    "points": 32,
     "status": "👤 Membro Comum",
     "notifications": []
   }

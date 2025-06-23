@@ -42,6 +42,15 @@
 pkg update && pkg upgrade -y
 pkg install git nodejs -y
 ```
+
+### 2. Installe
+
+É necessário instalar os pacotes de desenvolvimento essenciais.
+
+```bash
+pkg install binutils clang make libwebp
+```
+
 ### 2. Clone o repositorio
 
 ```bash
