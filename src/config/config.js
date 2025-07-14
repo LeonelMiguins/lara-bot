@@ -6,10 +6,10 @@ module.exports =
   prefix: '#',
   author: 'Leonel Miguins',
   collaborators: 'Isabella, Cipher',
-  github: '',
+  github: 'https://github.com/LeonelMiguins/lara-bot',
   owner: {
     name: 'Leonel',
-    number: '5599999999999', // com DDI
+    number: '5599999999999',
 },
 
 // lista negra de links

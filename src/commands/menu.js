@@ -23,14 +23,23 @@ module.exports = async (sock, msg, args) => {
  *${config.prefix}𝚜tore* - L𝚘𝚓𝚒𝚗𝚑𝚊 𝚍𝚘 𝚐𝚛𝚞𝚙𝚘
  *${config.prefix}𝚋𝚞𝚢 [𝙸𝚝𝚎𝚖]* - 𝙲𝚘𝚖𝚙𝚛a 𝙸𝚝𝚎𝚖
      
- 👥 *[ɢʀᴜᴘᴏꜱ]彡*
+ 👥 *[grupo]彡*
 
   *${config.prefix}𝚛𝚎𝚐𝚛𝚊𝚜*
+  *${config.prefix}groupinfo*
   *${config.prefix}𝚏𝚒𝚐𝚞 [𝚒𝚖𝚊𝚐𝚎𝚖]*
   *${config.prefix}𝚕𝚒𝚗𝚔 - 𝙻𝚒𝚗𝚔 𝚍𝚘 𝚐𝚛𝚞𝚙𝚘*
+  *${config.prefix}𝚊𝚍𝚖𝚜 - 𝚂𝚘𝚕𝚒𝚌𝚒𝚝𝚊𝚛!*
+
+ 🤝 *[Interaçoes]彡*
+
+  *${config.prefix}tapa [@𝚞𝚜𝚞á𝚛𝚒𝚘]*
+  *${config.prefix}abraco [@𝚞𝚜𝚞á𝚛𝚒𝚘]*
+  *${config.prefix}insultar [@𝚞𝚜𝚞á𝚛𝚒𝚘]*
+  *${config.prefix}ship [@𝚞𝚜𝚞á𝚛𝚒𝚘] [@𝚞𝚜𝚞á𝚛𝚒𝚘]*
   *${config.prefix}𝚍𝚛𝚒𝚗𝚔 [@𝚞𝚜𝚞á𝚛𝚒𝚘] - 𝙿𝚊𝚐𝚊 𝚋𝚎𝚋𝚒𝚍𝚊*
   *${config.prefix}𝚍𝚛𝚒𝚗𝚔 𝚊𝚕𝚕 - 𝙿𝚊𝚐𝚊 𝚙𝚊𝚛𝚊 𝚝𝚘𝚍𝚘𝚜!*
-  *${config.prefix}𝚊𝚍𝚖𝚜 - 𝚂𝚘𝚕𝚒𝚌𝚒𝚝𝚊𝚛!*
+
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━╯
 `;

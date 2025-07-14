@@ -60,7 +60,8 @@ module.exports = async (sock, msg, args) => {
 
 ╭━━━〔 *COMANDOS* 〕
 
-  !bot server
+  ${config.prefix}bot server
+  ${config.prefix}infoGroup
     `.trim();
 
     await sock.sendMessage(from, { text: info, mentions: [sender] });
