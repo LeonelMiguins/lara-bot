@@ -1,39 +1,17 @@
-# 📦 CHANGELOG – ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎
+# Changelog
 
-Registro de mudanças e melhorias do projeto **ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎**.
+## 2.1.0 - 2026-06-25
 
----
+- migração da base para `whatsapp-web.js`
+- autenticação principal via QR Code com `LocalAuth`
+- reorganização completa da estrutura do projeto
+- remoção do sistema antigo de rank, loja e interações
+- criação de módulos automáticos de `welcome`, `anti-link` e `anti-flood`
+- separação da configuração em arquivos menores
+- padronização visual das respostas do bot
+- atualização completa da documentação
 
-## 🔖 Versão 1.1.5 – V1 (11/07/2025)
+## 2.0.0 - 2026-06-25
 
-### Novidades
-
-- **Novos Comandos**  
-  * `#abraco` - abraça um membro mencionado!
-  * `#insultar` - insulta um membro mencionado!
-  * `#tapa` - da um tapa na cara de um membro mencionado!
-  * `#ship` - ship dois membros mencionados!
-
- - **Nova dependência para tratamento de datas em timestamp** 
-
-```json
- "date-fns": "^4.1.0",
-```
-
----
-
-## 🔖 Versão 1.1.2 – V1 (23/06/2025)
-
-### Novidades
-
-- **Correções gerais**  
-  Ajustes na documentação de instalação e padronização das mensagens do bot para melhorar a clareza e a experiência do usuário.
-
----
-
-## 🔖 Versão 1.1.1 – V1 (21/06/2025)
-
-### Novidades
-
-- **Nova implementação de figurinhas**  
-  A antiga dependência `sharp` foi removida e substituída por `ffmpeg`, tornando a criação de figurinhas compatível com múltiplos ambientes (Ubuntu/Debian, Windows e Termux).
+- refatoração inicial da base para ser reutilizável em outros bots
+- foco em comandos administrativos, módulos automáticos e utilitários de usuário

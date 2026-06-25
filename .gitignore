@@ -1,6 +1,9 @@
 # Ignorar node_modules e a pasta auth
 node_modules/
 auth/
+temp/
+.wwebjs_auth/
+.wwebjs_cache/
 
 # Ignorar arquivos sensíveis e desnecessários
 .env

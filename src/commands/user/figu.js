@@ -1,73 +1,55 @@
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const { exec } = require('child_process');
-const { downloadMediaMessage } = require('@whiskeysockets/baileys');
+const sharp = require('sharp');
+const { MessageMedia } = require('whatsapp-web.js');
 const config = require('../../config/config');
+const { error, info, warning } = require('../../utils/respond');
 
-const tempDir = path.join(__dirname, '..', '..', 'temp');
-if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+module.exports = {
+  name: 'figu',
+  aliases: ['sticker'],
+  description: 'Cria uma figurinha a partir de uma imagem respondida.',
+  groupOnly: false,
+  adminOnly: false,
+  async execute({ client, message, chatId, quotedMessage }) {
+    const targetMessage = quotedMessage || message;
 
-module.exports = async (sock, msg) => {
-  const from = msg.key.remoteJid;
+    if (!targetMessage.hasMedia) {
+      await client.sendMessage(
+        chatId,
+        warning('Figurinha', `Responda a uma imagem com *${config.prefix}figu* para criar a figurinha.`),
+      );
+      return;
+    }
 
-  if (!msg.message?.extendedTextMessage?.contextInfo) {
-    return sock.sendMessage(from, {
-      text: `❗ Responda uma imagem com o comando *${config.prefix}figu* para transformá-la em figurinha.`
+    const downloaded = await targetMessage.downloadMedia();
+    if (!downloaded?.mimetype?.startsWith('image/')) {
+      await client.sendMessage(
+        chatId,
+        error('Figurinha', `A mensagem respondida precisa conter uma imagem para usar *${config.prefix}figu*.`),
+      );
+      return;
+    }
+
+    await client.sendMessage(chatId, info('Figurinha', 'Gerando a figurinha...'));
+
+    const buffer = Buffer.from(downloaded.data, 'base64');
+
+    const stickerBuffer = await sharp(buffer)
+      .rotate()
+      .resize(512, 512, {
+        fit: 'inside',
+        withoutEnlargement: true,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
+      .webp({ quality: 90, effort: 4 })
+      .toBuffer();
+
+    const sticker = new MessageMedia('image/webp', stickerBuffer.toString('base64'), 'sticker.webp');
+
+    await client.sendMessage(chatId, sticker, {
+      sendMediaAsSticker: true,
+      stickerName: config.botName,
+      stickerAuthor: config.owner.name,
+      quotedMessageId: message.id._serialized,
     });
-  }
-
-  const quoted = msg.message.extendedTextMessage.contextInfo.quotedMessage;
-  if (!quoted?.imageMessage) {
-    return sock.sendMessage(from, {
-      text: `❗ Você deve responder uma *imagem* com o comando *${config.prefix}figu* para criar a figurinha.`
-    });
-  }
-
-  try {
-    await sock.sendMessage(from, {
-      text: '⏳ Aguarde, gerando sua figurinha...'
-    });
-
-    const buffer = await downloadMediaMessage({ message: quoted }, 'buffer', {}, { logger: console });
-
-    const fileId = Date.now();
-    const inputPath = path.join(tempDir, `img-${fileId}.jpg`);
-    const outputPath = path.join(tempDir, `img-${fileId}.webp`);
-
-    fs.writeFileSync(inputPath, buffer);
-
-    /*const ffmpegPath = os.platform() === 'win32'
-      ? 'C:/ffmpeg/bin/ffmpeg.exe'
-      : 'ffmpeg';*/
-
-    const ffmpegPath = 'ffmpeg';
-
-
-    const comando = `"${ffmpegPath}" -i "${inputPath}" -vcodec libwebp -filter:v fps=15 -lossless 1 -preset default -loop 0 -an -vsync 0 "${outputPath}"`;
-
-    exec(comando, async (error) => {
-      if (error || !fs.existsSync(outputPath)) {
-        console.error('❗ Erro ao converter imagem com FFmpeg:', error);
-        return await sock.sendMessage(from, { text: '❗ Ocorreu um erro ao converter a imagem para figurinha.' });
-      }
-
-      const webpBuffer = fs.readFileSync(outputPath);
-      await sock.sendMessage(from, { sticker: webpBuffer });
-
-      // Apaga arquivos temporários
-      try {
-        fs.unlinkSync(inputPath);
-        fs.unlinkSync(outputPath);
-      } catch (e) {
-        console.warn('⚠️ Falha ao apagar arquivos temporários:', e);
-      }
-    });
-
-  } catch (err) {
-    console.error('❗ Erro geral ao criar figurinha:', err);
-    await sock.sendMessage(from, {
-      text: '❗ Ocorreu um erro ao tentar gerar a figurinha.'
-    });
-  }
+  },
 };

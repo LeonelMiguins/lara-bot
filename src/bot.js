@@ -1,88 +1,251 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const config = require('./config/config');
-const { getHourMinute, loadCommands } = require('./functions/globalFunctions');
-const P = require('pino');
-const qrcode = require('qrcode-terminal');
 const fs = require('fs');
 const path = require('path');
+const qrcode = require('qrcode-terminal');
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const config = require('./config/config');
+const { loadCommands } = require('./core/commandLoader');
+const setupAntiFlood = require('./modules/antiFlood');
+const setupAntiLink = require('./modules/antiLink');
+const setupWelcome = require('./modules/welcome');
+const { error: errorMessage } = require('./utils/respond');
+const { nowLabel, digitsOnly } = require('./utils/text');
+const {
+  ensureDirectory,
+  findParticipantById,
+  getParticipantId,
+  getChatMetadata,
+  getMentionedIds,
+  getQuotedMessage,
+  getSenderId,
+  isAdminParticipant,
+  isSameWhatsAppId,
+  isGroupId,
+  normalizeUserId,
+  resolveUserAliases,
+} = require('./utils/wweb');
 
-const setupWelcome = require('./commands/auto/welcome');
-const antiLink = require('./commands/auto/antiLink');
-const processRank = require('./commands/rank/func/rankSystem');
+const runtimeState = {
+  reconnectAttempts: 0,
+  stopReconnect: false,
+  announcedWaitingForQr: false,
+  pairingCodeRequested: false,
+};
+
+function createClient() {
+  ensureDirectory(config.paths.authDir);
+  ensureDirectory(config.paths.webCacheDir);
+
+  const client = new Client({
+    authStrategy: new LocalAuth({
+      dataPath: config.paths.authDir,
+      clientId: 'lara-bot',
+    }),
+    qrMaxRetries: config.connection.qrMaxRetries,
+    takeoverOnConflict: config.connection.takeoverOnConflict,
+    takeoverTimeoutMs: config.connection.takeoverTimeoutMs,
+    authTimeoutMs: 60000,
+    puppeteer: {
+      headless: config.puppeteer.headless,
+      executablePath: config.puppeteer.executablePath,
+      args: config.puppeteer.args,
+    },
+    webVersionCache: {
+      type: 'local',
+      path: path.join(config.paths.webCacheDir, 'web-version-cache'),
+      strict: false,
+    },
+    pairWithPhoneNumber:
+      config.pairing.mode === 'phone' && config.pairing.experimentalPhoneNumber
+        ? {
+            phoneNumber: digitsOnly(config.pairing.experimentalPhoneNumber),
+            showNotification: config.pairing.showNotification,
+            intervalMs: config.pairing.intervalMs,
+          }
+        : undefined,
+  });
+
+  return client;
+}
+
+async function buildMessageContext(message) {
+  const { chat, chatId, chatName, isGroup } = await getChatMetadata(message);
+  const senderId = normalizeUserId(await getSenderId(message));
+  const mentions = await getMentionedIds(message);
+  const quotedMessage = await getQuotedMessage(message);
+  const me = await message.client.getContactById(message.client.info.wid._serialized);
+  const meId = normalizeUserId(me.id._serialized);
+
+  let senderIsAdmin = false;
+  let botIsAdmin = false;
+  let participants = [];
+
+  if (isGroup) {
+    participants = chat.participants || [];
+    const [senderAliases, meAliases] = await Promise.all([
+      resolveUserAliases(message.client, senderId),
+      resolveUserAliases(message.client, meId),
+    ]);
+
+    senderIsAdmin = Array.from(senderAliases).some((alias) =>
+      isAdminParticipant(findParticipantById(participants, alias)),
+    );
+    botIsAdmin = Array.from(meAliases).some((alias) =>
+      isAdminParticipant(findParticipantById(participants, alias)),
+    );
+  }
+
+  return {
+    chat,
+    chatId,
+    chatName,
+    isGroup,
+    senderId,
+    senderIsAdmin,
+    botIsAdmin,
+    participants,
+    mentions,
+    quotedMessage,
+  };
+}
+
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState('./auth');
+  if (runtimeState.stopReconnect) {
+    return;
+  }
 
-  const sock = makeWASocket({
-    logger: P({ level: 'silent' }),
-    auth: state,
-  });
+  const commands = loadCommands(path.join(__dirname, 'commands'));
+  const client = createClient();
+  const handleAntiFlood = setupAntiFlood(client);
+  const handleAntiLink = setupAntiLink(client);
+  setupWelcome(client);
 
-  setupWelcome(sock);
-
-  const commands = loadCommands(path.join(__dirname, 'commands'), ['welcome.js']);
-
-  sock.ev.on('connection.update', (update) => {
-    const { qr, connection, lastDisconnect } = update;
-
-    if (qr) qrcode.generate(qr, { small: true });
-
-    if (connection === 'close') {
-      const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log('Conexão encerrada. Reconectar?', shouldReconnect);
-      if (shouldReconnect) startBot();
-    }
-
-    if (connection === 'open') {
-      console.log('✅ Conectado com sucesso!');
-      console.log(`✅ Rodando ${config.botName}`);
+  client.on('loading_screen', () => {
+    if (!runtimeState.announcedWaitingForQr) {
+      runtimeState.announcedWaitingForQr = true;
+      console.log(`[${nowLabel()}] Iniciando cliente do WhatsApp Web...`);
     }
   });
 
-  sock.ev.on('messages.upsert', async ({ messages }) => {
-    const msg = messages[0];
-    if (!msg.message) return;
+  client.on('qr', (qr) => {
+    runtimeState.announcedWaitingForQr = false;
+    runtimeState.pairingCodeRequested = false;
+    console.log(`[${nowLabel()}] QR Code gerado. Escaneie com o WhatsApp.`);
+    qrcode.generate(qr, { small: true });
+  });
 
-    if (msg.key.fromMe || msg.key.remoteJid === 'status@broadcast') return;
+  client.on('code', (code) => {
+    runtimeState.pairingCodeRequested = true;
+    console.log(`[${nowLabel()}] Codigo de pareamento: ${code}`);
+  });
 
-    const from = msg.key.remoteJid;
-    const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
+  client.on('authenticated', () => {
+    runtimeState.reconnectAttempts = 0;
+    console.log(`[${nowLabel()}] Sessao autenticada com sucesso.`);
+  });
 
-    await antiLink(sock, msg);
+  client.on('ready', () => {
+    runtimeState.reconnectAttempts = 0;
+    runtimeState.announcedWaitingForQr = false;
+    console.log(`[${nowLabel()}] Conectado com sucesso: ${config.botName}`);
+  });
 
-    const isCommand = body.startsWith(config.prefix); // prefixo do bot no arquivo config.js 
-    if (!isCommand) {
-      await processRank(sock, msg);
+  client.on('auth_failure', (message) => {
+    console.error(`[${nowLabel()}] Falha de autenticacao: ${message}`);
+  });
+
+  client.on('disconnected', async (reason) => {
+    const maxReconnectAttempts = config.connection.maxReconnectAttempts ?? 6;
+    const reconnectDelayMs = config.connection.reconnectDelayMs ?? 3000;
+
+    console.log(`[${nowLabel()}] Conexao encerrada: ${reason}`);
+
+    runtimeState.reconnectAttempts += 1;
+    if (runtimeState.reconnectAttempts >= maxReconnectAttempts) {
+      runtimeState.stopReconnect = true;
+      console.log(`Limite de ${maxReconnectAttempts} reconexoes atingido. Encerrando para evitar loop.`);
       return;
     }
 
-    const args = body.slice(1).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
+    try {
+      await client.destroy();
+    } catch {}
 
-    const command = commands[commandName];
-    if (command) {
-      try {
-        await command(sock, msg, args);
-      } catch (error) {
-        console.error(`Erro no comando ${commandName}:`, error);
-        await sock.sendMessage(from, { text: `❌ Erro ao executar o comando ${commandName}` });
+    await sleep(reconnectDelayMs);
+    startBot();
+  });
+
+  client.on('message', async (message) => {
+    try {
+      const context = await buildMessageContext(message);
+
+      if (!context.chatId || context.chatId === 'status@broadcast') {
+        return;
       }
+
+      const flooded = await handleAntiFlood(message, context);
+      if (flooded) {
+        return;
+      }
+
+      const blocked = await handleAntiLink(message, context);
+      if (blocked) {
+        return;
+      }
+
+      const body = String(message.body || '').trim();
+      if (!body.startsWith(config.prefix)) {
+        return;
+      }
+
+      const parts = body.slice(config.prefix.length).trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) {
+        return;
+      }
+
+      const commandName = parts.shift().toLowerCase();
+      const command = commands.get(commandName);
+      if (!command) {
+        return;
+      }
+
+      if (command.groupOnly && !context.isGroup) {
+        await client.sendMessage(context.chatId, errorMessage('Comando indisponivel', 'Esse comando so pode ser usado em grupos.'));
+        return;
+      }
+
+      if (command.adminOnly && !context.senderIsAdmin) {
+        console.warn(
+          `[${nowLabel()}] [ADMIN-CHECK] sender=${context.senderId} chat=${context.chatId} falhou na validacao de admin. participantes=${context.participants
+            .map((participant) => `${getParticipantId(participant)}:${isAdminParticipant(participant) ? 'admin' : 'membro'}`)
+            .join(', ')}`,
+        );
+        await client.sendMessage(context.chatId, errorMessage('Permissao negada', 'Apenas administradores podem usar esse comando.'));
+        return;
+      }
+
+      await command.execute({
+        client,
+        message,
+        args: parts,
+        body,
+        ...context,
+      });
+    } catch (runtimeError) {
+      console.error('Erro ao processar mensagem:', runtimeError);
+      try {
+        await message.reply(errorMessage('Falha no comando', 'Ocorreu um erro ao executar esse comando.'));
+      } catch {}
     }
   });
 
-  sock.ev.on('creds.update', saveCreds);
+  await client.initialize();
 }
 
-startBot();
-
-setInterval(() => {
-  if (!global._rankCache) return;
-
-  const timestamp = getHourMinute();
-
-  for (const file in global._rankCache) {
-    fs.writeFileSync(file, JSON.stringify(global._rankCache[file], null, 2));
-    console.log(`[${timestamp}] [⬆️ RANK] Dados Atualizados!`);
-  }
-  global._rankCache = {};
-}, 5 * 60 * 1000); // Salva a cada 5 minutos
+startBot().catch((error) => {
+  console.error('Falha fatal ao iniciar o bot:', error);
+  process.exitCode = 1;
+});

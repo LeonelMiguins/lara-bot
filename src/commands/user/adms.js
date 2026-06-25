@@ -1,32 +1,25 @@
-/**
- * Comando !adms para mencionar todos os admins do grupo
- * @param {import('@whiskeysockets/baileys').WASocket} sock 
- * @param {import('@whiskeysockets/baileys').proto.IWebMessageInfo} msg 
- */
-async function adms(sock, msg) {
-  const from = msg.key.remoteJid;
+const { info, warning } = require('../../utils/respond');
 
-  if (!from.endsWith('@g.us')) {
-    await sock.sendMessage(from, { text: '❌ Este comando só pode ser usado em grupos.' });
-    return;
-  }
+module.exports = {
+  name: 'adms',
+  aliases: ['admins'],
+  description: 'Menciona todos os administradores do grupo.',
+  groupOnly: true,
+  adminOnly: false,
+  async execute({ client, chatId, participants }) {
+    const admins = participants
+      .filter((participant) => participant.isAdmin || participant.isSuperAdmin)
+      .map((participant) => participant.id?._serialized)
+      .filter(Boolean);
 
-  const metadata = await sock.groupMetadata(from);
-  
-  // Filtra só os admins (pode ser 'admin' ou 'superadmin')
-  const admins = metadata.participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
+    if (!admins.length) {
+      await client.sendMessage(chatId, warning('Administradores', 'Nao encontrei administradores nesse grupo.'));
+      return;
+    }
 
-  if (admins.length === 0) {
-    await sock.sendMessage(from, { text: '⚠️ Não há administradores no grupo.' });
-    return;
-  }
-
-  const mentions = admins.map(a => a.id);
-  const groupName = metadata.subject || 'este grupo';
-
-  const text = `╭━━━〔 *ADMINISTRADORES* 〕\n\n🔔 Solicitando a atenção de todos os administradores de *${groupName}*:\n\n@${mentions.map(m => m.split('@')[0]).join(' @')}\n\n⚠️ Por favor, fiquem atentos às mensagens e às solicitações do grupo.`;
-
-  await sock.sendMessage(from, { text, mentions });
-}
-
-module.exports = adms;
+    const text = admins.map((jid) => `@${jid.split('@')[0]}`).join(' ');
+    await client.sendMessage(chatId, info('Administradores', `Chamando a administracao:\n${text}`), {
+      mentions: admins,
+    });
+  },
+};

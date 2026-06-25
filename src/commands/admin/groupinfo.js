@@ -1,0 +1,26 @@
+const { info } = require('../../utils/respond');
+
+module.exports = {
+  name: 'groupinfo',
+  aliases: ['infogroup'],
+  description: 'Mostra informacoes do grupo.',
+  groupOnly: true,
+  adminOnly: false,
+  async execute({ client, chatId, chat, participants, chatName }) {
+    const admins = participants.filter(
+      (participant) => participant.isAdmin || participant.isSuperAdmin,
+    ).length;
+
+    await client.sendMessage(
+      chatId,
+      info('Informacoes do grupo', [
+        '*Informacoes do grupo*',
+        `Nome: ${chatName || chat.name || 'Sem nome'}`,
+        `ID: ${chat.id._serialized}`,
+        `Membros: ${participants.length}`,
+        `Admins: ${admins}`,
+        `Descricao: ${chat.description || 'Sem descricao'}`,
+      ].join('\n')),
+    );
+  },
+};

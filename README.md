@@ -1,195 +1,159 @@
+# Lara Bot Base
 
+Base de bot para WhatsApp construída com `whatsapp-web.js`, pensada para servir de ponto de partida para outros bots.
 
-<p align="center">
-  <img src="./icons/ICON.jpg" alt="Lara Bot" width="200"/>
-</p>
+O projeto hoje prioriza:
 
-<h1 align="center">ＬＡＲＡ ＢＯＴ Ｖ１ ☘︎</h1>
+- administração de grupos
+- módulos automáticos
+- deploy simples em Linux
+- manutenção fácil via configuração separada
 
-<p align="center">
-  Um bot moderno e rápido para <strong>WhatsApp</strong> com foco em administração e interação de membros em grupos usando a poderosa biblioteca <a href="https://github.com/WhiskeySockets/Baileys">@whiskeysockets/baileys</a>.<br>
-</p>
+## Stack
 
-<p align="center">
-  <img src="https://img.shields.io/badge/node-20.x-green" alt="Node.js">
-  <img src="https://img.shields.io/badge/platform-WhatsApp-green">
-  <img src="https://img.shields.io/badge/PM2-integrated-blue">
-  <img src="https://img.shields.io/badge/status-active-brightgreen">
-</p>
+- Node.js 20+
+- `whatsapp-web.js`
+- `LocalAuth`
+- `qrcode-terminal`
+- `sharp`
 
+## Recursos da base
 
----
+### Comandos administrativos
 
-## 🚀 Recursos principais
+- `#ban`
+- `#adm`
+- `#sleep on|off`
+- `#tagall`
+- `#bot`
+- `#bot server`
+- `#groupinfo`
 
-- ✅ Boas-vindas automáticas personalizadas para novos membros
-- ✅ Criação de figurinhas (stickers) a partir de imagens
-- ✅ Comandos administrativos: banir, promover e muito mais
-- ✅ Sistema anti-links inteligente: bloqueia links de grupos, sites adultos e casas de aposta
-- ✅ Sistema de ranking com conquistas baseadas na participação nos grupos
-- ✅ Lojinha interativa onde membros podem gastar moedas acumuladas em itens virtuais divertidos
+### Comandos de usuário
 
----
+- `#menu`
+- `#regras`
+- `#link`
+- `#adms`
+- `#figu`
 
-## 🚀 Instalação
+### Módulos automáticos
 
-## Termux (Android)
+- boas-vindas
+- anti-link
+- anti-flood por repetição
 
-### 1. Atualize o termux
+## Estrutura
 
-```bash
-pkg update && pkg upgrade -y
+```text
+src/
+├─ bot.js
+├─ commands/
+│  ├─ admin/
+│  └─ user/
+├─ config/
+├─ core/
+├─ modules/
+└─ utils/
 ```
 
-### 2. Instale o Node e o Git
-
-```bash
-pkg install git nodejs -y
-```
-
-### 2. Instale o ffmpeg
-
-```bash
-pkg install ffmpeg
-```
-🎥 O FFmpeg é essencial para criação de figurinhas e manipulação de mídias.
-
-### 2. Clone o repositorio
-
-```bash
-git clone https://github.com/LeonelMiguins/lara-bot.git
-```
-
-### 3. Instalar as dependências do projeto
+## Instalação local
 
 ```bash
 npm install
-```
-### 4. Rode o Bot
-
-```bash
 npm start
 ```
 
-## Linux (Ubuntu/Debian)
+Na primeira execução, o bot mostra um QR Code no terminal.
 
-### 1. Atualize o sistema
+## Sessão
 
-```bash
-sudo apt update && sudo apt upgrade -y
+O bot usa `LocalAuth` e salva sessão em:
+
+- `.wwebjs_auth`
+- `.wwebjs_cache`
+
+Essas pastas não devem ser versionadas.
+
+Se precisar forçar uma nova autenticação:
+
+1. pare o processo
+2. apague `.wwebjs_auth`
+3. rode `npm start` novamente
+
+## Configuração
+
+Os arquivos de configuração foram divididos por responsabilidade:
+
+```text
+src/config/
+├─ bot.js
+├─ paths.js
+├─ pairing.js
+├─ connection.js
+├─ puppeteer.js
+├─ features.js
+├─ antiFlood.js
+├─ links.js
+├─ rules.js
+└─ config.js
 ```
 
-### 2. Instale o Git
+Arquivos mais úteis no dia a dia:
+
+- [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js): nome do bot, prefixo e dono
+- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js): liga e desliga módulos
+- [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js): blacklist de links
+- [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js): limite e janela do anti-flood
+- [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js): texto do comando `#regras`
+
+## Visual das mensagens
+
+As respostas do bot usam um formatter central em [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js), para manter identidade visual consistente em:
+
+- mensagens informativas
+- confirmações
+- alertas
+- erros
+- moderação automática
+
+## Pairing por número
+
+O projeto mantém suporte experimental a pairing por número em [src/config/pairing.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/pairing.js), mas o modo recomendado continua sendo `QR`.
+
+Se for usar em produção, prefira QR.
+
+## VPS Ubuntu
+
+Resumo rápido:
+
+1. instalar Node 20
+2. instalar Google Chrome e dependências do Puppeteer
+3. rodar `npm install`
+4. iniciar com `npm start`
+5. manter com `pm2`
+
+Detalhamento completo:
+
+- [doc/para usuarios.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para usuarios.md)
+- [doc/para desenvolvedores.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para desenvolvedores.md)
+
+## Scripts
+
+- `npm start`: inicia o bot
+- `npm run smoke`: valida carregamento dos comandos
+
+## Validação recomendada
+
+Antes de subir alterações:
 
 ```bash
-sudo apt install -y git curl
+npm run smoke
 ```
 
-### 3. Instalar Node.js 
+## Documentação adicional
 
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-```
-
-### 3. Clone o repositório do lara-bot
-
-```bash
-git clone https://github.com/LeonelMiguins/lara-bot.git
-```
-### 4. Instale o ffmpeg
-
-```bash
-sudo apt install ffmpeg -y
-```
-🎥 O FFmpeg é essencial para criação de figurinhas e manipulação de mídias.
-
-### 5. Instale as dependências do projeto
-
-```bash
-npm install
-```
-
-## VPS (Ubuntu/Debian)
-* É necessário ter uma conta gratuita na Oracle Cloud e uma instância VPS (máquina virtual) configurada com Ubuntu ou Debian. 
-Crie sua conta aqui: [https://www.oracle.com/cloud/free/](https://www.oracle.com/cloud/free/)
-
-* Segue a instalação normal do linux no passo anterior, a única diferença e que você ira precisar do ```pm2``` instalado para deixa o bot rodando como um processo do sistema linux.
-
-### 1. Instale o PM2
-
-Se você fechar o terminal ou perder a conexão SSH, o bot irá parar. Para mantê-lo sempre ativo como um serviço no Ubuntu, instale o PM2:
-
-```bash
-sudo npm install -g pm2
-```
-
-### 2. Inicie o bot com:
-
-```bash
-pm2 start npm --name lara-bot -- start
-pm2 save
-pm2 startup
-```
----
-
-## Uso
-
-Envie o comando <b>#menu</b> para iniciar o bot.
-
-* O prefixo padrão é ```#```, mas você pode alteralo em ```src/config/config.js```
-
-
-## Colaboradores
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/LeonelMiguins">
-        <img src="https://github.com/LeonelMiguins.png" width="50px;" alt="Leonel Miguins"/>
-        <br />
-        <sub><b>Leonel Miguins</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/suspirinho7">
-        <img src="https://github.com/suspirinho7.png" width="50px;" alt="Cipher"/>
-        <br />
-        <sub><b>Cipher</b></sub>
-      </a>
-    </td>
-        <td align="center">
-      <a href="https://github.com/IsaStwart">
-        <img src="https://github.com/IsaStwart.png" width="50px;" alt="Cipher"/>
-        <br />
-        <sub><b>Isabella</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
-
----
-
-## Licença
-
-### MIT Personalizada – Lara Bot
-
-MIT Personalizada – Lara Bot  
-Copyright (c) 2025 Leonel Miguins e colaboradores
-
-Permissão é concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e dos arquivos de documentação associados *Lara-bot*, para usar, copiar, modificar, mesclar, publicar e distribuir o Software, **exclusivamente para fins pessoais ou educacionais**.
-
-⚠️ É ESTRITAMENTE PROIBIDA a venda ou qualquer tipo de comercialização deste software, seja de forma direta ou indireta.
-
-⚠️ É OBRIGATÓRIO manter os créditos originais ao autor principal e/ou ao repositório oficial:
-
-- Nome: Leonel Miguins  
-- GitHub: https://github.com/LeonelMiguins  
-
-A remoção dos créditos ou qualquer tentativa de se apropriar da autoria original é terminantemente proibida.
-
-O software é fornecido "no estado em que se encontra", sem garantia de qualquer tipo, expressa ou implícita. Em nenhuma circunstância os autores serão responsáveis por quaisquer danos decorrentes do uso deste software.
-
----
-
-Desenvolvido com ❤️ para a comunidade.
+- [doc/para usuarios.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para usuarios.md)
+- [doc/para desenvolvedores.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para desenvolvedores.md)
+- [doc/instalacao-oracle-ubuntu.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/instalacao-oracle-ubuntu.md)
+- [doc/CHANGELOG.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/CHANGELOG.md)
