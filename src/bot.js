@@ -7,21 +7,25 @@ const { loadCommands } = require('./core/commandLoader');
 const setupAntiFlood = require('./modules/antiFlood');
 const setupAntiLink = require('./modules/antiLink');
 const setupWelcome = require('./modules/welcome');
+const { loadGroupSettings } = require('./services/groupSettingsService');
+const logger = require('./services/loggerService');
+const ownerNotifications = require('./services/ownerNotificationService');
+const {
+  findParticipantById,
+  isAdminParticipant,
+  resolveUserAliases,
+} = require('./services/whatsappIdentityService');
 const { error: errorMessage } = require('./utils/respond');
-const { nowLabel, digitsOnly } = require('./utils/text');
+const { digitsOnly } = require('./utils/text');
 const {
   ensureDirectory,
-  findParticipantById,
   getParticipantId,
   getChatMetadata,
   getMentionedIds,
   getQuotedMessage,
   getSenderId,
-  isAdminParticipant,
-  isSameWhatsAppId,
-  isGroupId,
+  normalizeChatId,
   normalizeUserId,
-  resolveUserAliases,
 } = require('./utils/wweb');
 
 const runtimeState = {
@@ -68,22 +72,39 @@ function createClient() {
 }
 
 async function buildMessageContext(message) {
-  const { chat, chatId, chatName, isGroup } = await getChatMetadata(message);
   const senderId = normalizeUserId(await getSenderId(message));
+  const senderIsOwner = ownerNotifications.isOwnerUser(senderId);
+  const { chat } = await getChatMetadata(message);
   const mentions = await getMentionedIds(message);
   const quotedMessage = await getQuotedMessage(message);
-  const me = await message.client.getContactById(message.client.info.wid._serialized);
+
+  return buildChatExecutionContext(message.client, chat, senderId, {
+    senderIsOwner,
+    mentions,
+    quotedMessage,
+  });
+}
+
+async function buildChatExecutionContext(client, chat, senderId, extra = {}) {
+  const chatId = chat.id._serialized;
+  const contact = await chat.getContact();
+  const chatName = chat.name || contact.pushname || contact.name || 'chat';
+  const isGroup = chat.isGroup;
+  const me = await client.getContactById(client.info.wid._serialized);
   const meId = normalizeUserId(me.id._serialized);
+  const senderIsOwner = Boolean(extra.senderIsOwner);
 
   let senderIsAdmin = false;
   let botIsAdmin = false;
   let participants = [];
+  let groupSettings = null;
 
   if (isGroup) {
     participants = chat.participants || [];
+    groupSettings = loadGroupSettings(chatId);
     const [senderAliases, meAliases] = await Promise.all([
-      resolveUserAliases(message.client, senderId),
-      resolveUserAliases(message.client, meId),
+      resolveUserAliases(client, senderId),
+      resolveUserAliases(client, meId),
     ]);
 
     senderIsAdmin = Array.from(senderAliases).some((alias) =>
@@ -100,11 +121,95 @@ async function buildMessageContext(message) {
     chatName,
     isGroup,
     senderId,
+    senderIsOwner,
     senderIsAdmin,
     botIsAdmin,
     participants,
-    mentions,
-    quotedMessage,
+    groupConfig: groupSettings,
+    groupSettings,
+    mentions: extra.mentions || [],
+    quotedMessage: extra.quotedMessage || null,
+    ownerIsOperator: Boolean(extra.ownerIsOperator),
+  };
+}
+
+function parseTargetGroupArgs(args) {
+  const nextArgs = [...args];
+  const flagIndex = nextArgs.findIndex((arg) => ['--grupo', '--group', '-g'].includes(String(arg).toLowerCase()));
+
+  if (flagIndex === -1) {
+    return { targetGroupId: '', args: nextArgs };
+  }
+
+  const rawGroupId = normalizeChatId(nextArgs[flagIndex + 1] || '');
+  const targetGroupId = rawGroupId.endsWith('@g.us') ? rawGroupId : `${rawGroupId.replace(/@.+$/i, '')}@g.us`;
+  nextArgs.splice(flagIndex, 2);
+
+  return {
+    targetGroupId,
+    args: nextArgs,
+  };
+}
+
+async function resolveExecutionContext(client, message, command, args, baseContext) {
+  if (baseContext.isGroup) {
+    return {
+      context: baseContext,
+      args,
+      body: String(message.body || '').trim(),
+    };
+  }
+
+  if (!baseContext.senderIsOwner) {
+    return {
+      error: 'Somente o dono do bot pode executar comandos de grupo no privado.',
+    };
+  }
+
+  if (!command.groupOnly) {
+    return {
+      context: {
+        ...baseContext,
+        ownerIsOperator: true,
+      },
+      args,
+      body: String(message.body || '').trim(),
+    };
+  }
+
+  const parsed = parseTargetGroupArgs(args);
+  if (!parsed.targetGroupId) {
+    return {
+      error: `Use *${config.prefix}grupos* para listar os grupos e *--grupo <ID_DO_GRUPO>* para escolher o alvo.`,
+    };
+  }
+
+  let targetChat;
+  try {
+    targetChat = await client.getChatById(parsed.targetGroupId);
+  } catch {
+    return {
+      error: 'Nao consegui encontrar esse grupo alvo.',
+    };
+  }
+
+  if (!targetChat?.isGroup) {
+    return {
+      error: 'O ID informado nao pertence a um grupo.',
+    };
+  }
+
+  const context = await buildChatExecutionContext(client, targetChat, baseContext.senderId, {
+    senderIsOwner: true,
+    mentions: [],
+    quotedMessage: null,
+    ownerIsOperator: true,
+  });
+
+  return {
+    context,
+    args: parsed.args,
+    body: `${config.prefix}${command.name}${parsed.args.length ? ` ${parsed.args.join(' ')}` : ''}`,
   };
 }
 
@@ -126,47 +231,49 @@ async function startBot() {
   client.on('loading_screen', () => {
     if (!runtimeState.announcedWaitingForQr) {
       runtimeState.announcedWaitingForQr = true;
-      console.log(`[${nowLabel()}] Iniciando cliente do WhatsApp Web...`);
+      logger.runtimeEvent('client.loading');
     }
   });
 
   client.on('qr', (qr) => {
     runtimeState.announcedWaitingForQr = false;
     runtimeState.pairingCodeRequested = false;
-    console.log(`[${nowLabel()}] QR Code gerado. Escaneie com o WhatsApp.`);
+    logger.runtimeEvent('client.qr.generated');
     qrcode.generate(qr, { small: true });
   });
 
   client.on('code', (code) => {
     runtimeState.pairingCodeRequested = true;
-    console.log(`[${nowLabel()}] Codigo de pareamento: ${code}`);
+    logger.runtimeEvent('client.pairing_code.generated', { code });
   });
 
   client.on('authenticated', () => {
     runtimeState.reconnectAttempts = 0;
-    console.log(`[${nowLabel()}] Sessao autenticada com sucesso.`);
+    logger.runtimeEvent('client.authenticated');
   });
 
   client.on('ready', () => {
     runtimeState.reconnectAttempts = 0;
     runtimeState.announcedWaitingForQr = false;
-    console.log(`[${nowLabel()}] Conectado com sucesso: ${config.botName}`);
+    logger.runtimeEvent('client.ready', { botName: config.botName });
   });
 
   client.on('auth_failure', (message) => {
-    console.error(`[${nowLabel()}] Falha de autenticacao: ${message}`);
+    logger.runtimeWarn('client.auth_failure', { message });
   });
 
   client.on('disconnected', async (reason) => {
     const maxReconnectAttempts = config.connection.maxReconnectAttempts ?? 6;
     const reconnectDelayMs = config.connection.reconnectDelayMs ?? 3000;
 
-    console.log(`[${nowLabel()}] Conexao encerrada: ${reason}`);
+    logger.runtimeWarn('client.disconnected', { reason });
 
     runtimeState.reconnectAttempts += 1;
     if (runtimeState.reconnectAttempts >= maxReconnectAttempts) {
       runtimeState.stopReconnect = true;
-      console.log(`Limite de ${maxReconnectAttempts} reconexoes atingido. Encerrando para evitar loop.`);
+      logger.runtimeWarn('client.reconnect_limit_reached', {
+        maxReconnectAttempts,
+      });
       return;
     }
 
@@ -179,8 +286,12 @@ async function startBot() {
   });
 
   client.on('message', async (message) => {
+    let activeContext = {};
+    let activeCommandName = 'unknown';
+
     try {
       const context = await buildMessageContext(message);
+      activeContext = context;
 
       if (!context.chatId || context.chatId === 'status@broadcast') {
         return;
@@ -207,35 +318,59 @@ async function startBot() {
       }
 
       const commandName = parts.shift().toLowerCase();
+      activeCommandName = commandName;
       const command = commands.get(commandName);
       if (!command) {
         return;
       }
 
-      if (command.groupOnly && !context.isGroup) {
+      const execution = await resolveExecutionContext(client, message, command, parts, context);
+      if (execution.error) {
+        logger.commandRejected(command.name, 'target_context_missing', context);
+        await client.sendMessage(context.chatId, errorMessage('Comando indisponivel', execution.error));
+        return;
+      }
+
+      const executionContext = execution.context;
+      const executionArgs = execution.args;
+      const executionBody = execution.body;
+      activeContext = executionContext;
+
+      logger.commandReceived(command.name, executionArgs, executionContext);
+
+      if (command.ownerOnly && !executionContext.senderIsOwner) {
+        logger.commandRejected(command.name, 'owner_only', executionContext);
+        await client.sendMessage(context.chatId, errorMessage('Permissao negada', 'Apenas o dono do bot pode usar esse comando.'));
+        return;
+      }
+
+      if (command.groupOnly && !executionContext.isGroup) {
+        logger.commandRejected(command.name, 'group_only', executionContext);
         await client.sendMessage(context.chatId, errorMessage('Comando indisponivel', 'Esse comando so pode ser usado em grupos.'));
         return;
       }
 
-      if (command.adminOnly && !context.senderIsAdmin) {
-        console.warn(
-          `[${nowLabel()}] [ADMIN-CHECK] sender=${context.senderId} chat=${context.chatId} falhou na validacao de admin. participantes=${context.participants
-            .map((participant) => `${getParticipantId(participant)}:${isAdminParticipant(participant) ? 'admin' : 'membro'}`)
-            .join(', ')}`,
-        );
+      if (command.adminOnly && !executionContext.senderIsAdmin && !executionContext.ownerIsOperator) {
+        logger.commandRejected(command.name, 'admin_only', executionContext, {
+          participants: executionContext.participants
+            .map((participant) => `${getParticipantId(participant)}:${isAdminParticipant(participant) ? 'admin' : 'membro'}`),
+        });
         await client.sendMessage(context.chatId, errorMessage('Permissao negada', 'Apenas administradores podem usar esse comando.'));
         return;
       }
 
+      const startedAt = Date.now();
       await command.execute({
         client,
         message,
-        args: parts,
-        body,
-        ...context,
+        args: executionArgs,
+        body: executionBody,
+        ...executionContext,
       });
+      logger.commandCompleted(command.name, Date.now() - startedAt, executionContext);
+      await ownerNotifications.notifyCommandExecuted(client, command.name, executionContext, Date.now() - startedAt);
     } catch (runtimeError) {
-      console.error('Erro ao processar mensagem:', runtimeError);
+      logger.commandFailed(activeCommandName, runtimeError, activeContext);
       try {
         await message.reply(errorMessage('Falha no comando', 'Ocorreu um erro ao executar esse comando.'));
       } catch {}
@@ -246,6 +381,6 @@ async function startBot() {
 }
 
 startBot().catch((error) => {
-  console.error('Falha fatal ao iniciar o bot:', error);
+  logger.runtimeError('client.start_fatal', error);
   process.exitCode = 1;
 });

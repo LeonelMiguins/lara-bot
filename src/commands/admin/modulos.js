@@ -1,6 +1,10 @@
 const config = require('../../config/config');
+const {
+  getFeatureEntries,
+  isKnownFeature,
+  setGroupFeature,
+} = require('../../services/groupSettingsService');
 const { error, info, success, warning } = require('../../utils/respond');
-const { getFeatureEntries, isKnownFeature, setFeature } = require('../../utils/featureToggle');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
@@ -21,12 +25,12 @@ module.exports = {
   description: 'Lista e controla os modulos automáticos do bot.',
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args }) {
+  async execute({ client, chatId, args, groupConfig }) {
     if (!args.length) {
       const body = [
         '*Modulos automáticos*',
         '',
-        ...getFeatureEntries().map(([featureName, enabled]) =>
+        ...getFeatureEntries(groupConfig).map(([featureName, enabled]) =>
           formatFeatureStatus(featureName, enabled),
         ),
         '',
@@ -66,7 +70,7 @@ module.exports = {
     }
 
     const enabled = action === 'on';
-    setFeature(featureName, enabled);
+    setGroupFeature(chatId, featureName, enabled);
 
     await client.sendMessage(
       chatId,

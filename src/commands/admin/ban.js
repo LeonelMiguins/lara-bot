@@ -1,6 +1,8 @@
 const config = require('../../config/config');
+const ownerNotifications = require('../../services/ownerNotificationService');
+const { resolveParticipant } = require('../../services/whatsappIdentityService');
 const { error, moderation, warning } = require('../../utils/respond');
-const { getParticipantId, normalizeChatId, resolveParticipant, toContactId } = require('../../utils/wweb');
+const { getParticipantId, normalizeChatId, toContactId } = require('../../utils/wweb');
 
 function extractTargetFromText(text) {
   const match = text.match(/@?(\d{10,16})/);
@@ -13,7 +15,7 @@ module.exports = {
   description: 'Remove um membro do grupo.',
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, message, chat, chatId, body, participants, mentions, quotedMessage }) {
+  async execute({ client, message, chat, chatId, body, participants, mentions, quotedMessage, chatName }) {
     const fromMention = mentions[0];
     const fromReply = quotedMessage?.author || quotedMessage?.from || '';
     const fromText = extractTargetFromText(body);
@@ -47,5 +49,11 @@ module.exports = {
         mentions: [participantId],
       },
     );
+
+    await ownerNotifications.notifyModerationEvent(client, 'Remocao de membro', [
+      `Grupo: ${chatName || chat.name || chatId}`,
+      `Membro: ${participantId}`,
+      'Acao: removido do grupo',
+    ]);
   },
 };

@@ -1,6 +1,13 @@
 const config = require('../../config/config');
+const ownerNotifications = require('../../services/ownerNotificationService');
+const { resolveParticipant } = require('../../services/whatsappIdentityService');
 const { error, success, warning } = require('../../utils/respond');
-const { getParticipantId, normalizeChatId, resolveParticipant } = require('../../utils/wweb');
+const { getParticipantId, normalizeChatId, toContactId } = require('../../utils/wweb');
+
+function extractTargetFromText(text) {
+  const match = String(text || '').match(/@?(\d{10,16})/);
+  return match ? toContactId(match[1]) : '';
+}
 
 module.exports = {
   name: 'adm',
@@ -8,9 +15,9 @@ module.exports = {
   description: 'Promove um membro a administrador.',
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, message, chat, chatId, mentions, quotedMessage, participants }) {
+  async execute({ client, message, chat, chatId, body, mentions, quotedMessage, participants, chatName }) {
     const target = normalizeChatId(
-      mentions[0] || quotedMessage?.author || quotedMessage?.from || '',
+      mentions[0] || quotedMessage?.author || quotedMessage?.from || extractTargetFromText(body),
     );
 
     if (!target) {
@@ -41,5 +48,11 @@ module.exports = {
         mentions: [participantId],
       },
     );
+
+    await ownerNotifications.notifyModerationEvent(client, 'Promocao de administrador', [
+      `Grupo: ${chatName || chat.name || chatId}`,
+      `Membro: ${participantId}`,
+      'Acao: promovido a administrador',
+    ]);
   },
 };

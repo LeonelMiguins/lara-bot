@@ -1,14 +1,17 @@
 const config = require('../config/config');
+const { loadGroupSettings } = require('../services/groupSettingsService');
+const logger = require('../services/loggerService');
 const { info } = require('../utils/respond');
 
 module.exports = function setupWelcome(client) {
-  if (!config.features.welcome) {
-    return;
-  }
-
   client.on('group_join', async (notification) => {
     try {
       const chat = await notification.getChat();
+      const groupSettings = loadGroupSettings(chat.id._serialized);
+      if (!groupSettings.features?.welcome) {
+        return;
+      }
+
       const contacts = await notification.getRecipients();
 
       for (const contact of contacts) {
@@ -27,9 +30,18 @@ module.exports = function setupWelcome(client) {
         await client.sendMessage(chat.id._serialized, text, {
           mentions: [contact.id._serialized],
         });
+
+        logger.groupEvent('welcome.sent', {
+          chatId: chat.id._serialized,
+          chatName: chat.name,
+          isGroup: true,
+        }, {
+          participantId: contact.id._serialized,
+          participantName: displayName,
+        });
       }
     } catch (error) {
-      console.error('Erro ao processar boas-vindas:', error.message);
+      logger.runtimeError('welcome.failed', error);
     }
   });
 };

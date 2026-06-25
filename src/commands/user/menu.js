@@ -20,6 +20,10 @@ module.exports = {
       `${p}bot`,
       `${p}bot server`,
       `${p}modulos`,
+      `${p}boasvindas on|off`,
+      `${p}antilink on|off`,
+      `${p}blacklist`,
+      `${p}antiflood on|off`,
       '',
       '*Automaticos*',
       '🟢/🔴 Controle por #modulos',
@@ -33,7 +37,6 @@ module.exports = {
       `${p}groupinfo`,
       `${p}link`,
       `${p}adms`,
-      `${p}figu`,
     ].join('\n');
 
     await client.sendMessage(chatId, info('Menu principal', text));

@@ -1,7 +1,9 @@
 const config = require('../config/config');
+const logger = require('../services/loggerService');
+const ownerNotifications = require('../services/ownerNotificationService');
+const { resolveParticipantId } = require('../services/whatsappIdentityService');
 const { moderation } = require('../utils/respond');
-const { idToHandle, resolveParticipantId } = require('../utils/wweb');
-const { nowLabel } = require('../utils/text');
+const { idToHandle } = require('../utils/wweb');
 
 function normalizeMessageText(text) {
   return String(text || '')
@@ -12,16 +14,14 @@ function normalizeMessageText(text) {
 
 module.exports = function setupAntiFlood(client) {
   const tracker = new Map();
-  const threshold = config.antiFlood?.repeatedMessagesThreshold ?? 10;
-  const windowMs = config.antiFlood?.windowMs ?? 15000;
-  const minMessageLength = config.antiFlood?.minMessageLength ?? 2;
   const cleanupIntervalMs = config.antiFlood?.cleanupIntervalMs ?? 60000;
+  const fallbackWindowMs = config.antiFlood?.windowMs ?? 15000;
 
   function pruneExpiredEntries() {
     const now = Date.now();
 
     for (const [key, entry] of tracker.entries()) {
-      entry.timestamps = entry.timestamps.filter((timestamp) => now - timestamp <= windowMs);
+      entry.timestamps = entry.timestamps.filter((timestamp) => now - timestamp <= fallbackWindowMs);
 
       if (!entry.timestamps.length) {
         tracker.delete(key);
@@ -35,13 +35,17 @@ module.exports = function setupAntiFlood(client) {
   }
 
   return async function handleAntiFlood(message, context) {
-    if (!config.features.antiFlood || !context.isGroup) {
+    if (!context.isGroup || !context.groupConfig?.features?.antiFlood) {
       return false;
     }
 
     if (context.senderIsAdmin || !context.botIsAdmin) {
       return false;
     }
+
+    const threshold = context.groupConfig.antiFlood?.repeatedMessagesThreshold ?? config.antiFlood?.repeatedMessagesThreshold ?? 10;
+    const windowMs = context.groupConfig.antiFlood?.windowMs ?? config.antiFlood?.windowMs ?? 15000;
+    const minMessageLength = context.groupConfig.antiFlood?.minMessageLength ?? config.antiFlood?.minMessageLength ?? 2;
 
     const normalizedText = normalizeMessageText(message.body);
     if (!normalizedText || normalizedText.length < minMessageLength) {
@@ -68,14 +72,18 @@ module.exports = function setupAntiFlood(client) {
 
     const participantId = await resolveParticipantId(client, context.participants, context.senderId);
     if (!participantId) {
-      console.error('Erro ao remover participante por flood: participante nao resolvido.');
+      logger.runtimeWarn('anti_flood.participant_unresolved', logger.buildMessageMeta(context, {
+        repeatedCount: entry.timestamps.length,
+      }));
       return false;
     }
 
     try {
       await context.chat.removeParticipants([participantId]);
     } catch (error) {
-      console.error('Erro ao remover participante por flood:', error.message);
+      logger.runtimeError('anti_flood.remove_failed', error, logger.buildMessageMeta(context, {
+        participantId,
+      }));
       return false;
     }
 
@@ -88,9 +96,18 @@ module.exports = function setupAntiFlood(client) {
       { mentions: [participantId] },
     );
 
-    console.log(
-      `[${nowLabel()}] [ANTI-FLOOD] ${context.senderId} removido(a) por repetir ${entry.timestamps.length} mensagens em ${windowMs}ms.`,
-    );
+    logger.groupEvent('anti_flood.removed', context, {
+      participantId,
+      repeatedCount: entry.timestamps.length,
+      windowMs,
+    });
+
+    await ownerNotifications.notifyModerationEvent(client, 'Anti-flood acionado', [
+      `Grupo: ${context.chatName || context.chatId}`,
+      `Membro: ${participantId}`,
+      `Repeticoes: ${entry.timestamps.length}`,
+      `Janela: ${windowMs}ms`,
+    ]);
 
     return true;
   };

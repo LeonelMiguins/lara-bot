@@ -15,7 +15,6 @@ O projeto hoje prioriza:
 - `whatsapp-web.js`
 - `LocalAuth`
 - `qrcode-terminal`
-- `sharp`
 
 ## Recursos da base
 
@@ -28,6 +27,10 @@ O projeto hoje prioriza:
 - `#bot`
 - `#bot server`
 - `#groupinfo`
+- `#boasvindas on|off`
+- `#antilink on|off`
+- `#blacklist`
+- `#antiflood`
 
 ### Comandos de usuário
 
@@ -35,7 +38,6 @@ O projeto hoje prioriza:
 - `#regras`
 - `#link`
 - `#adms`
-- `#figu`
 
 ### Módulos automáticos
 
@@ -54,6 +56,7 @@ src/
 ├─ config/
 ├─ core/
 ├─ modules/
+├─ services/
 └─ utils/
 ```
 
@@ -83,7 +86,7 @@ Se precisar forçar uma nova autenticação:
 
 ## Configuração
 
-Os arquivos de configuração foram divididos por responsabilidade:
+Os arquivos de configuração-base foram divididos por responsabilidade:
 
 ```text
 src/config/
@@ -106,6 +109,73 @@ Arquivos mais úteis no dia a dia:
 - [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js): blacklist de links
 - [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js): limite e janela do anti-flood
 - [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js): texto do comando `#regras`
+
+## Configuração por grupo
+
+Cada grupo agora recebe um arquivo próprio em:
+
+- `data/groups/`
+
+Na primeira interação do grupo com o bot, um arquivo `.json` é criado automaticamente com:
+
+- módulos automáticos
+- regras
+- blacklist
+- configurações do anti-flood
+
+Os arquivos em `src/config/` funcionam como valores padrão para novos grupos.
+
+O grupo também pode ser ajustado pelo próprio bot com comandos administrativos:
+
+- `#modulos`
+- `#boasvindas on|off`
+- `#antilink on|off`
+- `#regras add|del|reset`
+- `#blacklist add|del|reset`
+- `#antiflood on|off|limite|janela|minimo|reset`
+
+## Comandos do dono no privado
+
+O dono do bot agora pode usar comandos no privado e apontar um grupo alvo com:
+
+- `--grupo <ID_DO_GRUPO>`
+
+Exemplos:
+
+- `#grupos`
+- `#notificacoes on`
+- `#antilink --grupo 1203...@g.us on`
+- `#boasvindas --grupo 1203...@g.us off`
+- `#antiflood --grupo 1203...@g.us limite 8`
+- `#ban --grupo 1203...@g.us 5511999999999`
+- `#adm --grupo 1203...@g.us 5511999999999`
+
+Comandos privados do dono:
+
+- `#grupos`: lista os grupos e os IDs
+- `#notificacoes on|off`: liga ou desliga alertas privados do bot
+
+## Camada de serviços
+
+O projeto agora possui uma camada dedicada em `src/services/` para separar responsabilidades:
+
+- `storage/JsonFileStore.js`: persistência JSON reutilizável
+- `groupSettingsService.js`: leitura, criação, migração simples e atualização das configurações por grupo
+- `whatsappIdentityService.js`: resolução de identidade `lid/c.us`, busca de participantes e checagens relacionadas ao WhatsApp
+- `loggerService.js`: logs padronizados de runtime, comandos, grupos e erros com contexto
+
+## Logs
+
+Os logs do bot agora são salvos em:
+
+- `logs/bot.log`
+
+Eles incluem:
+
+- recebimento e conclusão de comandos
+- rejeições por permissão ou contexto
+- eventos por grupo
+- erros com contexto do chat e do remetente
 
 ## Visual das mensagens
 

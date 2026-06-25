@@ -4,6 +4,9 @@ auth/
 temp/
 .wwebjs_auth/
 .wwebjs_cache/
+data/groups/
+data/system/
+logs/
 
 # Ignorar arquivos sensíveis e desnecessários
 .env
