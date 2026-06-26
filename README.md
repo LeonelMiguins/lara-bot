@@ -1,229 +1,208 @@
-# Lara Bot Base
+<div align="center">
+  <img src="./icons/ICON.jpg" alt="Lara Bot" width="240" />
 
-Base de bot para WhatsApp construída com `whatsapp-web.js`, pensada para servir de ponto de partida para outros bots.
+  <h1>LARA BOT BASE</h1>
 
-O projeto hoje prioriza:
+  <p>
+    Base moderna para bots de <strong>WhatsApp</strong> com foco em
+    <strong>administração de grupos</strong>, <strong>módulos automáticos</strong>,
+    <strong>configuração por grupo</strong> e <strong>operação do dono no privado</strong>.
+  </p>
 
-- administração de grupos
-- módulos automáticos
-- deploy simples em Linux
-- manutenção fácil via configuração separada
+  <p>
+    <img src="https://img.shields.io/badge/node-20.x-5fa04e?style=for-the-badge&logo=node.js&logoColor=white" alt="Node 20.x" />
+    <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-2f3545?style=for-the-badge" alt="Platform" />
+    <img src="https://img.shields.io/badge/whatsapp-web.js-25d366?style=for-the-badge" alt="whatsapp-web.js" />
+    <img src="https://img.shields.io/badge/auth-QR%20Code-5865f2?style=for-the-badge" alt="QR Code" />
+    <img src="https://img.shields.io/badge/status-active-2ea043?style=for-the-badge" alt="Status" />
+  </p>
+</div>
 
-## Stack
+---
 
-- Node.js 20+
-- `whatsapp-web.js`
-- `LocalAuth`
-- `qrcode-terminal`
+## ✨ Visão geral
 
-## Recursos da base
+O projeto foi reestruturado para servir como fundação de outros bots. A base hoje entrega:
 
-### Comandos administrativos
+- comandos administrativos prontos para grupo
+- módulos automáticos com `on/off` por grupo
+- regras, blacklist e anti-flood editáveis pelo próprio bot
+- suporte ao dono no privado com `--grupo <ID_DO_GRUPO>`
+- notificações privadas do dono com `on/off`
+- logs estruturados em arquivo
+- persistência simples em JSON
 
-- `#ban`
-- `#adm`
-- `#sleep on|off`
-- `#tagall`
-- `#bot`
-- `#bot server`
-- `#groupinfo`
-- `#boasvindas on|off`
-- `#antilink on|off`
-- `#blacklist`
-- `#antiflood`
+## 🚀 Recursos principais
 
-### Comandos de usuário
+- ✅ Boas-vindas automáticas
+- ✅ Mensagem automática quando membro sai
+- ✅ Anti-link com ação por categoria: `apagar` ou `banir`
+- ✅ Anti-flood com limite e janela configuráveis
+- ✅ Configuração por grupo em `data/groups/`
+- ✅ Operação do dono pelo privado
+- ✅ Logs em `logs/bot.log`
+- ✅ Estrutura preparada para derivar outros bots
 
-- `#menu`
-- `#regras`
-- `#link`
-- `#adms`
+## 🧩 Comandos principais
 
-### Módulos automáticos
+### Administração
 
-- boas-vindas
-- anti-link
-- anti-flood por repetição
+```text
+#ban @membro
+#adm @membro
+#sleep on|off
+#tagall
+#bot
+#bot server
+#modulos
+#boasvindas on|off
+#antilink on|off
+#antilink acao <whatsapp|adulto|apostas> <apagar|banir>
+#blacklist
+#antiflood on|off
+#antiflood limite <numero>
+#antiflood janela <segundos>
+#antiflood minimo <numero>
+```
 
-## Estrutura
+### Usuário
+
+```text
+#menu
+#regras
+#statusgrupo
+#groupinfo
+#link
+#adms
+```
+
+### Dono no privado
+
+```text
+#grupos
+#notificacoes on|off
+#antilink --grupo 1203...@g.us on
+#boasvindas --grupo 1203...@g.us off
+#antiflood --grupo 1203...@g.us limite 8
+#ban --grupo 1203...@g.us 5511999999999
+```
+
+## ⚙️ Módulos automáticos
+
+| Módulo | O que faz | Controle |
+|---|---|---|
+| `welcome` | envia mensagem quando alguém entra | `#boasvindas on/off` |
+| `farewell` | envia mensagem quando alguém sai | `#modulos farewell on/off` |
+| `antiLink` | apaga links proibidos e pode banir | `#antilink` |
+| `antiFlood` | remove quem flooda repetição | `#antiflood` |
+
+## 🗂️ Configuração por grupo
+
+Cada grupo ganha um arquivo próprio em:
+
+```text
+data/groups/
+```
+
+Esse arquivo guarda:
+
+- módulos ligados e desligados
+- regras do grupo
+- blacklist por categoria
+- ação do anti-link por categoria
+- limites do anti-flood
+
+Os padrões para novos grupos ficam em:
+
+- [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js)
+- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js)
+- [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js)
+- [src/config/antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiLink.js)
+- [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js)
+- [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js)
+
+## 🧠 Arquitetura
 
 ```text
 src/
 ├─ bot.js
 ├─ commands/
 │  ├─ admin/
+│  ├─ owner/
 │  └─ user/
 ├─ config/
 ├─ core/
 ├─ modules/
 ├─ services/
+│  └─ storage/
 └─ utils/
 ```
 
-## Instalação local
+### Camada de serviços
+
+- [groupSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/groupSettingsService.js)
+- [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
+- [ownerNotificationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerNotificationService.js)
+- [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
+- [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
+- [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
+
+## 📦 Instalação rápida
 
 ```bash
 npm install
 npm start
 ```
 
-Na primeira execução, o bot mostra um QR Code no terminal.
+Primeira execução:
 
-## Sessão
+1. o QR Code aparece no terminal
+2. você escaneia com o WhatsApp
+3. a sessão fica salva em `.wwebjs_auth`
 
-O bot usa `LocalAuth` e salva sessão em:
-
-- `.wwebjs_auth`
-- `.wwebjs_cache`
-
-Essas pastas não devem ser versionadas.
-
-Se precisar forçar uma nova autenticação:
-
-1. pare o processo
-2. apague `.wwebjs_auth`
-3. rode `npm start` novamente
-
-## Configuração
-
-Os arquivos de configuração-base foram divididos por responsabilidade:
-
-```text
-src/config/
-├─ bot.js
-├─ paths.js
-├─ pairing.js
-├─ connection.js
-├─ puppeteer.js
-├─ features.js
-├─ antiFlood.js
-├─ links.js
-├─ rules.js
-└─ config.js
-```
-
-Arquivos mais úteis no dia a dia:
-
-- [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js): nome do bot, prefixo e dono
-- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js): liga e desliga módulos
-- [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js): blacklist de links
-- [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js): limite e janela do anti-flood
-- [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js): texto do comando `#regras`
-
-## Configuração por grupo
-
-Cada grupo agora recebe um arquivo próprio em:
-
-- `data/groups/`
-
-Na primeira interação do grupo com o bot, um arquivo `.json` é criado automaticamente com:
-
-- módulos automáticos
-- regras
-- blacklist
-- configurações do anti-flood
-
-Os arquivos em `src/config/` funcionam como valores padrão para novos grupos.
-
-O grupo também pode ser ajustado pelo próprio bot com comandos administrativos:
-
-- `#modulos`
-- `#boasvindas on|off`
-- `#antilink on|off`
-- `#regras add|del|reset`
-- `#blacklist add|del|reset`
-- `#antiflood on|off|limite|janela|minimo|reset`
-
-## Comandos do dono no privado
-
-O dono do bot agora pode usar comandos no privado e apontar um grupo alvo com:
-
-- `--grupo <ID_DO_GRUPO>`
-
-Exemplos:
-
-- `#grupos`
-- `#notificacoes on`
-- `#antilink --grupo 1203...@g.us on`
-- `#boasvindas --grupo 1203...@g.us off`
-- `#antiflood --grupo 1203...@g.us limite 8`
-- `#ban --grupo 1203...@g.us 5511999999999`
-- `#adm --grupo 1203...@g.us 5511999999999`
-
-Comandos privados do dono:
-
-- `#grupos`: lista os grupos e os IDs
-- `#notificacoes on|off`: liga ou desliga alertas privados do bot
-
-## Camada de serviços
-
-O projeto agora possui uma camada dedicada em `src/services/` para separar responsabilidades:
-
-- `storage/JsonFileStore.js`: persistência JSON reutilizável
-- `groupSettingsService.js`: leitura, criação, migração simples e atualização das configurações por grupo
-- `whatsappIdentityService.js`: resolução de identidade `lid/c.us`, busca de participantes e checagens relacionadas ao WhatsApp
-- `loggerService.js`: logs padronizados de runtime, comandos, grupos e erros com contexto
-
-## Logs
-
-Os logs do bot agora são salvos em:
-
-- `logs/bot.log`
-
-Eles incluem:
-
-- recebimento e conclusão de comandos
-- rejeições por permissão ou contexto
-- eventos por grupo
-- erros com contexto do chat e do remetente
-
-## Visual das mensagens
-
-As respostas do bot usam um formatter central em [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js), para manter identidade visual consistente em:
-
-- mensagens informativas
-- confirmações
-- alertas
-- erros
-- moderação automática
-
-## Pairing por número
-
-O projeto mantém suporte experimental a pairing por número em [src/config/pairing.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/pairing.js), mas o modo recomendado continua sendo `QR`.
-
-Se for usar em produção, prefira QR.
-
-## VPS Ubuntu
-
-Resumo rápido:
-
-1. instalar Node 20
-2. instalar Google Chrome e dependências do Puppeteer
-3. rodar `npm install`
-4. iniciar com `npm start`
-5. manter com `pm2`
-
-Detalhamento completo:
-
-- [doc/para usuarios.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para usuarios.md)
-- [doc/para desenvolvedores.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para desenvolvedores.md)
-
-## Scripts
-
-- `npm start`: inicia o bot
-- `npm run smoke`: valida carregamento dos comandos
-
-## Validação recomendada
-
-Antes de subir alterações:
+Para validar a base:
 
 ```bash
 npm run smoke
 ```
 
-## Documentação adicional
+## 🔐 Sessão e dados
 
-- [doc/para usuarios.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para usuarios.md)
-- [doc/para desenvolvedores.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para desenvolvedores.md)
-- [doc/instalacao-oracle-ubuntu.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/instalacao-oracle-ubuntu.md)
-- [doc/CHANGELOG.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/CHANGELOG.md)
+Pastas geradas em runtime:
+
+```text
+.wwebjs_auth/
+.wwebjs_cache/
+data/groups/
+data/system/
+logs/
+```
+
+Se precisar reautenticar:
+
+1. pare o processo
+2. apague `.wwebjs_auth`
+3. rode `npm start` novamente
+
+## 📝 Logs
+
+Os logs ficam em:
+
+```text
+logs/bot.log
+```
+
+Eles registram:
+
+- comandos recebidos e concluídos
+- rejeições por permissão ou contexto
+- eventos automáticos por grupo
+- erros com contexto
+
+## 📚 Documentação
+
+- [Guia de comandos](./doc/guia-de-comandos.md)
+- [Guia do usuário](./doc/para%20usuarios.md)
+- [Guia para desenvolvedores](./doc/para%20desenvolvedores.md)
+- [Instalação na Oracle Ubuntu](./doc/instalacao-oracle-ubuntu.md)
+- [Changelog](./doc/CHANGELOG.md)

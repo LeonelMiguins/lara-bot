@@ -1,17 +1,18 @@
 # Guia para Desenvolvedores
 
-Este documento descreve a arquitetura atual da base e como evoluí-la com segurança.
+Este documento descreve a arquitetura atual da base e o jeito mais seguro de evoluí-la.
 
 ## Objetivo da base
 
-A ideia deste projeto é servir como fundação para outros bots, com:
+O projeto foi estruturado para servir como ponto de partida para outros bots de WhatsApp, com foco em:
 
-- estrutura modular
-- configuração separada
-- comandos simples de expandir
-- foco em grupos
+- comandos reutilizáveis
+- configuração por grupo
+- operação do dono pelo privado
+- persistência simples em JSON
+- manutenção fácil
 
-## Arquitetura
+## Visão de arquitetura
 
 ### Entrada principal
 
@@ -23,10 +24,10 @@ Responsabilidades:
 
 - inicializar o `Client`
 - configurar `LocalAuth`
-- lidar com eventos do WhatsApp
-- carregar comandos
-- montar contexto de mensagem
-- executar módulos automáticos antes dos comandos
+- montar o contexto de execução
+- aceitar comandos de grupo e do dono no privado
+- despachar módulos automáticos
+- acionar logs e notificações
 
 ### Loader de comandos
 
@@ -34,64 +35,111 @@ Arquivo:
 
 - [src/core/commandLoader.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/core/commandLoader.js)
 
-Cada comando exporta um objeto com:
+Contrato de cada comando:
 
 - `name`
 - `aliases`
 - `description`
 - `groupOnly`
 - `adminOnly`
+- `ownerOnly` opcional
 - `execute(...)`
 
-### Módulos automáticos
+### Camadas principais
 
-Arquivos:
+#### `commands/`
 
-- [src/modules/welcome.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/welcome.js)
-- [src/modules/antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/antiLink.js)
-- [src/modules/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/antiFlood.js)
+Separado por papel:
 
-Eles rodam antes da etapa de despacho de comandos.
+- `admin/`
+- `owner/`
+- `user/`
 
-### Helpers
+#### `modules/`
 
-Arquivos principais:
+Automatizações acionadas por eventos do WhatsApp:
 
-- [src/utils/wweb.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/wweb.js)
-- [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js)
-- [src/utils/text.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/text.js)
+- [welcome.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/welcome.js)
+- [farewell.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/farewell.js)
+- [antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/antiLink.js)
+- [antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/modules/antiFlood.js)
 
-Funções:
+#### `services/`
 
-- adaptar IDs e contexto do `whatsapp-web.js`
-- padronizar respostas
-- utilidades de formatação
+Aqui vive a lógica mais importante da base:
+
+- [groupSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/groupSettingsService.js)
+- [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
+- [ownerNotificationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerNotificationService.js)
+- [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
+- [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
+- [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
+
+#### `utils/`
+
+Helpers de infraestrutura:
+
+- [wweb.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/wweb.js)
+- [respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js)
+- [text.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/text.js)
 
 ## Configuração
 
-Os arquivos em [src/config](C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config) foram separados por responsabilidade:
+Arquivos-base:
 
-- `bot.js`
-- `paths.js`
-- `pairing.js`
-- `connection.js`
-- `puppeteer.js`
-- `features.js`
-- `antiFlood.js`
-- `links.js`
-- `rules.js`
-- `config.js`
+- [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js)
+- [src/config/paths.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/paths.js)
+- [src/config/pairing.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/pairing.js)
+- [src/config/connection.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/connection.js)
+- [src/config/puppeteer.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/puppeteer.js)
+- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js)
+- [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js)
+- [src/config/antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiLink.js)
+- [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js)
+- [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js)
+- [src/config/config.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/config.js)
 
-O restante do código importa apenas `config.js`, que agrega tudo.
+## Persistência
+
+### Dados por grupo
+
+Cada grupo ganha um JSON em:
+
+```text
+data/groups/
+```
+
+Esse arquivo inclui:
+
+- `features`
+- `antiFlood`
+- `antiLink`
+- `blacklist`
+- `groupRules`
+
+### Dados globais do sistema
+
+Preferências do dono:
+
+```text
+data/system/
+```
+
+### Logs
+
+```text
+logs/bot.log
+```
 
 ## Como adicionar um comando
 
-1. crie um arquivo em `src/commands/admin` ou `src/commands/user`
-2. exporte o objeto padrão do comando
-3. implemente `execute`
-4. rode `npm run smoke`
+1. escolha a pasta correta em `src/commands`
+2. crie um arquivo `.js`
+3. exporte o objeto do comando
+4. use os serviços antes de criar lógica duplicada
+5. rode `npm run smoke`
 
-Exemplo de estrutura:
+Exemplo:
 
 ```js
 module.exports = {
@@ -106,9 +154,17 @@ module.exports = {
 };
 ```
 
-## Padrão visual
+## Como adicionar um módulo automático
 
-Todas as mensagens devem preferencialmente usar [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js).
+1. crie o arquivo em `src/modules`
+2. use `loadGroupSettings(...)` quando o comportamento depender do grupo
+3. registre o módulo em [src/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/bot.js)
+4. se ele for configurável, adicione a chave correspondente em [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js)
+5. ajuste `#modulos` e, se fizer sentido, um comando dedicado
+
+## Padrão de resposta
+
+As mensagens devem preferir [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js).
 
 Helpers disponíveis:
 
@@ -118,75 +174,40 @@ Helpers disponíveis:
 - `error`
 - `moderation`
 
-Isso evita respostas soltas e mantém a identidade visual do bot.
+## Identidade WhatsApp
 
-## Deploy em Ubuntu
+O projeto já trata a diferença entre `@lid` e `@c.us` via:
 
-### Requisitos do sistema
+- [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
 
-- Ubuntu 22.04+
-- Node.js 20
-- Google Chrome
-- bibliotecas necessárias ao Puppeteer
+Se um novo comando depender de participante, reaproveite essa camada.
 
-### Passo a passo
+## Dono do bot no privado
 
-```bash
-sudo apt update && sudo apt upgrade -y
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+O dono pode operar grupos pelo privado usando:
+
+```text
+--grupo <ID_DO_GRUPO>
 ```
 
-Instale as dependências do Chrome:
+Se você adicionar comandos de grupo, tente mantê-los compatíveis com esse fluxo.
 
-```bash
-sudo apt install -y \
-  ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
-  libc6 libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 libfontconfig1 \
-  libgbm1 libgcc-s1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
-  libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 \
-  libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 \
-  libxshmfence1 libxss1 libxtst6 lsb-release wget xdg-utils
+## Boas práticas para evoluir a base
 
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install -y ./google-chrome-stable_current_amd64.deb
-```
+- rode `npm run smoke` antes de concluir mudanças
+- não duplique regra de negócio que já existe em `services/`
+- mantenha comandos finos e serviços mais “inteligentes”
+- preserve a configuração por grupo como fonte principal de comportamento
+- registre eventos importantes no logger
 
-Depois:
+## Deploy
 
-```bash
-git clone <SEU-REPO> lara-bot
-cd lara-bot
-npm install
-npm start
-```
+Para VPS Ubuntu e Oracle:
 
-## PM2
-
-Para manter o processo online:
-
-```bash
-sudo npm install -g pm2
-pm2 start src/bot.js --name lara-bot
-pm2 save
-pm2 startup
-```
-
-Logs:
-
-```bash
-pm2 logs lara-bot
-```
-
-## Boas práticas
-
-- rode `npm run smoke` antes de subir mudanças
-- não versione `.wwebjs_auth`
-- não edite `config.js` diretamente se a mudança pertence a um arquivo específico
-- mantenha os módulos automáticos configuráveis via `features.js`
+- [doc/instalacao-oracle-ubuntu.md](./instalacao-oracle-ubuntu.md)
 
 ## Limitações atuais
 
-- depende de WhatsApp Web, então está sujeito a mudanças do cliente Web
-- pairing por número existe, mas é tratado como experimental
-- o foco atual é `1 sessão por instância`
+- depende de WhatsApp Web, então continua sujeito a mudanças do cliente Web
+- o foco principal ainda é uma sessão por instância
+- o projeto privilegia simplicidade operacional, não alta escala

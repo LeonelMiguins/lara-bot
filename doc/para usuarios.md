@@ -1,12 +1,12 @@
 # Guia do Usuário
 
-Este guia explica como usar o bot no dia a dia.
+Este guia é para quem vai operar o bot no dia a dia, sem precisar mexer no código.
 
 ## Primeiro uso
 
-1. rode o projeto com `npm start`
-2. escaneie o QR Code exibido no terminal
-3. espere o bot conectar
+1. rode `npm start`
+2. escaneie o QR Code no terminal
+3. espere a mensagem de conexão
 4. envie `#menu` no WhatsApp
 
 ## Prefixo
@@ -17,81 +17,178 @@ O prefixo padrão é:
 #
 ```
 
-Você pode alterar isso em [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js).
+Se quiser mudar, edite [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js).
 
-## Comandos disponíveis
+## Comandos de grupo
 
 ### Administração
 
 - `#ban @membro`
 - `#adm @membro`
-- `#sleep on`
-- `#sleep off`
+- `#sleep on|off`
 - `#tagall`
 - `#bot`
 - `#bot server`
-- `#groupinfo`
+- `#modulos`
+- `#boasvindas on|off`
+- `#antilink on|off`
+- `#antilink acao <categoria> <apagar|banir>`
+- `#blacklist`
+- `#antiflood on|off`
+- `#antiflood limite <numero>`
+- `#antiflood janela <segundos>`
+- `#antiflood minimo <numero>`
 
 ### Usuário
 
 - `#menu`
 - `#regras`
+- `#statusgrupo`
+- `#groupinfo`
 - `#link`
 - `#adms`
-- `#figu`
+
+## Configuração por grupo
+
+Cada grupo guarda sua própria configuração automaticamente. Isso significa que:
+
+- um grupo pode ter `antiFlood` ligado e outro desligado
+- um grupo pode só apagar links, outro pode apagar e banir
+- as regras podem ser diferentes entre grupos
 
 ## Módulos automáticos
 
 ### Boas-vindas
 
-Quando um novo membro entra no grupo, o bot envia uma mensagem automática.
+Controla a mensagem automática quando alguém entra.
+
+```text
+#boasvindas on
+#boasvindas off
+```
+
+### Saída de membros
+
+Controla a mensagem automática quando alguém sai.
+
+```text
+#modulos farewell on
+#modulos farewell off
+```
 
 ### Anti-link
 
-O bot pode:
+O anti-link pode ser ligado ou desligado:
 
-- apagar links proibidos
-- remover membros por compartilhar links de grupo
+```text
+#antilink on
+#antilink off
+```
 
-As listas ficam em [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js).
+Além disso, você pode definir a ação por categoria:
+
+```text
+#antilink acao whatsapp banir
+#antilink acao adulto apagar
+#antilink acao apostas apagar
+```
+
+Categorias aceitas:
+
+- `whatsapp`
+- `adulto`
+- `apostas`
 
 ### Anti-flood
 
-O bot remove membros comuns quando repetem a mesma mensagem muitas vezes em poucos segundos.
+Liga e desliga:
 
-Configuração padrão:
+```text
+#antiflood on
+#antiflood off
+```
 
-- `10` mensagens repetidas
-- dentro de `15` segundos
+Ajustes:
 
-Ajuste em [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js).
+```text
+#antiflood limite 8
+#antiflood janela 15
+#antiflood minimo 2
+```
 
-## Figurinha
+## Regras do grupo
 
-Para usar `#figu`:
+Visualizar:
 
-1. responda uma imagem
-2. envie `#figu`
+```text
+#regras
+```
 
-O bot gera uma figurinha automaticamente.
+Editar:
 
-## Reautenticar
+```text
+#regras add Respeite todos os membros.
+#regras del 2
+#regras reset
+```
 
-Se a sessão quebrar:
+## Blacklist
 
-1. pare o processo
-2. apague a pasta `.wwebjs_auth`
+Listar:
+
+```text
+#blacklist
+```
+
+Editar:
+
+```text
+#blacklist add adulto exemplo.com
+#blacklist del adulto 1
+#blacklist reset adulto
+```
+
+## Dono no privado
+
+O dono do bot pode operar no privado usando:
+
+- `#grupos`
+- `#notificacoes on|off`
+- `--grupo <ID_DO_GRUPO>`
+
+Exemplo:
+
+```text
+#antiflood --grupo 1203...@g.us limite 8
+```
+
+## Notificações privadas do dono
+
+O bot pode mandar no privado do dono eventos como:
+
+- comando executado
+- banimento
+- promoção de admin
+- anti-link
+- anti-flood
+
+Liga e desliga com:
+
+```text
+#notificacoes on
+#notificacoes off
+```
+
+## Se a sessão quebrar
+
+1. pare o bot
+2. apague `.wwebjs_auth`
 3. rode `npm start`
 4. escaneie o QR novamente
 
-## Rodar em Ubuntu VPS
+## Onde buscar mais detalhes
 
-Fluxo básico:
-
-1. instalar Node.js 20
-2. instalar Chrome
-3. rodar `npm install`
-4. iniciar com `npm start`
-5. manter online com `pm2`
-
-Para detalhes técnicos, veja [doc/para desenvolvedores.md](C:/Users/LEO/Documents/PROJETOS/lara-bot/doc/para desenvolvedores.md).
+- [README.md](../README.md)
+- [doc/guia-de-comandos.md](./guia-de-comandos.md)
+- [doc/para desenvolvedores.md](./para%20desenvolvedores.md)
+- [doc/instalacao-oracle-ubuntu.md](./instalacao-oracle-ubuntu.md)
