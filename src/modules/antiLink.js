@@ -9,18 +9,18 @@ function findBlockedMatch(text, blacklist) {
   const lowered = String(text || '').toLowerCase();
   const categories = [
     {
+      category: 'whatsappGroupLinks',
       reason: 'Compartilhar links de grupos, comunidades ou canais do WhatsApp nao e permitido aqui.',
-      shouldKick: true,
       patterns: blacklist.whatsappGroupLinks,
     },
     {
+      category: 'adultSites',
       reason: 'Links com conteudo adulto nao sao permitidos neste grupo.',
-      shouldKick: false,
       patterns: blacklist.adultSites,
     },
     {
+      category: 'betsSites',
       reason: 'Links de apostas nao sao permitidos neste grupo.',
-      shouldKick: false,
       patterns: blacklist.betsSites,
     },
   ];
@@ -50,6 +50,8 @@ module.exports = function setupAntiLink(client) {
     if (!blocked) {
       return false;
     }
+    const antiLinkSettings = context.groupConfig.antiLink || config.antiLink || {};
+    const action = antiLinkSettings[blocked.category] || 'delete';
 
     const participantId = await resolveParticipantId(client, context.participants, context.senderId);
     const senderId = participantId || context.senderId;
@@ -63,12 +65,12 @@ module.exports = function setupAntiLink(client) {
       await message.delete(true);
     } catch {}
 
-    if (blocked.shouldKick && context.botIsAdmin) {
+    if (action === 'ban' && context.botIsAdmin) {
       try {
         await chat.removeParticipants([senderId]);
         logger.groupEvent('anti_link.removed', context, {
           participantId: senderId,
-          category: blocked.reason,
+          category: blocked.category,
         });
       } catch (error) {
         logger.runtimeError('anti_link.remove_failed', error, logger.buildMessageMeta(context, {
@@ -86,9 +88,11 @@ module.exports = function setupAntiLink(client) {
 
     logger.groupEvent('anti_link.blocked', context, {
       participantId: senderId,
+      category: blocked.category,
       reason: blocked.reason,
       matched: blocked.matched,
-      kicked: blocked.shouldKick && context.botIsAdmin,
+      action,
+      kicked: action === 'ban' && context.botIsAdmin,
     });
 
     await ownerNotifications.notifyModerationEvent(client, 'Anti-link acionado', [
@@ -96,7 +100,8 @@ module.exports = function setupAntiLink(client) {
       `Membro: ${senderId}`,
       `Motivo: ${blocked.reason}`,
       `Correspondencia: ${blocked.matched}`,
-      `Removido: ${(blocked.shouldKick && context.botIsAdmin) ? 'sim' : 'nao'}`,
+      `Acao: ${action === 'ban' ? 'apagar e banir' : 'apenas apagar'}`,
+      `Removido: ${(action === 'ban' && context.botIsAdmin) ? 'sim' : 'nao'}`,
     ]);
 
     return true;

@@ -6,6 +6,7 @@ const config = require('./config/config');
 const { loadCommands } = require('./core/commandLoader');
 const setupAntiFlood = require('./modules/antiFlood');
 const setupAntiLink = require('./modules/antiLink');
+const setupFarewell = require('./modules/farewell');
 const setupWelcome = require('./modules/welcome');
 const { loadGroupSettings } = require('./services/groupSettingsService');
 const logger = require('./services/loggerService');
@@ -226,6 +227,7 @@ async function startBot() {
   const client = createClient();
   const handleAntiFlood = setupAntiFlood(client);
   const handleAntiLink = setupAntiLink(client);
+  setupFarewell(client);
   setupWelcome(client);
 
   client.on('loading_screen', () => {

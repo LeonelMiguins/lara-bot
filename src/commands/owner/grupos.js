@@ -3,8 +3,8 @@ const { info, warning } = require('../../utils/respond');
 
 module.exports = {
   name: 'grupos',
-  aliases: ['groups'],
-  description: 'Lista os grupos para uso em comandos privados do dono.',
+  aliases: ['groups', 'listagrupos', 'todosgrupos'],
+  description: 'Lista todos os grupos em que o bot esta inserido.',
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,
@@ -26,6 +26,8 @@ module.exports = {
       info(
         'Grupos do bot',
         [
+          `Total de grupos: ${groups.length}`,
+          '',
           '*Use estes IDs no privado do bot*',
           '',
           ...lines,

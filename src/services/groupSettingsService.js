@@ -41,6 +41,7 @@ function createDefaultSettings(groupId) {
     updatedAt: now,
     features: clone(config.features || {}),
     antiFlood: clone(config.antiFlood || {}),
+    antiLink: clone(config.antiLink || {}),
     blacklist: clone(config.blacklist || {}),
     groupRules: clone(config.groupRules || []),
   };
@@ -61,6 +62,10 @@ function normalizeSettings(groupId, data = {}) {
     antiFlood: {
       ...defaults.antiFlood,
       ...(data.antiFlood || {}),
+    },
+    antiLink: {
+      ...defaults.antiLink,
+      ...(data.antiLink || {}),
     },
     blacklist: {
       ...defaults.blacklist,
@@ -228,6 +233,52 @@ function getAntiFloodSettings(groupSettings) {
   };
 }
 
+function getAntiLinkSettings(groupSettings) {
+  return {
+    ...(config.antiLink || {}),
+    ...(groupSettings?.antiLink || {}),
+  };
+}
+
+function normalizeAntiLinkAction(action) {
+  const normalized = String(action || '').trim().toLowerCase();
+
+  if (['ban', 'banir', 'kick', 'remover'].includes(normalized)) {
+    return 'ban';
+  }
+
+  if (['delete', 'apagar', 'del'].includes(normalized)) {
+    return 'delete';
+  }
+
+  return '';
+}
+
+function updateAntiLinkAction(groupId, category, action) {
+  const normalizedAction = normalizeAntiLinkAction(action);
+  if (!normalizedAction) {
+    throw new Error('Acao invalida.');
+  }
+
+  return updateGroupSettings(groupId, (current) => {
+    current.antiLink = {
+      ...current.antiLink,
+      [category]: normalizedAction,
+    };
+    return current;
+  });
+}
+
+function resetAntiLinkAction(groupId, category) {
+  return updateGroupSettings(groupId, (current) => {
+    current.antiLink = {
+      ...current.antiLink,
+      [category]: clone(config.antiLink?.[category] || 'delete'),
+    };
+    return current;
+  });
+}
+
 function updateAntiFloodSettings(groupId, patch) {
   return updateGroupSettings(groupId, (current) => {
     current.antiFlood = {
@@ -251,6 +302,7 @@ module.exports = {
   createDefaultSettings,
   getFeatureEntries,
   getAntiFloodSettings,
+  getAntiLinkSettings,
   getBlacklistCategoryMeta,
   getBlacklistEntries,
   getRuleEntries,
@@ -259,13 +311,16 @@ module.exports = {
   loadGroupSettings,
   normalizeSettings,
   normalizeBlacklistCategory,
+  normalizeAntiLinkAction,
   removeBlacklistEntry,
   removeGroupRule,
   resetAntiFloodSettings,
+  resetAntiLinkAction,
   resetBlacklistCategory,
   resetGroupRules,
   saveGroupSettings,
   setGroupFeature,
+  updateAntiLinkAction,
   updateAntiFloodSettings,
   updateGroupSettings,
 };

@@ -5,6 +5,7 @@ const connection = require('./connection');
 const puppeteer = require('./puppeteer');
 const features = require('./features');
 const antiFlood = require('./antiFlood');
+const antiLink = require('./antiLink');
 const links = require('./links');
 const groupRules = require('./rules');
 
@@ -17,6 +18,7 @@ module.exports = {
   puppeteer,
   features,
   antiFlood,
+  antiLink,
   groupRules,
   blacklist: links,
 };

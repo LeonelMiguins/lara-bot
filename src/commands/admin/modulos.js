@@ -8,6 +8,7 @@ const { error, info, success, warning } = require('../../utils/respond');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
+  farewell: 'Saida de membros',
   antiLink: 'Anti-link',
   antiFlood: 'Anti-flood',
 };
@@ -37,7 +38,7 @@ module.exports = {
         `Use *${config.prefix}modulos <nome> on* para ligar.`,
         `Use *${config.prefix}modulos <nome> off* para desligar.`,
         '',
-        'Nomes aceitos: welcome, antiLink, antiFlood',
+        'Nomes aceitos: welcome, farewell, antiLink, antiFlood',
       ].join('\n');
 
       await client.sendMessage(chatId, info('Modulos do bot', body));
@@ -52,7 +53,7 @@ module.exports = {
         chatId,
         error(
           'Modulos do bot',
-          'Modulo desconhecido. Use: welcome, antiLink ou antiFlood.',
+          'Modulo desconhecido. Use: welcome, farewell, antiLink ou antiFlood.',
         ),
       );
       return;
