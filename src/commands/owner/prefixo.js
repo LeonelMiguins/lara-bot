@@ -12,7 +12,7 @@ const {
   setGroupPrefix,
   validatePrefix,
 } = require('../../services/prefixService');
-const { denied, info, invalidUsage, success, warning } = require('../../utils/respond');
+const { commandPanel, createSection, denied, info, invalidUsage, success, warning } = require('../../utils/respond');
 const { normalizeChatId } = require('../../utils/wweb');
 
 function parseTargetGroupArgs(args) {
@@ -91,15 +91,16 @@ module.exports = {
     if (!parsed.args.length || scope === 'status' || scope === 'list') {
       await client.sendMessage(
         chatId,
-        info(
-          'Prefixo do bot',
-          buildStatusBody({
-            commandPrefix,
-            groupSettings: currentGroupSettings,
-            showGroup: Boolean(currentGroupSettings),
-            targetGroupId,
-          }),
-        ),
+        commandPanel('Prefixo do bot', {
+          sections: [
+            createSection('Status', buildStatusBody({
+              commandPrefix,
+              groupSettings: currentGroupSettings,
+              showGroup: Boolean(currentGroupSettings),
+              targetGroupId,
+            })),
+          ],
+        }),
       );
       return;
     }
@@ -118,16 +119,18 @@ module.exports = {
       if (!action || action === 'status') {
         await client.sendMessage(
           chatId,
-          info(
-            'Prefixo global',
-            [
-              `Atual: ${getGlobalPrefix()}`,
-              `Padrao da base: ${getDefaultPrefix()}`,
-              '',
+          commandPanel('Prefixo global', {
+            sections: [
+              createSection('Status', [
+                `Atual: ${getGlobalPrefix()}`,
+                `Padrao da base: ${getDefaultPrefix()}`,
+              ]),
+            ],
+            footer: [
               `Use *${commandPrefix}prefixo global <novo>* para trocar.`,
               `Use *${commandPrefix}prefixo global reset* para restaurar.`,
-            ].join('\n'),
-          ),
+            ],
+          }),
         );
         return;
       }
@@ -175,17 +178,19 @@ module.exports = {
       if (!action || action === 'status') {
         await client.sendMessage(
           chatId,
-          info(
-            'Prefixo do grupo',
-            [
-              `Grupo: ${targetGroupId}`,
-              `Prefixo do grupo: ${getGroupPrefix(currentGroupSettings) || '(herdando o global)'}`,
-              `Prefixo efetivo: ${getPrefixSummary(currentGroupSettings).effectivePrefix}`,
-              '',
+          commandPanel('Prefixo do grupo', {
+            sections: [
+              createSection('Status', [
+                `Grupo: ${targetGroupId}`,
+                `Prefixo do grupo: ${getGroupPrefix(currentGroupSettings) || '(herdando o global)'}`,
+                `Prefixo efetivo: ${getPrefixSummary(currentGroupSettings).effectivePrefix}`,
+              ]),
+            ],
+            footer: [
               `Use *${commandPrefix}prefixo grupo <novo>* para sobrescrever.`,
               `Use *${commandPrefix}prefixo grupo reset* para herdar o global.`,
-            ].join('\n'),
-          ),
+            ],
+          }),
         );
         return;
       }

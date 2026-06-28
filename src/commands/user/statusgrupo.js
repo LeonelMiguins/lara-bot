@@ -2,7 +2,7 @@ const {
   getAntiFloodSettings,
   getFeatureEntries,
 } = require('../../services/groupSettingsService');
-const { info } = require('../../utils/respond');
+const { commandPanel, createSection } = require('../../utils/respond');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
@@ -38,20 +38,23 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      info(
-        'Status do grupo',
-        [
-          `Grupo: ${chatName || chat.name || 'Sem nome'}`,
-          `Membros: ${participants.length}`,
-          `Admins: ${admins}`,
-          `Prefixo ativo: ${commandPrefix}`,
-          `Modulos ligados: ${formatFeatureSummary(groupSettings)}`,
-          `Link liberado: ${botIsAdmin ? 'sim' : 'nao'}`,
-          `Anti-flood: ${groupSettings?.features?.antiFlood ? 'ligado' : 'desligado'}`,
-          `Limite atual: ${antiFlood.repeatedMessagesThreshold} repeticoes`,
-          `Janela atual: ${Math.round(antiFlood.windowMs / 1000)}s`,
-        ].join('\n'),
-      ),
+      commandPanel('Status do grupo', {
+        sections: [
+          createSection('Resumo', [
+            `Grupo: ${chatName || chat.name || 'Sem nome'}`,
+            `Membros: ${participants.length}`,
+            `Admins: ${admins}`,
+            `Prefixo ativo: ${commandPrefix}`,
+          ]),
+          createSection('Protecao', [
+            `Modulos ligados: ${formatFeatureSummary(groupSettings)}`,
+            `Link liberado: ${botIsAdmin ? 'sim' : 'nao'}`,
+            `Anti-flood: ${groupSettings?.features?.antiFlood ? 'ligado' : 'desligado'}`,
+            `Limite atual: ${antiFlood.repeatedMessagesThreshold} repeticoes`,
+            `Janela atual: ${Math.round(antiFlood.windowMs / 1000)}s`,
+          ]),
+        ],
+      }),
     );
   },
 };

@@ -1,5 +1,5 @@
 const config = require('../../config/config');
-const { info, warning } = require('../../utils/respond');
+const { commandPanel, createSection, warning } = require('../../utils/respond');
 
 module.exports = {
   name: 'grupos',
@@ -24,18 +24,15 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      info(
-        'Grupos do bot',
-        [
-          `Total de grupos: ${groups.length}`,
-          '',
-          '*Use estes IDs no privado do bot*',
-          '',
-          ...lines,
-          '',
+      commandPanel('Grupos do bot', {
+        sections: [
+          createSection('Resumo', [`Total de grupos: ${groups.length}`]),
+          createSection('IDs para uso no privado', lines),
+        ],
+        footer: [
           `Exemplo: *${commandPrefix}antilink --grupo <ID_DO_GRUPO> on*`,
-        ].join('\n'),
-      ),
+        ],
+      }),
     );
   },
 };

@@ -1,4 +1,4 @@
-const { info, warning } = require('../../utils/respond');
+const { commandPanel, createSection, warning } = require('../../utils/respond');
 
 module.exports = {
   name: 'adms',
@@ -19,7 +19,11 @@ module.exports = {
     }
 
     const text = admins.map((jid) => `@${jid.split('@')[0]}`).join(' ');
-    await client.sendMessage(chatId, info('Administradores', `Chamando a administracao:\n${text}`), {
+    await client.sendMessage(chatId, commandPanel('Administradores', {
+      sections: [
+        createSection('Administracao', [text]),
+      ],
+    }), {
       mentions: admins,
     });
   },

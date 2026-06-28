@@ -1,6 +1,6 @@
 const config = require('../../config/config');
 const { loadOwnerSettings, setOwnerNotificationsEnabled } = require('../../services/ownerSettingsService');
-const { info, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, invalidUsage, success } = require('../../utils/respond');
 
 function formatStatus() {
   const enabled = Boolean(loadOwnerSettings().notifications?.enabled);
@@ -21,15 +21,17 @@ module.exports = {
     if (!action || action === 'status' || action === 'list') {
       await client.sendMessage(
         chatId,
-        info(
-          'Notificacoes do dono',
-          [
-            `Status atual: ${formatStatus()}`,
-            '',
+        commandPanel('Notificacoes do dono', {
+          sections: [
+            createSection('Status', [
+              `Atual: ${formatStatus()}`,
+            ]),
+          ],
+          footer: [
             `Use *${commandPrefix}notificacoes on* para ligar.`,
             `Use *${commandPrefix}notificacoes off* para desligar.`,
-          ].join('\n'),
-        ),
+          ],
+        }),
       );
       return;
     }

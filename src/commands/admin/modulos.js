@@ -4,7 +4,7 @@ const {
   isKnownFeature,
   setGroupFeature,
 } = require('../../services/groupSettingsService');
-const { error, info, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, error, invalidUsage, success } = require('../../utils/respond');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
@@ -32,20 +32,22 @@ module.exports = {
   adminOnly: true,
   async execute({ client, chatId, args, groupConfig, commandPrefix }) {
     if (!args.length) {
-      const body = [
-        '*Modulos automáticos*',
-        '',
-        ...getFeatureEntries(groupConfig).map(([featureName, enabled]) =>
-          formatFeatureStatus(featureName, enabled),
-        ),
-        '',
-        `Use *${commandPrefix}modulos <nome> on* para ligar.`,
-        `Use *${commandPrefix}modulos <nome> off* para desligar.`,
-        '',
-        'Nomes aceitos: welcome, farewell, antiLink, antiFlood',
-      ].join('\n');
-
-      await client.sendMessage(chatId, info('Modulos do bot', body));
+      await client.sendMessage(chatId, commandPanel('Modulos do bot', {
+        sections: [
+          createSection(
+            'Modulos Automaticos',
+            getFeatureEntries(groupConfig).map(([featureName, enabled]) =>
+              formatFeatureStatus(featureName, enabled),
+            ),
+          ),
+        ],
+        footer: [
+          `Use *${commandPrefix}modulos <nome> on* para ligar.`,
+          `Use *${commandPrefix}modulos <nome> off* para desligar.`,
+          '',
+          'Nomes aceitos: welcome, farewell, antiLink, antiFlood',
+        ],
+      }));
       return;
     }
 

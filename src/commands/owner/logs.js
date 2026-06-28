@@ -1,7 +1,7 @@
 const config = require('../../config/config');
 const { getLogFilePath, logsEnabled } = require('../../services/loggerService');
 const { setOwnerLogsEnabled } = require('../../services/ownerSettingsService');
-const { info, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, invalidUsage, success } = require('../../utils/respond');
 
 function formatStatus() {
   return logsEnabled() ? '🟢 Ligados' : '🔴 Desligados';
@@ -21,16 +21,18 @@ module.exports = {
     if (!action || action === 'status' || action === 'list') {
       await client.sendMessage(
         chatId,
-        info(
-          'Logs do bot',
-          [
-            `Status atual: ${formatStatus()}`,
-            `Arquivo: ${getLogFilePath()}`,
-            '',
+        commandPanel('Logs do bot', {
+          sections: [
+            createSection('Status', [
+              `Atual: ${formatStatus()}`,
+              `Arquivo: ${getLogFilePath()}`,
+            ]),
+          ],
+          footer: [
             `Use *${commandPrefix}logs on* para ligar.`,
             `Use *${commandPrefix}logs off* para desligar.`,
-          ].join('\n'),
-        ),
+          ],
+        }),
       );
       return;
     }

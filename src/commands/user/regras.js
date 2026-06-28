@@ -5,12 +5,10 @@ const {
   removeGroupRule,
   resetGroupRules,
 } = require('../../services/groupSettingsService');
-const { denied, info, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, denied, invalidUsage, success } = require('../../utils/respond');
 
 function formatRules(groupSettings) {
-  return getRuleEntries(groupSettings)
-    .map((rule, index) => `🚫 ${index + 1}. ${rule}`)
-    .join('\n');
+  return getRuleEntries(groupSettings).map((rule, index) => `🚫 ${index + 1}. ${rule}`);
 }
 
 module.exports = {
@@ -25,7 +23,11 @@ module.exports = {
   adminOnly: false,
   async execute({ client, chatId, chatName, groupSettings, senderIsAdmin, args, commandPrefix }) {
     if (!args.length) {
-      await client.sendMessage(chatId, info(`Regras de ${chatName || 'grupo'}`, formatRules(groupSettings)));
+      await client.sendMessage(chatId, commandPanel(`Regras de ${chatName || 'grupo'}`, {
+        sections: [
+          createSection('Regras', formatRules(groupSettings)),
+        ],
+      }));
       return;
     }
 
@@ -85,7 +87,11 @@ module.exports = {
     }
 
     if (action === 'list') {
-      await client.sendMessage(chatId, info(`Regras de ${chatName || 'grupo'}`, formatRules(groupSettings)));
+      await client.sendMessage(chatId, commandPanel(`Regras de ${chatName || 'grupo'}`, {
+        sections: [
+          createSection('Regras', formatRules(groupSettings)),
+        ],
+      }));
       return;
     }
 

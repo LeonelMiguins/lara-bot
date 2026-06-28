@@ -1,5 +1,4 @@
 const { buildMenuText } = require('../../services/menuService');
-const { info } = require('../../utils/respond');
 
 module.exports = {
   name: 'menu',
@@ -10,6 +9,6 @@ module.exports = {
   adminOnly: false,
   async execute({ client, chatId, senderIsOwner, commandPrefix }) {
     const text = buildMenuText({ senderIsOwner, commandPrefix });
-    await client.sendMessage(chatId, info('Menu principal', text));
+    await client.sendMessage(chatId, text);
   },
 };

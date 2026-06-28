@@ -1,8 +1,29 @@
 const config = require('../config/config');
 
-function frame({ title, body, tone = 'INFO' }) {
+function getMessageStyle() {
+  return config.messageStyle || {};
+}
+
+function buildHeaderLabel(tone, forceTone) {
+  const style = getMessageStyle();
+  const showToneByDefault = Boolean(style.header?.showToneByDefault);
+  const shouldShowTone = forceTone ?? showToneByDefault;
+
+  if (shouldShowTone && tone) {
+    return `${config.botName.toUpperCase()} | ${tone}`;
+  }
+
+  return config.botName.toUpperCase();
+}
+
+function frame({ title, body, tone = 'INFO', forceTone } = {}) {
+  const style = getMessageStyle();
+  const headerLeft = style.header?.left || '╭━━〔';
+  const headerRight = style.header?.right || '〕';
+  const footer = style.header?.footer || '╰━━━━━━━━━━━━━━━━━━';
+  const headerLabel = buildHeaderLabel(tone, forceTone);
   const lines = [
-    `╭━━〔 ${config.botName.toUpperCase()} | ${tone} 〕`,
+    `${headerLeft} ${headerLabel} ${headerRight}`,
   ];
 
   if (title) {
@@ -14,7 +35,7 @@ function frame({ title, body, tone = 'INFO' }) {
     lines.push(line);
   }
 
-  lines.push('╰━━━━━━━━━━━━━━━━━━');
+  lines.push(footer);
   return lines.join('\n');
 }
 
@@ -60,24 +81,83 @@ function buildPatternBody({ summary, reason, actions = [] }) {
   return lines.join('\n');
 }
 
+function createSection(title, lines = []) {
+  return {
+    title: String(title || '').trim(),
+    lines: normalizeLines(lines),
+  };
+}
+
+function buildSectionedBody({ lead = [], sections = [], footer = [] }) {
+  const style = getMessageStyle();
+  const sectionPrefix = style.sections?.prefix || '→';
+  const wrapBold = style.sections?.wrapBold !== false;
+  const lines = [];
+  const normalizedLead = normalizeLines(lead);
+
+  if (normalizedLead.length) {
+    lines.push(...normalizedLead);
+  }
+
+  for (const section of sections) {
+    const title = String(section?.title || '').trim();
+    const content = normalizeLines(section?.lines || []);
+
+    if (!title && !content.length) {
+      continue;
+    }
+
+    if (lines.length) {
+      lines.push('');
+    }
+
+    if (title) {
+      lines.push(wrapBold ? `${sectionPrefix} *${title}:*` : `${sectionPrefix} ${title}:`);
+    }
+
+    if (content.length) {
+      lines.push(...content);
+    }
+  }
+
+  const normalizedFooter = normalizeLines(footer);
+  if (normalizedFooter.length) {
+    if (lines.length) {
+      lines.push('');
+    }
+    lines.push(...normalizedFooter);
+  }
+
+  return lines.join('\n');
+}
+
+function commandPanel(title, { lead = [], sections = [], footer = [], tone = '' } = {}) {
+  return frame({
+    title: '',
+    body: buildSectionedBody({ lead, sections, footer }),
+    tone,
+    forceTone: false,
+  });
+}
+
 function info(title, body) {
-  return frame({ title, body, tone: 'INFO' });
+  return frame({ title, body, tone: 'INFO', forceTone: true });
 }
 
 function success(title, body) {
-  return frame({ title, body, tone: 'OK' });
+  return frame({ title, body, tone: 'OK', forceTone: true });
 }
 
 function warning(title, body) {
-  return frame({ title, body, tone: 'ALERTA' });
+  return frame({ title, body, tone: 'ALERTA', forceTone: true });
 }
 
 function error(title, body) {
-  return frame({ title, body, tone: 'ERRO' });
+  return frame({ title, body, tone: 'ERRO', forceTone: true });
 }
 
 function moderation(title, body) {
-  return frame({ title, body, tone: 'MOD' });
+  return frame({ title, body, tone: 'MOD', forceTone: true });
 }
 
 function denied(title, reason, actions = []) {
@@ -113,7 +193,10 @@ function failure(title, reason, actions = []) {
 }
 
 module.exports = {
+  buildSectionedBody,
   buildPatternBody,
+  commandPanel,
+  createSection,
   denied,
   error,
   failure,

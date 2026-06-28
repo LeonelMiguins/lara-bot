@@ -1,4 +1,4 @@
-const { error, info } = require('../../utils/respond');
+const { commandPanel, createSection, error } = require('../../utils/respond');
 
 module.exports = {
   name: 'link',
@@ -18,11 +18,14 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      info('Link do grupo', [
-        '*Link do grupo*',
-        `Grupo: ${chatName || chat.name || 'Sem nome'}`,
-        inviteLink,
-      ].join('\n')),
+      commandPanel('Link do grupo', {
+        sections: [
+          createSection('Grupo', [
+            `Nome: ${chatName || chat.name || 'Sem nome'}`,
+            inviteLink,
+          ]),
+        ],
+      }),
     );
   },
 };

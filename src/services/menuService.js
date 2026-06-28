@@ -18,6 +18,9 @@ function getCommandCatalog() {
 }
 
 function formatUsage(command, commandPrefix) {
+  const menuStyle = config.messageStyle?.menu || {};
+  const commandLinePrefix = menuStyle.commandPrefix || '⤷';
+  const wrapCommandInCode = menuStyle.wrapCommandInCode !== false;
   const normalizeExample = (example) => {
     const value = String(example || '').trim();
     if (!value) {
@@ -32,14 +35,19 @@ function formatUsage(command, commandPrefix) {
   };
 
   if (Array.isArray(command.menuExamples) && command.menuExamples.length) {
-    return command.menuExamples.map(normalizeExample).filter(Boolean);
+    return command.menuExamples
+      .map(normalizeExample)
+      .filter(Boolean)
+      .map((example) => `${commandLinePrefix} ${wrapCommandInCode ? `\`${example}\`` : example}`);
   }
 
   if (typeof command.menuExample === 'string' && command.menuExample.trim()) {
-    return [normalizeExample(command.menuExample)];
+    const example = normalizeExample(command.menuExample);
+    return [`${commandLinePrefix} ${wrapCommandInCode ? `\`${example}\`` : example}`];
   }
 
-  return [`${commandPrefix}${command.name}`];
+  const fallbackCommand = `${commandPrefix}${command.name}`;
+  return [`${commandLinePrefix} ${wrapCommandInCode ? `\`${fallbackCommand}\`` : fallbackCommand}`];
 }
 
 function groupCommands({ senderIsOwner }) {
@@ -78,26 +86,35 @@ function sortCommands(commands) {
 }
 
 function buildMenuText({ senderIsOwner = false, commandPrefix = config.prefix }) {
+  const messageStyle = config.messageStyle || {};
+  const menuStyle = messageStyle.menu || {};
+  const headerLeft = messageStyle.header?.left || '╭━━〔';
+  const headerRight = messageStyle.header?.right || '〕';
+  const footer = messageStyle.header?.footer || '╰━━━━━━━━━━━━━━━━━━';
+  const sectionPrefix = messageStyle.sections?.prefix || '→';
+  const headerLabel = menuStyle.headerLabel || 'LARA BOT MENU';
+  const commandLinePrefix = menuStyle.commandPrefix || '⤷';
+  const wrapCommandInCode = menuStyle.wrapCommandInCode !== false;
   const grouped = groupCommands({ senderIsOwner });
-  const lines = [`*${config.botName}*`, ''];
+  const lines = [`${headerLeft} ${headerLabel} ${headerRight}`, ''];
 
   if (grouped.admin.length) {
-    lines.push('*Administracao*');
+    lines.push(`${sectionPrefix} *Administracao:*`);
     for (const command of sortCommands(grouped.admin)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
     lines.push('');
   }
 
-  lines.push('*Automaticos*');
-  lines.push(`🟢/🔴 Controle por ${commandPrefix}modulos`);
+  lines.push(`${sectionPrefix} *Automaticos:*`);
+  lines.push(`${commandLinePrefix} ${wrapCommandInCode ? `\`🟢/🔴 Controle por ${commandPrefix}modulos\`` : `🟢/🔴 Controle por ${commandPrefix}modulos`}`);
   for (const featureName of Object.keys(config.features || {})) {
-    lines.push(FEATURE_LABELS[featureName] || featureName);
+    lines.push(`${commandLinePrefix} ${FEATURE_LABELS[featureName] || featureName}`);
   }
   lines.push('');
 
   if (grouped.user.length) {
-    lines.push('*Usuarios*');
+    lines.push(`${sectionPrefix} *Usuarios:*`);
     for (const command of sortCommands(grouped.user)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
@@ -105,13 +122,15 @@ function buildMenuText({ senderIsOwner = false, commandPrefix = config.prefix })
   }
 
   if (grouped.owner.length) {
-    lines.push('*Dono*');
+    lines.push(`${sectionPrefix} *Dono:*`);
     for (const command of sortCommands(grouped.owner)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
   } else if (lines[lines.length - 1] === '') {
     lines.pop();
   }
+
+  lines.push(footer);
 
   return lines.join('\n');
 }

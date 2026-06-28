@@ -8,6 +8,7 @@ const antiFlood = require('./antiFlood');
 const antiLink = require('./antiLink');
 const links = require('./links');
 const groupRules = require('./rules');
+const messageStyle = require('./messageStyle');
 
 module.exports = {
   ...bot,
@@ -20,5 +21,6 @@ module.exports = {
   antiFlood,
   antiLink,
   groupRules,
+  messageStyle,
   blacklist: links,
 };

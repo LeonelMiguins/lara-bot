@@ -1,5 +1,5 @@
 const config = require('../../config/config');
-const { info } = require('../../utils/respond');
+const { commandPanel, createSection } = require('../../utils/respond');
 
 module.exports = {
   name: 'groupinfo',
@@ -15,14 +15,17 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      info('Informacoes do grupo', [
-        '*Informacoes do grupo*',
-        `Nome: ${chatName || chat.name || 'Sem nome'}`,
-        `ID: ${chat.id._serialized}`,
-        `Membros: ${participants.length}`,
-        `Admins: ${admins}`,
-        `Descricao: ${chat.description || 'Sem descricao'}`,
-      ].join('\n')),
+      commandPanel('Informacoes do grupo', {
+        sections: [
+          createSection('Resumo', [
+            `Nome: ${chatName || chat.name || 'Sem nome'}`,
+            `ID: ${chat.id._serialized}`,
+            `Membros: ${participants.length}`,
+            `Admins: ${admins}`,
+            `Descricao: ${chat.description || 'Sem descricao'}`,
+          ]),
+        ],
+      }),
     );
   },
 };

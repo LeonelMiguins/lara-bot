@@ -1,6 +1,6 @@
 const os = require('os');
 const config = require('../../config/config');
-const { info, invalidUsage } = require('../../utils/respond');
+const { commandPanel, createSection, invalidUsage } = require('../../utils/respond');
 
 function formatUptime(seconds) {
   const hours = Math.floor(seconds / 3600);
@@ -25,14 +25,19 @@ module.exports = {
       const botNumber = client.info?.wid?.user || 'desconhecido';
       await client.sendMessage(
         chatId,
-        info('Informacoes do bot', [
-          `*${config.botName}*`,
-          `Versao: ${config.version}`,
-          `Numero: wa.me/${botNumber}`,
-          `Dono: ${config.owner.name}`,
-          '',
-          `Use *${commandPrefix}bot server* para ver o status do host.`,
-        ].join('\n')),
+        commandPanel('Informacoes do bot', {
+          sections: [
+            createSection('Bot', [
+              `Nome: ${config.botName}`,
+              `Versao: ${config.version}`,
+              `Numero: wa.me/${botNumber}`,
+              `Dono: ${config.owner.name}`,
+            ]),
+          ],
+          footer: [
+            `Use *${commandPrefix}bot server* para ver o status do host.`,
+          ],
+        }),
       );
       return;
     }
@@ -50,14 +55,17 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      info('Status do servidor', [
-        '*Status do servidor*',
-        `CPU: ${os.cpus()[0]?.model || 'Desconhecida'}`,
-        `RAM livre: ${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-        `RAM total: ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-        `Sistema: ${os.type()} ${os.release()} (${os.arch()})`,
-        `Uptime: ${formatUptime(os.uptime())}`,
-      ].join('\n')),
+      commandPanel('Status do servidor', {
+        sections: [
+          createSection('Servidor', [
+            `CPU: ${os.cpus()[0]?.model || 'Desconhecida'}`,
+            `RAM livre: ${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+            `RAM total: ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+            `Sistema: ${os.type()} ${os.release()} (${os.arch()})`,
+            `Uptime: ${formatUptime(os.uptime())}`,
+          ]),
+        ],
+      }),
     );
   },
 };
