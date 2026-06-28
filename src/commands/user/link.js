@@ -1,3 +1,4 @@
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, error } = require('../../utils/respond');
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
   adminOnly: false,
   async execute({ client, chatId, chat, chatName, botIsAdmin }) {
     if (!botIsAdmin) {
-      await client.sendMessage(chatId, error('Link do grupo', 'Eu preciso ser administrador para gerar o link do grupo.'));
+      await client.sendMessage(chatId, error(getPhrase('commands.link.title'), getPhrase('commands.link.need_admin')));
       return;
     }
 
@@ -27,10 +28,10 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      commandPanel('Link do grupo', {
+      commandPanel(getPhrase('commands.link.title'), {
         sections: [
-          createSection('Link Do Grupo', [
-            `Nome: ${chatName || chat.name || 'Sem nome'}`,
+          createSection(getPhrase('labels.group_link_section'), [
+            getPhrase('commands.link.name_line', { value: chatName || chat.name || getPhrase('commands.common.no_name') }),
             inviteLink,
           ]),
         ],

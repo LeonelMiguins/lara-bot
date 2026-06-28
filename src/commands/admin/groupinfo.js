@@ -1,4 +1,5 @@
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection } = require('../../utils/respond');
 
 module.exports = {
@@ -24,14 +25,14 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      commandPanel('Informacoes do grupo', {
+      commandPanel(getPhrase('commands.groupinfo.title'), {
         sections: [
-          createSection('Resumo', [
-            `Nome: ${chatName || chat.name || 'Sem nome'}`,
-            `ID: ${chat.id._serialized}`,
-            `Membros: ${participants.length}`,
-            `Admins: ${admins}`,
-            `Descricao: ${chat.description || 'Sem descricao'}`,
+          createSection(getPhrase('labels.group_summary'), [
+            getPhrase('commands.groupinfo.name_line', { value: chatName || chat.name || getPhrase('commands.common.no_name') }),
+            getPhrase('commands.groupinfo.id_line', { value: chat.id._serialized }),
+            getPhrase('commands.groupinfo.members_line', { value: participants.length }),
+            getPhrase('commands.groupinfo.admins_line', { value: admins }),
+            getPhrase('commands.groupinfo.description_line', { value: chat.description || getPhrase('commands.groupinfo.description_empty') }),
           ]),
         ],
       }),

@@ -1,27 +1,28 @@
 const { commandPanel, createSection } = require('../utils/respond');
+const { getPhrase } = require('./messagePhraseService');
 
 function getScopeLabel(command) {
   if (command.ownerOnly) {
-    return 'Privado do dono';
+    return getPhrase('help.scope_owner_private');
   }
 
   if (command.groupOnly) {
-    return 'Grupo';
+    return getPhrase('help.scope_group');
   }
 
-  return 'Grupo e privado';
+  return getPhrase('help.scope_group_and_private');
 }
 
 function getPermissionLabel(command) {
   if (command.ownerOnly) {
-    return 'Dono do bot';
+    return getPhrase('help.permission_owner');
   }
 
   if (command.adminOnly) {
-    return 'Administradores';
+    return getPhrase('help.permission_admin');
   }
 
-  return 'Qualquer membro';
+  return getPhrase('help.permission_anyone');
 }
 
 function normalizeUsage(example, commandPrefix) {
@@ -52,26 +53,26 @@ function buildHelpMessage(command, commandPrefix) {
     .map((entry) => `⤷ \`${entry}\``);
 
   const sections = [
-    createSection('Resumo', [
+    createSection(getPhrase('labels.summary'), [
       helpEntry?.summary || command.description,
     ]),
-    createSection('Permissao', [
+    createSection(getPhrase('labels.permission'), [
       getPermissionLabel(command),
     ]),
-    createSection('Local de uso', [
+    createSection(getPhrase('labels.usage_scope'), [
       getScopeLabel(command),
     ]),
   ];
 
   if (normalizedExamples.length) {
-    sections.push(createSection('Exemplos', normalizedExamples));
+    sections.push(createSection(getPhrase('labels.examples'), normalizedExamples));
   }
 
   if (Array.isArray(helpEntry?.notes) && helpEntry.notes.length) {
-    sections.push(createSection('Observacoes', helpEntry.notes));
+    sections.push(createSection(getPhrase('labels.notes'), helpEntry.notes));
   }
 
-  return commandPanel(`Ajuda: ${command.name}`, {
+  return commandPanel(getPhrase('help.title', { command_name: command.name }), {
     sections,
   });
 }

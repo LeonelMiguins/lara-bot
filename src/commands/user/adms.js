@@ -1,3 +1,4 @@
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, warning } = require('../../utils/respond');
 
 module.exports = {
@@ -23,14 +24,14 @@ module.exports = {
       .filter(Boolean);
 
     if (!admins.length) {
-      await client.sendMessage(chatId, warning('Administradores', 'Nao encontrei administradores nesse grupo.'));
+      await client.sendMessage(chatId, warning(getPhrase('commands.adms.title'), getPhrase('commands.adms.none_found')));
       return;
     }
 
     const text = admins.map((jid) => `⤷ @${jid.split('@')[0]}\n`).join(' ');
-    await client.sendMessage(chatId, commandPanel('Administradores', {
+    await client.sendMessage(chatId, commandPanel(getPhrase('commands.adms.title'), {
       sections: [
-        createSection('Administracao', [text]),
+        createSection(getPhrase('labels.administration'), [text]),
       ],
     }), {
       mentions: admins,

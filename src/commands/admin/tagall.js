@@ -1,3 +1,4 @@
+const { getPhrase } = require('../../services/messagePhraseService');
 const { info } = require('../../utils/respond');
 
 module.exports = {
@@ -23,7 +24,10 @@ module.exports = {
 
     const text = mentions.map((jid) => `@${jid.split('@')[0]}`).join('\n');
 
-    await client.sendMessage(chatId, info('Marcar membros', `Chamando todo mundo:\n\n${text}`), {
+    await client.sendMessage(chatId, info(
+      getPhrase('commands.tagall.title'),
+      getPhrase('commands.tagall.body', { mentions: text }),
+    ), {
       mentions,
     });
   },

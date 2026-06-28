@@ -1,13 +1,7 @@
 const config = require('../../config/config');
-const ownerNotifications = require('../../services/ownerNotificationService');
-const { resolveParticipant } = require('../../services/whatsappIdentityService');
+const { getPhrase } = require('../../services/messagePhraseService');
+const { removeParticipant } = require('../../services/commands/adminModerationService');
 const { error, invalidUsage, moderation, warning } = require('../../utils/respond');
-const { getParticipantId, normalizeChatId, toContactId } = require('../../utils/wweb');
-
-function extractTargetFromText(text) {
-  const match = text.match(/@?(\d{10,16})/);
-  return match ? toContactId(match[1]) : '';
-}
 
 module.exports = {
   name: 'ban',
@@ -28,48 +22,48 @@ module.exports = {
   },
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, message, chat, chatId, body, participants, mentions, quotedMessage, chatName, commandPrefix }) {
-    const fromMention = mentions[0];
-    const fromReply = quotedMessage?.author || quotedMessage?.from || '';
-    const fromText = extractTargetFromText(body);
-    const target = normalizeChatId(fromMention || fromReply || fromText);
+  async execute({ client, chat, chatId, body, participants, mentions, quotedMessage, chatName, commandPrefix }) {
+    const result = await removeParticipant({
+      client,
+      chat,
+      chatId,
+      body,
+      mentions,
+      quotedMessage,
+      participants,
+      chatName,
+    });
 
-    if (!target) {
+    if (result.status === 'missing_target') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Remover membro', [
-          `Marque um membro e use *${commandPrefix}ban @membro*.`,
-          `Ou responda a mensagem do membro usando apenas *${commandPrefix}ban*.`,
+        invalidUsage(getPhrase('commands.ban.title'), [
+          getPhrase('commands.ban.usage_mention', { prefix: commandPrefix }),
+          getPhrase('commands.ban.usage_reply', { prefix: commandPrefix }),
         ]),
       );
       return;
     }
 
-    const participant = await resolveParticipant(client, participants, target);
-    if (!participant) {
-      await client.sendMessage(chatId, error('Remover membro', 'Nao encontrei esse membro no grupo.'));
+    if (result.status === 'participant_not_found') {
+      await client.sendMessage(chatId, error(getPhrase('commands.ban.title'), getPhrase('commands.ban.not_found')));
       return;
     }
 
-    if (participant.isAdmin || participant.isSuperAdmin) {
-      await client.sendMessage(chatId, warning('Remover membro', 'Nao posso remover outro administrador.'));
+    if (result.status === 'cannot_remove_admin') {
+      await client.sendMessage(chatId, warning(getPhrase('commands.ban.title'), getPhrase('commands.ban.cannot_remove_admin')));
       return;
     }
 
-    const participantId = getParticipantId(participant);
-    await chat.removeParticipants([participantId]);
+    const participantId = result.participantId;
     await client.sendMessage(
       chatId,
-      moderation('Remover membro', `@${participantId.split('@')[0]} foi removido(a) do grupo.`),
+      moderation(getPhrase('commands.ban.title'), getPhrase('commands.ban.removed', {
+        member_handle: participantId.split('@')[0],
+      })),
       {
         mentions: [participantId],
       },
     );
-
-    await ownerNotifications.notifyModerationEvent(client, 'Remocao de membro', [
-      `Grupo: ${chatName || chat.name || chatId}`,
-      `Membro: ${participantId}`,
-      'Acao: removido do grupo',
-    ]);
   },
 };

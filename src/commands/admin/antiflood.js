@@ -1,10 +1,7 @@
 const config = require('../../config/config');
-const {
-  getAntiFloodSettings,
-  resetAntiFloodSettings,
-  setGroupFeature,
-  updateAntiFloodSettings,
-} = require('../../services/groupSettingsService');
+const { resolveAntiFloodCommand } = require('../../services/commands/groupProtectionCommandService');
+const { getPhrase } = require('../../services/messagePhraseService');
+const { getAntiFloodSettings } = require('../../services/groupSettingsService');
 const { info, invalidUsage, success, warning } = require('../../utils/respond');
 
 function formatAntiFlood(groupSettings) {
@@ -12,10 +9,12 @@ function formatAntiFlood(groupSettings) {
   const enabled = Boolean(groupSettings?.features?.antiFlood);
 
   return [
-    `Status: ${enabled ? '🟢 Ligado' : '🔴 Desligado'}`,
-    `Limite de repeticoes: ${settings.repeatedMessagesThreshold}`,
-    `Janela: ${Math.round(settings.windowMs / 1000)}s`,
-    `Tamanho minimo da mensagem: ${settings.minMessageLength}`,
+    getPhrase('commands.antiflood.status_line', {
+      status: enabled ? getPhrase('commands.common.status_on') : getPhrase('commands.common.status_off'),
+    }),
+    getPhrase('commands.antiflood.limit_line', { value: settings.repeatedMessagesThreshold }),
+    getPhrase('commands.antiflood.window_line', { value: Math.round(settings.windowMs / 1000) }),
+    getPhrase('commands.antiflood.min_line', { value: settings.minMessageLength }),
   ].join('\n');
 }
 
@@ -46,105 +45,103 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupSettings, commandPrefix }) {
-    if (!args.length || String(args[0]).toLowerCase() === 'list') {
+    const result = resolveAntiFloodCommand({ chatId, args, groupSettings });
+
+    if (result.status === 'show_status') {
       await client.sendMessage(
         chatId,
         info(
-          'Anti-flood do grupo',
+          getPhrase('commands.antiflood.title'),
           [
             formatAntiFlood(groupSettings),
             '',
-            `Use *${commandPrefix}antiflood on* para ligar.`,
-            `Use *${commandPrefix}antiflood off* para desligar.`,
-            `Use *${commandPrefix}antiflood limite <numero>* para alterar o limite.`,
-            `Use *${commandPrefix}antiflood janela <segundos>* para alterar a janela.`,
-            `Use *${commandPrefix}antiflood minimo <numero>* para alterar o tamanho minimo.`,
-            `Use *${commandPrefix}antiflood reset* para restaurar o padrao.`,
+            getPhrase('commands.antiflood.usage_on', { prefix: commandPrefix }),
+            getPhrase('commands.antiflood.usage_off', { prefix: commandPrefix }),
+            getPhrase('commands.antiflood.usage_limit', { prefix: commandPrefix }),
+            getPhrase('commands.antiflood.usage_window', { prefix: commandPrefix }),
+            getPhrase('commands.antiflood.usage_min', { prefix: commandPrefix }),
+            getPhrase('commands.antiflood.usage_reset', { prefix: commandPrefix }),
           ].join('\n'),
         ),
       );
       return;
     }
 
-    const action = String(args[0] || '').toLowerCase();
-
-    if (action === 'on' || action === 'off') {
-      const enabled = action === 'on';
-      setGroupFeature(chatId, 'antiFlood', enabled);
+    if (result.status === 'updated_state') {
       await client.sendMessage(
         chatId,
         success(
-          '→ *Anti-flood do grupo*',
-          `O anti-flood agora está ${enabled ? 'ligado' : 'desligado'}.`,
+          getPhrase('commands.antiflood.title'),
+          getPhrase('commands.antiflood.enabled_state', {
+            state: result.enabled ? getPhrase('commands.statusgrupo.state_on') : getPhrase('commands.statusgrupo.state_off'),
+          }),
         ),
       );
       return;
     }
 
-    if (action === 'reset') {
-      resetAntiFloodSettings(chatId);
-      await client.sendMessage(chatId, success('Anti-flood do grupo', 'Configuracao restaurada para o padrao da base.'));
+    if (result.status === 'reset') {
+      await client.sendMessage(chatId, success(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.reset_done')));
       return;
     }
 
-    const value = Number(args[1]);
-    if (!Number.isFinite(value)) {
+    if (result.status === 'invalid_number') {
       await client.sendMessage(
         chatId,
         invalidUsage(
-          'Anti-flood do grupo',
+          getPhrase('commands.antiflood.title'),
           [
-            `Use *${commandPrefix}antiflood ${action} <numero>* com um valor numerico valido.`,
+            getPhrase('commands.antiflood.invalid_number_action', {
+              prefix: commandPrefix,
+              action: result.action,
+            }),
           ],
-          'O valor informado nao e um numero valido.',
+          getPhrase('commands.antiflood.invalid_number'),
         ),
       );
       return;
     }
 
-    if (action === 'limite') {
-      if (value < 2) {
-        await client.sendMessage(chatId, warning('Anti-flood do grupo', 'O limite minimo recomendado e 2.'));
-        return;
-      }
-
-      updateAntiFloodSettings(chatId, { repeatedMessagesThreshold: Math.floor(value) });
-      await client.sendMessage(chatId, success('Anti-flood do grupo', 'Limite de repeticoes atualizado com sucesso.'));
+    if (result.status === 'limit_too_low') {
+      await client.sendMessage(chatId, warning(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.limit_min_warning')));
       return;
     }
 
-    if (action === 'janela') {
-      if (value < 3) {
-        await client.sendMessage(chatId, warning('Anti-flood do grupo', 'A janela minima recomendada e 3 segundos.'));
-        return;
-      }
-
-      updateAntiFloodSettings(chatId, { windowMs: Math.floor(value * 1000) });
-      await client.sendMessage(chatId, success('Anti-flood do grupo', 'Janela do anti-flood atualizada com sucesso.'));
+    if (result.status === 'limit_updated') {
+      await client.sendMessage(chatId, success(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.limit_updated')));
       return;
     }
 
-    if (action === 'minimo' || action === 'min') {
-      if (value < 1) {
-        await client.sendMessage(chatId, warning('Anti-flood do grupo', 'O tamanho minimo precisa ser pelo menos 1.'));
-        return;
-      }
+    if (result.status === 'window_too_low') {
+      await client.sendMessage(chatId, warning(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.window_min_warning')));
+      return;
+    }
 
-      updateAntiFloodSettings(chatId, { minMessageLength: Math.floor(value) });
-      await client.sendMessage(chatId, success('Anti-flood do grupo', 'Tamanho minimo atualizado com sucesso.'));
+    if (result.status === 'window_updated') {
+      await client.sendMessage(chatId, success(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.window_updated')));
+      return;
+    }
+
+    if (result.status === 'min_too_low') {
+      await client.sendMessage(chatId, warning(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.message_min_warning')));
+      return;
+    }
+
+    if (result.status === 'min_updated') {
+      await client.sendMessage(chatId, success(getPhrase('commands.antiflood.title'), getPhrase('commands.antiflood.min_updated')));
       return;
     }
 
     await client.sendMessage(
       chatId,
-      invalidUsage('Anti-flood do grupo', [
-        `Use *${commandPrefix}antiflood* para ver a configuracao.`,
-        `Use *${commandPrefix}antiflood on* para ligar.`,
-        `Use *${commandPrefix}antiflood off* para desligar.`,
-        `Use *${commandPrefix}antiflood limite <numero>* para alterar o limite.`,
-        `Use *${commandPrefix}antiflood janela <segundos>* para alterar a janela.`,
-        `Use *${commandPrefix}antiflood minimo <numero>* para alterar o minimo.`,
-        `Use *${commandPrefix}antiflood reset* para restaurar o padrao.`,
+      invalidUsage(getPhrase('commands.antiflood.title'), [
+        getPhrase('commands.antiflood.usage_status', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_on', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_off', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_limit', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_window', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_min', { prefix: commandPrefix }),
+        getPhrase('commands.antiflood.usage_reset', { prefix: commandPrefix }),
       ]),
     );
   },

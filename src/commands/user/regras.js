@@ -1,4 +1,5 @@
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const {
   addGroupRule,
   getRuleEntries,
@@ -36,10 +37,14 @@ module.exports = {
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chatName, groupSettings, senderIsAdmin, args, commandPrefix }) {
+    const panelTitle = getPhrase('commands.regras.title', {
+      group_name: chatName || getPhrase('commands.regras.group_fallback'),
+    });
+
     if (!args.length) {
-      await client.sendMessage(chatId, commandPanel(`Regras de ${chatName || 'grupo'}`, {
+      await client.sendMessage(chatId, commandPanel(panelTitle, {
         sections: [
-          createSection('Regras', formatRules(groupSettings)),
+          createSection(getPhrase('labels.rules'), formatRules(groupSettings)),
         ],
       }));
       return;
@@ -48,8 +53,8 @@ module.exports = {
     if (!senderIsAdmin) {
       await client.sendMessage(
         chatId,
-        denied('Regras do grupo', 'Apenas administradores podem editar as regras.', [
-          'Use esse comando com uma conta administradora do grupo.',
+        denied(panelTitle, getPhrase('commands.regras.denied_reason'), [
+          getPhrase('commands.regras.denied_action'),
         ]),
       );
       return;
@@ -62,15 +67,15 @@ module.exports = {
       if (!text) {
         await client.sendMessage(
           chatId,
-          invalidUsage('Regras do grupo', [
-            `Use *${commandPrefix}regras add <texto da regra>*.`,
+          invalidUsage(panelTitle, [
+            getPhrase('commands.regras.usage_add', { prefix: commandPrefix }),
           ]),
         );
         return;
       }
 
       addGroupRule(chatId, text);
-      await client.sendMessage(chatId, success('Regras do grupo', 'Nova regra adicionada com sucesso.'));
+      await client.sendMessage(chatId, success(panelTitle, getPhrase('commands.regras.rule_added')));
       return;
     }
 
@@ -81,29 +86,29 @@ module.exports = {
       if (!Number.isInteger(index) || index < 0 || index >= rules.length) {
         await client.sendMessage(
           chatId,
-          invalidUsage('Regras do grupo', [
-            `Use *${commandPrefix}regras del <numero>*.`,
-            `Exemplo: *${commandPrefix}regras del 2*.`,
+          invalidUsage(panelTitle, [
+            getPhrase('commands.regras.usage_del', { prefix: commandPrefix }),
+            getPhrase('commands.regras.usage_del_example', { prefix: commandPrefix }),
           ]),
         );
         return;
       }
 
       removeGroupRule(chatId, index);
-      await client.sendMessage(chatId, success('Regras do grupo', 'Regra removida com sucesso.'));
+      await client.sendMessage(chatId, success(panelTitle, getPhrase('commands.regras.rule_removed')));
       return;
     }
 
     if (action === 'reset') {
       resetGroupRules(chatId);
-      await client.sendMessage(chatId, success('Regras do grupo', 'As regras voltaram para o padrao da base.'));
+      await client.sendMessage(chatId, success(panelTitle, getPhrase('commands.regras.rules_reset')));
       return;
     }
 
     if (action === 'list') {
-      await client.sendMessage(chatId, commandPanel(`Regras de ${chatName || 'grupo'}`, {
+      await client.sendMessage(chatId, commandPanel(panelTitle, {
         sections: [
-          createSection('Regras', formatRules(groupSettings)),
+          createSection(getPhrase('labels.rules'), formatRules(groupSettings)),
         ],
       }));
       return;
@@ -111,11 +116,11 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      invalidUsage('Regras do grupo', [
-        `Use *${commandPrefix}regras* para ver as regras.`,
-        `Use *${commandPrefix}regras add <texto>* para adicionar.`,
-        `Use *${commandPrefix}regras del <numero>* para remover.`,
-        `Use *${commandPrefix}regras reset* para restaurar o padrao.`,
+      invalidUsage(panelTitle, [
+        getPhrase('commands.regras.usage_view', { prefix: commandPrefix }),
+        getPhrase('commands.regras.usage_add_short', { prefix: commandPrefix }),
+        getPhrase('commands.regras.usage_del_short', { prefix: commandPrefix }),
+        getPhrase('commands.regras.usage_reset', { prefix: commandPrefix }),
       ]),
     );
   },

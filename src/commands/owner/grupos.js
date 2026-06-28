@@ -1,4 +1,5 @@
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, warning } = require('../../utils/respond');
 
 module.exports = {
@@ -24,7 +25,7 @@ module.exports = {
     const groups = chats.filter((chat) => chat.isGroup);
 
     if (!groups.length) {
-      await client.sendMessage(chatId, warning('Grupos do bot', 'Nao encontrei grupos disponiveis neste momento.'));
+      await client.sendMessage(chatId, warning(getPhrase('commands.grupos.title'), getPhrase('commands.grupos.none_found')));
       return;
     }
 
@@ -34,13 +35,13 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      commandPanel('Grupos do bot', {
+      commandPanel(getPhrase('commands.grupos.title'), {
         sections: [
-          createSection('Resumo', [`Total de grupos: ${groups.length}`]),
-          createSection('IDs para uso no privado', lines),
+          createSection(getPhrase('labels.summary'), [getPhrase('commands.grupos.total_line', { count: groups.length })]),
+          createSection(getPhrase('labels.private_group_ids'), lines),
         ],
         footer: [
-          `Exemplo: *${commandPrefix}antilink --grupo <ID_DO_GRUPO> on*`,
+          getPhrase('commands.grupos.footer_example', { prefix: commandPrefix }),
         ],
       }),
     );

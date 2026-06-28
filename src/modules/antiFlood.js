@@ -1,5 +1,6 @@
 const config = require('../config/config');
 const logger = require('../services/loggerService');
+const { getPhrase } = require('../services/messagePhraseService');
 const ownerNotifications = require('../services/ownerNotificationService');
 const { resolveParticipantId } = require('../services/whatsappIdentityService');
 const { moderation } = require('../utils/respond');
@@ -90,8 +91,10 @@ module.exports = function setupAntiFlood(client) {
     await client.sendMessage(
       context.chatId,
       moderation(
-        'Anti-flood',
-        `@${idToHandle(participantId)} foi removido(a) por floodar mensagens repetidas.`,
+        getPhrase('modules.anti_flood_title'),
+        getPhrase('modules.anti_flood_moderation_line', {
+          member_handle: idToHandle(participantId),
+        }),
       ),
       { mentions: [participantId] },
     );

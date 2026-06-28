@@ -1,5 +1,6 @@
 const config = require('../config/config');
 const logger = require('../services/loggerService');
+const { getPhrase } = require('../services/messagePhraseService');
 const ownerNotifications = require('../services/ownerNotificationService');
 const { resolveParticipantId } = require('../services/whatsappIdentityService');
 const { moderation } = require('../utils/respond');
@@ -10,17 +11,17 @@ function findBlockedMatch(text, blacklist) {
   const categories = [
     {
       category: 'whatsappGroupLinks',
-      reason: 'Compartilhar links de grupos, comunidades ou canais do WhatsApp nao e permitido aqui.',
+      reason: getPhrase('modules.anti_link_reason_whatsapp'),
       patterns: blacklist.whatsappGroupLinks,
     },
     {
       category: 'adultSites',
-      reason: 'Links com conteudo adulto nao sao permitidos neste grupo.',
+      reason: getPhrase('modules.anti_link_reason_adult'),
       patterns: blacklist.adultSites,
     },
     {
       category: 'betsSites',
-      reason: 'Links de apostas nao sao permitidos neste grupo.',
+      reason: getPhrase('modules.anti_link_reason_bets'),
       patterns: blacklist.betsSites,
     },
   ];
@@ -84,7 +85,13 @@ module.exports = function setupAntiLink(client) {
     try {
       await client.sendMessage(
         context.chatId,
-        moderation('Anti-link', `@${idToHandle(senderId)} ${blocked.reason}`),
+        moderation(
+          getPhrase('modules.anti_link_title'),
+          getPhrase('modules.anti_link_moderation_line', {
+            member_handle: idToHandle(senderId),
+            reason: blocked.reason,
+          }),
+        ),
         { mentions: [senderId] },
       );
     } catch (error) {
@@ -108,7 +115,7 @@ module.exports = function setupAntiLink(client) {
       await ownerNotifications.notifyModerationEvent(client, 'Anti-link acionado', [
         `Grupo: ${context.chatName || context.chatId}`,
         `Membro: ${senderId}`,
-        `Motivo: ${blocked.reason}`,
+        `${getPhrase('labels.reason')}: ${blocked.reason}`,
         `Correspondencia: ${blocked.matched}`,
         `Escopo: ${targetMode === 'all' ? 'qualquer pessoa' : 'apenas usuarios comuns'}`,
         `Acao: ${action === 'ban' ? 'apagar e banir' : 'apenas apagar'}`,

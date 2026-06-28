@@ -2,23 +2,20 @@ const {
   getAntiFloodSettings,
   getFeatureEntries,
 } = require('../../services/groupSettingsService');
+const { getFeatureLabelKey } = require('../../services/commands/featureCatalogService');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection } = require('../../utils/respond');
-
-const FEATURE_LABELS = {
-  welcome: 'Boas-vindas',
-  farewell: 'Saida de membros',
-  antiLink: 'Anti-link',
-  antiFlood: 'Anti-flood',
-  commandReaction: 'Reacao em comandos',
-};
 
 function formatFeatureSummary(groupSettings) {
   const enabledFeatures = getFeatureEntries(groupSettings)
     .filter(([, enabled]) => enabled)
-    .map(([featureName]) => FEATURE_LABELS[featureName] || featureName);
+    .map(([featureName]) => {
+      const labelKey = getFeatureLabelKey(featureName);
+      return labelKey ? getPhrase(labelKey) : featureName;
+    });
 
   if (!enabledFeatures.length) {
-    return 'Nenhum modulo ligado';
+    return getPhrase('modules.feature_none_enabled');
   }
 
   return enabledFeatures.join(', ');
@@ -48,20 +45,20 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      commandPanel('Status do grupo', {
+      commandPanel(getPhrase('commands.statusgrupo.title'), {
         sections: [
-          createSection('Resumo', [
-            `Grupo: ${chatName || chat.name || 'Sem nome'}`,
-            `Membros: ${participants.length}`,
-            `Admins: ${admins}`,
-            `Prefixo ativo: ${commandPrefix}`,
+          createSection(getPhrase('labels.summary'), [
+            getPhrase('commands.statusgrupo.group_line', { value: chatName || chat.name || getPhrase('commands.common.no_name') }),
+            getPhrase('commands.statusgrupo.members_line', { value: participants.length }),
+            getPhrase('commands.statusgrupo.admins_line', { value: admins }),
+            getPhrase('commands.statusgrupo.prefix_line', { value: commandPrefix }),
           ]),
-          createSection('Protecao', [
-            `Modulos ligados: ${formatFeatureSummary(groupSettings)}`,
-            `Link liberado: ${botIsAdmin ? 'sim' : 'nao'}`,
-            `Anti-flood: ${groupSettings?.features?.antiFlood ? 'ligado' : 'desligado'}`,
-            `Limite atual: ${antiFlood.repeatedMessagesThreshold} repeticoes`,
-            `Janela atual: ${Math.round(antiFlood.windowMs / 1000)}s`,
+          createSection(getPhrase('labels.protection'), [
+            getPhrase('commands.statusgrupo.modules_line', { value: formatFeatureSummary(groupSettings) }),
+            getPhrase('commands.statusgrupo.link_line', { value: botIsAdmin ? getPhrase('commands.common.yes') : getPhrase('commands.common.no') }),
+            getPhrase('commands.statusgrupo.antiflood_line', { value: groupSettings?.features?.antiFlood ? getPhrase('commands.statusgrupo.state_on') : getPhrase('commands.statusgrupo.state_off') }),
+            getPhrase('commands.statusgrupo.limit_line', { value: antiFlood.repeatedMessagesThreshold }),
+            getPhrase('commands.statusgrupo.window_line', { value: Math.round(antiFlood.windowMs / 1000) }),
           ]),
         ],
       }),

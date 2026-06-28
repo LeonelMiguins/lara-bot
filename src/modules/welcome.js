@@ -1,5 +1,6 @@
 const { loadGroupSettings } = require('../services/groupSettingsService');
 const logger = require('../services/loggerService');
+const { getPhrase } = require('../services/messagePhraseService');
 const { getEffectivePrefix } = require('../services/prefixService');
 const { info } = require('../utils/respond');
 
@@ -18,13 +19,13 @@ module.exports = function setupWelcome(client) {
       for (const contact of contacts) {
         const displayName = contact.pushname || contact.name || contact.number || 'novo membro';
         const text = info(
-          'Boas-vindas',
+          getPhrase('modules.welcome_title'),
           [
-            `Ola, *${displayName}*!`,
-            `Seja bem-vindo(a) ao *${chat.name || 'grupo'}*.`,
+            getPhrase('modules.welcome_line_1', { member_name: displayName }),
+            getPhrase('modules.welcome_line_2', { group_name: chat.name || 'grupo' }),
             '',
-            `Use *${commandPrefix}menu* para ver os comandos.`,
-            `Use *${commandPrefix}regras* para ler as regras do grupo.`,
+            getPhrase('modules.welcome_line_3', { prefix: commandPrefix }),
+            getPhrase('modules.welcome_line_4', { prefix: commandPrefix }),
           ].join('\n'),
         );
 

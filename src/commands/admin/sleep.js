@@ -1,4 +1,5 @@
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { invalidUsage, success } = require('../../utils/respond');
 
 module.exports = {
@@ -24,9 +25,9 @@ module.exports = {
     if (mode !== 'on' && mode !== 'off') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Modo silencioso', [
-          `Use *${commandPrefix}sleep on* para fechar o grupo.`,
-          `Use *${commandPrefix}sleep off* para reabrir o grupo.`,
+        invalidUsage(getPhrase('commands.sleep.title'), [
+          getPhrase('commands.sleep.usage_on', { prefix: commandPrefix }),
+          getPhrase('commands.sleep.usage_off', { prefix: commandPrefix }),
         ]),
       );
       return;
@@ -36,10 +37,10 @@ module.exports = {
     await client.sendMessage(
       chatId,
       success(
-        'Modo silencioso',
+        getPhrase('commands.sleep.title'),
         mode === 'on'
-          ? 'Modo silencioso ativado. Agora so administradores podem enviar mensagens.'
-          : 'Grupo reaberto. Todos os membros podem enviar mensagens novamente.',
+          ? getPhrase('commands.sleep.enabled')
+          : getPhrase('commands.sleep.disabled'),
       ),
     );
   },

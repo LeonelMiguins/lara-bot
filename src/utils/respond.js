@@ -1,10 +1,12 @@
 const {
-  normalizeLines,
   renderBloco,
   renderCabecalho,
   renderCommand,
   renderMsg,
+  renderPatternBody,
   renderRodape,
+  renderSection,
+  renderSectionedBody,
   renderTitle,
 } = require('../services/messageRenderService');
 const { getPhrase } = require('../services/messagePhraseService');
@@ -17,84 +19,14 @@ function frame({ title, body, tone = 'INFO', forceTone } = {}) {
   });
 }
 
-function buildPatternBody({ summary, reason, actions = [] }) {
-  const lines = [];
-
-  if (summary) {
-    lines.push(...normalizeLines(summary));
-  }
-
-  if (reason) {
-    if (lines.length) {
-      lines.push('');
-    }
-    lines.push(renderTitle('Motivo'));
-    lines.push(...normalizeLines(reason));
-  }
-
-  const normalizedActions = normalizeLines(actions);
-  if (normalizedActions.length) {
-    if (lines.length) {
-      lines.push('');
-    }
-    lines.push(renderTitle('Como corrigir'));
-    lines.push(...normalizedActions.map((action) => `- ${action}`));
-  }
-
-  return lines.join('\n');
-}
-
 function createSection(title, lines = []) {
-  return {
-    title: String(title || '').trim(),
-    lines: normalizeLines(lines),
-  };
-}
-
-function buildSectionedBody({ lead = [], sections = [], footer = [] }) {
-  const lines = [];
-  const normalizedLead = normalizeLines(lead);
-
-  if (normalizedLead.length) {
-    lines.push(...normalizedLead);
-  }
-
-  for (const section of sections) {
-    const title = String(section?.title || '').trim();
-    const content = normalizeLines(section?.lines || []);
-
-    if (!title && !content.length) {
-      continue;
-    }
-
-    if (lines.length) {
-      lines.push('');
-    }
-
-    if (title) {
-      lines.push(renderTitle(title));
-    }
-
-    if (content.length) {
-      lines.push(...renderMsg(content));
-    }
-  }
-
-  const normalizedFooter = normalizeLines(footer);
-  if (normalizedFooter.length) {
-    if (lines.length) {
-      lines.push('');
-    }
-    lines.push(...normalizedFooter);
-  }
-
-  return lines.join('\n');
+  return renderSection(title, lines);
 }
 
 function commandPanel(title, { lead = [], sections = [], footer = [], tone = '' } = {}) {
   return frame({
     title: '',
-    body: buildSectionedBody({ lead, sections, footer }),
+    body: renderSectionedBody({ lead, sections, footer }),
     tone,
     forceTone: false,
   });
@@ -151,40 +83,40 @@ function phraseError(key, variables = {}) {
 }
 
 function denied(title, reason, actions = []) {
-  return error(title, buildPatternBody({
-    summary: 'Voce nao pode usar este comando agora.',
+  return error(title, renderPatternBody({
+    summaryKey: 'common.denied_summary',
     reason,
     actions,
   }));
 }
 
-function invalidUsage(title, actions = [], reason = 'Esse comando foi enviado de forma incompleta ou invalida.') {
-  return warning(title, buildPatternBody({
-    summary: 'Nao consegui entender o formato desse comando.',
+function invalidUsage(title, actions = [], reason = getPhrase('common.command_invalid')) {
+  return warning(title, renderPatternBody({
+    summaryKey: 'common.invalid_usage_summary',
     reason,
     actions,
   }));
 }
 
 function unavailable(title, reason, actions = []) {
-  return warning(title, buildPatternBody({
-    summary: 'Esse comando nao pode ser executado neste contexto.',
+  return warning(title, renderPatternBody({
+    summaryKey: 'common.unavailable_summary',
     reason,
     actions,
   }));
 }
 
 function failure(title, reason, actions = []) {
-  return error(title, buildPatternBody({
-    summary: 'Ocorreu um problema durante a execucao.',
+  return error(title, renderPatternBody({
+    summaryKey: 'common.failure_summary',
     reason,
     actions,
   }));
 }
 
 module.exports = {
-  buildSectionedBody,
-  buildPatternBody,
+  buildSectionedBody: renderSectionedBody,
+  buildPatternBody: renderPatternBody,
   commandPanel,
   createSection,
   denied,

@@ -1,5 +1,6 @@
 const config = require('../../config/config');
 const { getLogFilePath, logsEnabled } = require('../../services/loggerService');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { setOwnerLogsEnabled } = require('../../services/ownerSettingsService');
 const { commandPanel, createSection, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
@@ -33,17 +34,17 @@ module.exports = {
     if (!action || action === 'status' || action === 'list') {
       await client.sendMessage(
         chatId,
-        commandPanel('Logs do bot', {
+        commandPanel(getPhrase('commands.logs.title'), {
           sections: [
-            createSection('Status', [
-              `Atual: ${formatStatus()}`,
-              `Arquivo: ${getLogFilePath()}`,
-              'Observacao: logs de conexao continuam aparecendo no terminal.',
+            createSection(getPhrase('labels.status'), [
+              getPhrase('commands.logs.current_line', { value: formatStatus() }),
+              getPhrase('commands.logs.file_line', { value: getLogFilePath() }),
+              getPhrase('commands.logs.note_terminal'),
             ]),
           ],
           footer: [
-            `Use *${commandPrefix}logs on* para ligar.`,
-            `Use *${commandPrefix}logs off* para desligar.`,
+            getPhrase('commands.logs.usage_on', { prefix: commandPrefix }),
+            getPhrase('commands.logs.usage_off', { prefix: commandPrefix }),
           ],
         }),
       );
@@ -53,9 +54,9 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Logs do bot', [
-          `Use *${commandPrefix}logs on* para ligar os logs.`,
-          `Use *${commandPrefix}logs off* para desligar os logs.`,
+        invalidUsage(getPhrase('commands.logs.title'), [
+          getPhrase('commands.logs.usage_enable', { prefix: commandPrefix }),
+          getPhrase('commands.logs.usage_disable', { prefix: commandPrefix }),
         ]),
       );
       return;

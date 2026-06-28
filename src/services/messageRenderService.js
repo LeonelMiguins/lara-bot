@@ -1,4 +1,5 @@
 const config = require('../config/config');
+const { getPhrase } = require('./messagePhraseService');
 
 function getMessageStyle() {
   return config.messageStyle || {};
@@ -111,6 +112,97 @@ function renderBloco({ header = {}, title = '', body = [], footer = true } = {})
   return lines.join('\n');
 }
 
+function renderPhrase(key, variables = {}) {
+  return getPhrase(key, variables);
+}
+
+function renderSection(title, lines = []) {
+  return {
+    title: String(title || '').trim(),
+    lines: normalizeLines(lines),
+  };
+}
+
+function renderSectionByKey(titleKey, lines = [], variables = {}) {
+  return renderSection(renderPhrase(titleKey, variables), lines);
+}
+
+function renderSectionedBody({ lead = [], sections = [], footer = [] }) {
+  const lines = [];
+  const normalizedLead = normalizeLines(lead);
+
+  if (normalizedLead.length) {
+    lines.push(...normalizedLead);
+  }
+
+  for (const section of sections) {
+    const title = String(section?.title || '').trim();
+    const content = normalizeLines(section?.lines || []);
+
+    if (!title && !content.length) {
+      continue;
+    }
+
+    if (lines.length) {
+      lines.push('');
+    }
+
+    if (title) {
+      lines.push(renderTitle(title));
+    }
+
+    if (content.length) {
+      lines.push(...renderMsg(content));
+    }
+  }
+
+  const normalizedFooter = normalizeLines(footer);
+  if (normalizedFooter.length) {
+    if (lines.length) {
+      lines.push('');
+    }
+    lines.push(...normalizedFooter);
+  }
+
+  return lines.join('\n');
+}
+
+function renderPatternBody({
+  summary = '',
+  summaryKey = '',
+  summaryVariables = {},
+  reason = '',
+  actions = [],
+  reasonTitleKey = 'labels.reason',
+  actionsTitleKey = 'labels.how_to_fix',
+} = {}) {
+  const lines = [];
+  const resolvedSummary = summaryKey ? renderPhrase(summaryKey, summaryVariables) : summary;
+
+  if (resolvedSummary) {
+    lines.push(...normalizeLines(resolvedSummary));
+  }
+
+  if (reason) {
+    if (lines.length) {
+      lines.push('');
+    }
+    lines.push(renderTitle(renderPhrase(reasonTitleKey)));
+    lines.push(...normalizeLines(reason));
+  }
+
+  const normalizedActions = normalizeLines(actions);
+  if (normalizedActions.length) {
+    if (lines.length) {
+      lines.push('');
+    }
+    lines.push(renderTitle(renderPhrase(actionsTitleKey)));
+    lines.push(...normalizedActions.map((action) => `- ${action}`));
+  }
+
+  return lines.join('\n');
+}
+
 module.exports = {
   getMessageStyle,
   normalizeLines,
@@ -121,7 +213,12 @@ module.exports = {
   renderCommand,
   renderMensagem,
   renderMsg,
+  renderPatternBody,
+  renderPhrase,
   renderRodape,
+  renderSection,
+  renderSectionByKey,
+  renderSectionedBody,
   renderTitle,
   renderTitulo,
 };

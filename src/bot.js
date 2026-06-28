@@ -8,17 +8,16 @@ const setupAntiFlood = require('./modules/antiFlood');
 const setupAntiLink = require('./modules/antiLink');
 const setupFarewell = require('./modules/farewell');
 const setupWelcome = require('./modules/welcome');
-const { loadGroupSettings } = require('./services/groupSettingsService');
+const {
+  buildMessageContext,
+  resolveExecutionContext,
+} = require('./services/bot/commandContextService');
+const { executeCommand, maybeSendCommandHelp } = require('./services/bot/commandExecutionService');
+const { parseCommandMessage } = require('./services/bot/commandParserService');
+const { finalizeCommandExecution, handleCommandFailure } = require('./services/bot/commandPostExecutionService');
+const { validateCommandPermission } = require('./services/bot/commandPermissionService');
 const logger = require('./services/loggerService');
 const { setCommandCatalog } = require('./services/menuService');
-const ownerNotifications = require('./services/ownerNotificationService');
-const { sendCommandHelp } = require('./services/commandHelpService');
-const { getEffectivePrefix } = require('./services/prefixService');
-const {
-  findParticipantById,
-  isAdminParticipant,
-  resolveUserAliases,
-} = require('./services/whatsappIdentityService');
 const {
   phraseError,
   phraseWarning,
@@ -26,13 +25,6 @@ const {
 const { digitsOnly } = require('./utils/text');
 const {
   ensureDirectory,
-  getParticipantId,
-  getChatMetadata,
-  getMentionedIds,
-  getQuotedMessage,
-  getSenderId,
-  normalizeChatId,
-  normalizeUserId,
 } = require('./utils/wweb');
 
 const runtimeState = {
@@ -41,20 +33,6 @@ const runtimeState = {
   announcedWaitingForQr: false,
   pairingCodeRequested: false,
 };
-
-async function reactToCommandMessage(message, context) {
-  if (!context?.isGroup || !context?.groupSettings?.features?.commandReaction) {
-    return;
-  }
-
-  try {
-    await message.react('👍');
-  } catch (error) {
-    logger.runtimeWarn('command.reaction_failed', logger.buildMessageMeta(context, {
-      errorMessage: error?.message || String(error),
-    }));
-  }
-}
 
 function formatPhoneDisplay(value) {
   const digits = digitsOnly(value);
@@ -95,151 +73,6 @@ function createClient() {
   });
 
   return client;
-}
-
-async function buildMessageContext(message) {
-  const senderId = normalizeUserId(await getSenderId(message));
-  const senderIsOwner = await ownerNotifications.isOwnerUser(message.client, senderId);
-  const { chat } = await getChatMetadata(message);
-  const mentions = await getMentionedIds(message);
-  const quotedMessage = await getQuotedMessage(message);
-
-  return buildChatExecutionContext(message.client, chat, senderId, {
-    senderIsOwner,
-    mentions,
-    quotedMessage,
-  });
-}
-
-async function buildChatExecutionContext(client, chat, senderId, extra = {}) {
-  const chatId = chat.id._serialized;
-  const contact = await chat.getContact();
-  const chatName = chat.name || contact.pushname || contact.name || 'chat';
-  const isGroup = chat.isGroup;
-  const me = await client.getContactById(client.info.wid._serialized);
-  const meId = normalizeUserId(me.id._serialized);
-  const senderIsOwner = Boolean(extra.senderIsOwner);
-
-  let senderIsAdmin = false;
-  let botIsAdmin = false;
-  let participants = [];
-  let groupSettings = null;
-
-  if (isGroup) {
-    participants = chat.participants || [];
-    groupSettings = loadGroupSettings(chatId);
-    const [senderAliases, meAliases] = await Promise.all([
-      resolveUserAliases(client, senderId),
-      resolveUserAliases(client, meId),
-    ]);
-
-    senderIsAdmin = Array.from(senderAliases).some((alias) =>
-      isAdminParticipant(findParticipantById(participants, alias)),
-    );
-    botIsAdmin = Array.from(meAliases).some((alias) =>
-      isAdminParticipant(findParticipantById(participants, alias)),
-    );
-  }
-
-  const commandPrefix = getEffectivePrefix({ isGroup, groupSettings });
-
-  return {
-    chat,
-    chatId,
-    chatName,
-    isGroup,
-    senderId,
-    senderIsOwner,
-    senderIsAdmin,
-    botIsAdmin,
-    participants,
-    groupConfig: groupSettings,
-    groupSettings,
-    commandPrefix,
-    mentions: extra.mentions || [],
-    quotedMessage: extra.quotedMessage || null,
-    ownerIsOperator: Boolean(extra.ownerIsOperator),
-  };
-}
-
-function parseTargetGroupArgs(args) {
-  const nextArgs = [...args];
-  const flagIndex = nextArgs.findIndex((arg) => ['--grupo', '--group', '-g'].includes(String(arg).toLowerCase()));
-
-  if (flagIndex === -1) {
-    return { targetGroupId: '', args: nextArgs };
-  }
-
-  const rawGroupId = normalizeChatId(nextArgs[flagIndex + 1] || '');
-  const targetGroupId = rawGroupId.endsWith('@g.us') ? rawGroupId : `${rawGroupId.replace(/@.+$/i, '')}@g.us`;
-  nextArgs.splice(flagIndex, 2);
-
-  return {
-    targetGroupId,
-    args: nextArgs,
-  };
-}
-
-async function resolveExecutionContext(client, message, command, args, baseContext) {
-  if (baseContext.isGroup) {
-    return {
-      context: baseContext,
-      args,
-      body: String(message.body || '').trim(),
-    };
-  }
-
-  if (!baseContext.senderIsOwner) {
-    return {
-      error: 'Somente o dono do bot pode executar comandos de grupo no privado.',
-    };
-  }
-
-  if (!command.groupOnly) {
-    return {
-      context: {
-        ...baseContext,
-        ownerIsOperator: true,
-      },
-      args,
-      body: String(message.body || '').trim(),
-    };
-  }
-
-  const parsed = parseTargetGroupArgs(args);
-  if (!parsed.targetGroupId) {
-    return {
-      error: `Use *${baseContext.commandPrefix}grupos* para listar os grupos e *--grupo <ID_DO_GRUPO>* para escolher o alvo.`,
-    };
-  }
-
-  let targetChat;
-  try {
-    targetChat = await client.getChatById(parsed.targetGroupId);
-  } catch {
-    return {
-      error: 'Nao consegui encontrar esse grupo alvo.',
-    };
-  }
-
-  if (!targetChat?.isGroup) {
-    return {
-      error: 'O ID informado nao pertence a um grupo.',
-    };
-  }
-
-  const context = await buildChatExecutionContext(client, targetChat, baseContext.senderId, {
-    senderIsOwner: true,
-    mentions: [],
-    quotedMessage: null,
-    ownerIsOperator: true,
-  });
-
-  return {
-    context,
-    args: parsed.args,
-    body: `${context.commandPrefix}${command.name}${parsed.args.length ? ` ${parsed.args.join(' ')}` : ''}`,
-  };
 }
 
 async function sleep(ms) {
@@ -364,25 +197,15 @@ async function startBot() {
       }
 
       const body = String(message.body || '').trim();
-      const activePrefix = context.commandPrefix || config.prefix;
-
-      if (!body.startsWith(activePrefix)) {
+      const parsedCommand = parseCommandMessage(body, context.commandPrefix || config.prefix, commands);
+      if (!parsedCommand) {
         return;
       }
 
-      const parts = body.slice(activePrefix.length).trim().split(/\s+/).filter(Boolean);
-      if (!parts.length) {
-        return;
-      }
-
-      const commandName = parts.shift().toLowerCase();
+      const { commandName, command } = parsedCommand;
       activeCommandName = commandName;
-      const command = commands.get(commandName);
-      if (!command) {
-        return;
-      }
 
-      const execution = await resolveExecutionContext(client, message, command, parts, context);
+      const execution = await resolveExecutionContext(client, message, command, parsedCommand.args, context);
       if (execution.error) {
         logger.commandRejected(command.name, 'target_context_missing', context);
         await client.sendMessage(
@@ -397,76 +220,49 @@ async function startBot() {
       const executionBody = execution.body;
       activeContext = executionContext;
 
-      if (command.name !== 'help' && executionArgs.length && ['help', 'ajuda'].includes(String(executionArgs[executionArgs.length - 1]).toLowerCase())) {
-        await sendCommandHelp({
+      const helpSent = await maybeSendCommandHelp({
           client,
           chatId: context.chatId,
           command,
           commandPrefix: executionContext.commandPrefix,
+          helpRequested: parsedCommand.helpRequested,
         });
+      if (helpSent) {
         return;
       }
 
-      await reactToCommandMessage(message, executionContext);
-
-      logger.commandReceived(command.name, executionArgs, executionContext);
-
-      if (command.ownerOnly && !executionContext.senderIsOwner) {
-        logger.commandRejected(command.name, 'owner_only', executionContext);
+      const permission = validateCommandPermission(command, executionContext);
+      if (!permission.allowed) {
+        logger.commandRejected(command.name, permission.reason, executionContext, permission.meta || {});
         await client.sendMessage(
           context.chatId,
-          phraseError('common.owner_only'),
+          phraseError(`common.${permission.reason}`),
         );
         return;
       }
 
-      if (command.groupOnly && !executionContext.isGroup) {
-        logger.commandRejected(command.name, 'group_only', executionContext);
-        await client.sendMessage(
-          context.chatId,
-          phraseError('common.group_only'),
-        );
-        return;
-      }
-
-      if (command.adminOnly && !executionContext.senderIsAdmin && !executionContext.ownerIsOperator) {
-        logger.commandRejected(command.name, 'admin_only', executionContext, {
-          participants: executionContext.participants
-            .map((participant) => `${getParticipantId(participant)}:${isAdminParticipant(participant) ? 'admin' : 'membro'}`),
-        });
-        await client.sendMessage(
-          context.chatId,
-          phraseError('common.admin_only'),
-        );
-        return;
-      }
-
-      const startedAt = Date.now();
-      await command.execute({
+      const executionResult = await executeCommand({
         client,
         message,
+        command,
         args: executionArgs,
         body: executionBody,
+        context: executionContext,
         commandRegistry: commands,
-        ...executionContext,
       });
-      const durationMs = Date.now() - startedAt;
-      logger.commandCompleted(command.name, durationMs, executionContext);
-
-      try {
-        await ownerNotifications.notifyCommandExecuted(client, command.name, executionContext, durationMs);
-      } catch (notificationError) {
-        logger.runtimeError('owner_notification.command_failed', notificationError, logger.buildMessageMeta(executionContext, {
-          command: command.name,
-        }));
-      }
+      await finalizeCommandExecution({
+        client,
+        commandName: command.name,
+        context: executionContext,
+        durationMs: executionResult.durationMs,
+      });
     } catch (runtimeError) {
-      logger.commandFailed(activeCommandName, runtimeError, activeContext);
-      try {
-        await message.reply(
-          phraseError('common.execution_failed'),
-        );
-      } catch {}
+      await handleCommandFailure({
+        message,
+        commandName: activeCommandName,
+        error: runtimeError,
+        context: activeContext,
+      });
     }
   });
 

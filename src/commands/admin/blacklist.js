@@ -1,4 +1,5 @@
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const {
   getBlacklistCategoryMeta,
   getBlacklistEntries,
@@ -20,7 +21,7 @@ function formatBlacklist(groupSettings) {
       const entries = getBlacklistEntries(groupSettings, category);
       const content = entries.length
         ? entries.map((entry, index) => `${index + 1}. ${entry}`).join('\n')
-        : 'Sem entradas personalizadas.';
+        : getPhrase('commands.blacklist.empty_entries');
 
       return [`*${formatCategoryName(category)}*`, content].join('\n');
     })
@@ -54,14 +55,14 @@ module.exports = {
       await client.sendMessage(
         chatId,
         info(
-          'Blacklist do grupo',
+          getPhrase('commands.blacklist.title'),
           [
             formatBlacklist(groupSettings),
             '',
-            `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
-            `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
-            'Para adicionar novas palavras-chave, edite o JSON do grupo diretamente.',
-            'Categorias: whatsapp, adulto, apostas',
+            getPhrase('commands.blacklist.usage_remove', { prefix: commandPrefix }),
+            getPhrase('commands.blacklist.usage_reset', { prefix: commandPrefix }),
+            getPhrase('commands.blacklist.edit_json'),
+            getPhrase('commands.blacklist.categories'),
           ].join('\n'),
         ),
       );
@@ -74,7 +75,7 @@ module.exports = {
     if (!category) {
       await client.sendMessage(
         chatId,
-        error('Blacklist do grupo', 'Categoria invalida. Use: whatsapp, adulto ou apostas.'),
+        error(getPhrase('commands.blacklist.title'), getPhrase('commands.blacklist.category_invalid')),
       );
       return;
     }
@@ -86,8 +87,11 @@ module.exports = {
       if (!matcher) {
         await client.sendMessage(
           chatId,
-          invalidUsage('Blacklist do grupo', [
-            `Use *${commandPrefix}blacklist del ${args[1] || '<categoria>'} <numero|dominio>*.`,
+          invalidUsage(getPhrase('commands.blacklist.title'), [
+            getPhrase('commands.blacklist.missing_entry_usage', {
+              prefix: commandPrefix,
+              category: args[1] || '<categoria>',
+            }),
           ]),
         );
         return;
@@ -96,17 +100,17 @@ module.exports = {
       const numericIndex = Number(matcher) - 1;
       if (Number.isInteger(numericIndex) && numericIndex >= 0 && numericIndex < entries.length) {
         removeBlacklistEntry(chatId, category, numericIndex);
-        await client.sendMessage(chatId, success('Blacklist do grupo', 'Entrada removida com sucesso.'));
+        await client.sendMessage(chatId, success(getPhrase('commands.blacklist.title'), getPhrase('commands.blacklist.entry_removed')));
         return;
       }
 
       if (!entries.includes(matcher.toLowerCase())) {
-        await client.sendMessage(chatId, error('Blacklist do grupo', 'Nao encontrei essa entrada na categoria informada.'));
+        await client.sendMessage(chatId, error(getPhrase('commands.blacklist.title'), getPhrase('commands.blacklist.entry_not_found')));
         return;
       }
 
       removeBlacklistEntry(chatId, category, matcher);
-      await client.sendMessage(chatId, success('Blacklist do grupo', 'Entrada removida com sucesso.'));
+      await client.sendMessage(chatId, success(getPhrase('commands.blacklist.title'), getPhrase('commands.blacklist.entry_removed')));
       return;
     }
 
@@ -114,18 +118,20 @@ module.exports = {
       resetBlacklistCategory(chatId, category);
       await client.sendMessage(
         chatId,
-        success('Blacklist do grupo', `${formatCategoryName(category)} voltou para o padrao da base.`),
+        success(getPhrase('commands.blacklist.title'), getPhrase('commands.blacklist.category_restored', {
+          category_name: formatCategoryName(category),
+        })),
       );
       return;
     }
 
     await client.sendMessage(
       chatId,
-      invalidUsage('Blacklist do grupo', [
-        `Use *${commandPrefix}blacklist* para listar.`,
-        `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
-        `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
-        'Novas palavras-chave devem ser adicionadas direto no JSON do grupo.',
+      invalidUsage(getPhrase('commands.blacklist.title'), [
+        getPhrase('commands.blacklist.usage_list', { prefix: commandPrefix }),
+        getPhrase('commands.blacklist.usage_remove_generic', { prefix: commandPrefix }),
+        getPhrase('commands.blacklist.usage_reset_generic', { prefix: commandPrefix }),
+        getPhrase('commands.blacklist.edit_json_short'),
       ]),
     );
   },

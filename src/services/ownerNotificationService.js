@@ -2,6 +2,7 @@ const config = require('../config/config');
 const { loadOwnerSettings } = require('./ownerSettingsService');
 const { resolveUserAliases } = require('./whatsappIdentityService');
 const { info, moderation } = require('../utils/respond');
+const { getPhrase } = require('./messagePhraseService');
 const {
   isSameWhatsAppId,
   normalizeChatId,
@@ -73,7 +74,7 @@ async function notifyCommandExecuted(client, commandName, context, durationMs) {
   return sendOwnerMessage(
     client,
     info(
-      'Comando executado',
+      getPhrase('owner_notifications.command_executed_title'),
       [
         `Comando: ${commandName}`,
         `Grupo: ${context?.chatName || context?.chatId || 'desconhecido'}`,

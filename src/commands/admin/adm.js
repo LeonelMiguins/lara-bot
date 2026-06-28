@@ -1,13 +1,7 @@
 const config = require('../../config/config');
-const ownerNotifications = require('../../services/ownerNotificationService');
-const { resolveParticipant } = require('../../services/whatsappIdentityService');
+const { getPhrase } = require('../../services/messagePhraseService');
+const { promoteParticipant } = require('../../services/commands/adminModerationService');
 const { error, invalidUsage, success, warning } = require('../../utils/respond');
-const { getParticipantId, normalizeChatId, toContactId } = require('../../utils/wweb');
-
-function extractTargetFromText(text) {
-  const match = String(text || '').match(/@?(\d{10,16})/);
-  return match ? toContactId(match[1]) : '';
-}
 
 module.exports = {
   name: 'adm',
@@ -28,47 +22,48 @@ module.exports = {
   },
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, message, chat, chatId, body, mentions, quotedMessage, participants, chatName, commandPrefix }) {
-    const target = normalizeChatId(
-      mentions[0] || quotedMessage?.author || quotedMessage?.from || extractTargetFromText(body),
-    );
+  async execute({ client, chat, chatId, body, mentions, quotedMessage, participants, chatName, commandPrefix }) {
+    const result = await promoteParticipant({
+      client,
+      chat,
+      chatId,
+      body,
+      mentions,
+      quotedMessage,
+      participants,
+      chatName,
+    });
 
-    if (!target) {
+    if (result.status === 'missing_target') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Promover administrador', [
-          `Marque um membro e use *${commandPrefix}adm @membro*.`,
-          `Ou responda a mensagem do membro usando apenas *${commandPrefix}adm*.`,
+        invalidUsage(getPhrase('commands.adm.title'), [
+          getPhrase('commands.adm.usage_mention', { prefix: commandPrefix }),
+          getPhrase('commands.adm.usage_reply', { prefix: commandPrefix }),
         ]),
       );
       return;
     }
 
-    const participant = await resolveParticipant(client, participants, target);
-    if (!participant) {
-      await client.sendMessage(chatId, error('Promover administrador', 'Nao encontrei esse membro no grupo.'));
+    if (result.status === 'participant_not_found') {
+      await client.sendMessage(chatId, error(getPhrase('commands.adm.title'), getPhrase('commands.adm.not_found')));
       return;
     }
 
-    if (participant.isAdmin || participant.isSuperAdmin) {
-      await client.sendMessage(chatId, warning('Promover administrador', 'Esse membro ja e administrador.'));
+    if (result.status === 'already_admin') {
+      await client.sendMessage(chatId, warning(getPhrase('commands.adm.title'), getPhrase('commands.adm.already_admin')));
       return;
     }
 
-    const participantId = getParticipantId(participant);
-    await chat.promoteParticipants([participantId]);
+    const participantId = result.participantId;
     await client.sendMessage(
       chatId,
-      success('Promover administrador', `@${participantId.split('@')[0]} foi promovido(a) a administrador(a).`),
+      success(getPhrase('commands.adm.title'), getPhrase('commands.adm.promoted', {
+        member_handle: participantId.split('@')[0],
+      })),
       {
         mentions: [participantId],
       },
     );
-
-    await ownerNotifications.notifyModerationEvent(client, 'Promocao de administrador', [
-      `Grupo: ${chatName || chat.name || chatId}`,
-      `Membro: ${participantId}`,
-      'Acao: promovido a administrador',
-    ]);
   },
 };

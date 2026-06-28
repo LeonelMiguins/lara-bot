@@ -1,5 +1,6 @@
 const { loadGroupSettings } = require('../services/groupSettingsService');
 const logger = require('../services/loggerService');
+const { getPhrase } = require('../services/messagePhraseService');
 const { getEffectivePrefix } = require('../services/prefixService');
 const { info } = require('../utils/respond');
 
@@ -18,11 +19,11 @@ module.exports = function setupFarewell(client) {
       for (const contact of contacts) {
         const displayName = contact.pushname || contact.name || contact.number || 'membro';
         const text = info(
-          'Saida do grupo',
+          getPhrase('modules.farewell_title'),
           [
-            `*${displayName}* saiu do *${chat.name || 'grupo'}*.`,
+            getPhrase('modules.farewell_line_1', { member_name: displayName, group_name: chat.name || 'grupo' }),
             '',
-            `Use *${commandPrefix}regras* para consultar as regras do grupo.`,
+            getPhrase('modules.farewell_line_2', { prefix: commandPrefix }),
           ].join('\n'),
         );
 

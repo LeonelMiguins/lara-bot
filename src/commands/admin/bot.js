@@ -1,5 +1,6 @@
 const os = require('os');
 const config = require('../../config/config');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, invalidUsage } = require('../../utils/respond');
 
 function formatUptime(seconds) {
@@ -32,20 +33,20 @@ module.exports = {
     const subcommand = (args[0] || '').toLowerCase();
 
     if (!subcommand) {
-      const botNumber = client.info?.wid?.user || 'desconhecido';
+      const botNumber = client.info?.wid?.user || getPhrase('commands.bot.unknown_number');
       await client.sendMessage(
         chatId,
-        commandPanel('Informacoes do bot', {
+        commandPanel(getPhrase('commands.bot.title'), {
           sections: [
-            createSection('Bot', [
-              `Nome: ${config.botName}`,
-              `Versao: ${config.version}`,
-              `Numero: wa.me/${botNumber}`,
-              `Dono: ${config.owner.name}`,
+            createSection(getPhrase('commands.bot.section_bot'), [
+              getPhrase('commands.bot.name_line', { value: config.botName }),
+              getPhrase('commands.bot.version_line', { value: config.version }),
+              getPhrase('commands.bot.number_line', { value: botNumber }),
+              getPhrase('commands.bot.owner_line', { value: config.owner.name }),
             ]),
           ],
           footer: [
-            `Use *${commandPrefix}bot server* para ver o status do host.`,
+            getPhrase('commands.bot.footer_server', { prefix: commandPrefix }),
           ],
         }),
       );
@@ -55,9 +56,9 @@ module.exports = {
     if (subcommand !== 'server') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Comando bot', [
-          `Use *${commandPrefix}bot* para ver os dados do bot.`,
-          `Use *${commandPrefix}bot server* para ver os dados do servidor.`,
+        invalidUsage(getPhrase('commands.bot.invalid_title'), [
+          getPhrase('commands.bot.usage_bot', { prefix: commandPrefix }),
+          getPhrase('commands.bot.usage_server', { prefix: commandPrefix }),
         ]),
       );
       return;
@@ -65,14 +66,14 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      commandPanel('Status do servidor', {
+      commandPanel(getPhrase('commands.bot.server_title'), {
         sections: [
-          createSection('Servidor', [
-            `CPU: ${os.cpus()[0]?.model || 'Desconhecida'}`,
-            `RAM livre: ${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-            `RAM total: ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-            `Sistema: ${os.type()} ${os.release()} (${os.arch()})`,
-            `Uptime: ${formatUptime(os.uptime())}`,
+          createSection(getPhrase('commands.bot.section_server'), [
+            getPhrase('commands.bot.cpu_line', { value: os.cpus()[0]?.model || getPhrase('commands.bot.cpu_unknown') }),
+            getPhrase('commands.bot.free_ram_line', { value: (os.freemem() / 1024 / 1024 / 1024).toFixed(2) }),
+            getPhrase('commands.bot.total_ram_line', { value: (os.totalmem() / 1024 / 1024 / 1024).toFixed(2) }),
+            getPhrase('commands.bot.system_line', { value: `${os.type()} ${os.release()} (${os.arch()})` }),
+            getPhrase('commands.bot.uptime_line', { value: formatUptime(os.uptime()) }),
           ]),
         ],
       }),

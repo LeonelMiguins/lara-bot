@@ -1,23 +1,14 @@
 const config = require('../../config/config');
-const {
-  getFeatureEntries,
-  isKnownFeature,
-  setGroupFeature,
-} = require('../../services/groupSettingsService');
+const { resolveModulesCommand } = require('../../services/commands/groupFeatureCommandService');
+const { getFeatureLabelKey } = require('../../services/commands/featureCatalogService');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, error, invalidUsage, phraseSuccess } = require('../../utils/respond');
-
-const FEATURE_LABELS = {
-  welcome: 'Boas-vindas',
-  farewell: 'Saida de membros',
-  antiLink: 'Anti-link',
-  antiFlood: 'Anti-flood',
-  commandReaction: 'Reacao em comandos',
-};
 
 function formatFeatureStatus(featureName, enabled) {
   const emoji = enabled ? '✅' : '❌';
-  const label = FEATURE_LABELS[featureName] || featureName;
-  const state = enabled ? 'ligado' : 'desligado';
+  const labelKey = getFeatureLabelKey(featureName);
+  const label = labelKey ? getPhrase(labelKey) : featureName;
+  const state = enabled ? getPhrase('commands.statusgrupo.state_on') : getPhrase('commands.statusgrupo.state_off');
   return `${emoji} ${label}: ${state}`;
 }
 
@@ -47,58 +38,54 @@ module.exports = {
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupConfig, commandPrefix }) {
-    if (!args.length) {
-      await client.sendMessage(chatId, commandPanel('Modulos do bot', {
+    const result = resolveModulesCommand({ chatId, args, groupConfig });
+
+    if (result.status === 'show_status') {
+      await client.sendMessage(chatId, commandPanel(getPhrase('commands.modulos.title'), {
         sections: [
           createSection(
-            'Status dos Modulos',
-            getFeatureEntries(groupConfig).map(([featureName, enabled]) =>
+            getPhrase('labels.module_status'),
+            result.entries.map(([featureName, enabled]) =>
               formatFeatureStatus(featureName, enabled),
             ),
           ),
         ],
         footer: [
-          `Use *${commandPrefix}modulos <nome> on* para ligar.`,
-          `Use *${commandPrefix}modulos <nome> off* para desligar.`,
+          getPhrase('commands.modulos.usage_on', { prefix: commandPrefix }),
+          getPhrase('commands.modulos.usage_off', { prefix: commandPrefix }),
           '',
-          'Nomes aceitos: welcome, farewell, antiLink, antiFlood, commandReaction',
+          getPhrase('commands.modulos.accepted_names'),
         ],
       }));
       return;
     }
 
-    const featureName = args[0];
-    const action = (args[1] || '').toLowerCase();
-
-    if (!isKnownFeature(featureName)) {
+    if (result.status === 'unknown_feature') {
       await client.sendMessage(
         chatId,
         error(
-          'Modulos do bot',
-          'Modulo desconhecido. Use: welcome, farewell, antiLink, antiFlood ou commandReaction.',
+          getPhrase('commands.modulos.title'),
+          getPhrase('commands.modulos.unknown_module'),
         ),
       );
       return;
     }
 
-    if (action !== 'on' && action !== 'off') {
+    if (result.status === 'invalid_action') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Modulos do bot', [
-          `Use *${commandPrefix}modulos ${featureName} on* para ligar esse modulo.`,
-          `Use *${commandPrefix}modulos ${featureName} off* para desligar esse modulo.`,
+        invalidUsage(getPhrase('commands.modulos.title'), [
+          getPhrase('commands.modulos.usage_module_on', { prefix: commandPrefix, module: result.featureName }),
+          getPhrase('commands.modulos.usage_module_off', { prefix: commandPrefix, module: result.featureName }),
         ]),
       );
       return;
     }
 
-    const enabled = action === 'on';
-    setGroupFeature(chatId, featureName, enabled);
-
     await client.sendMessage(
       chatId,
-      phraseSuccess(enabled ? 'success.module_enabled' : 'success.module_disabled', {
-        module_name: FEATURE_LABELS[featureName] || featureName,
+      phraseSuccess(result.enabled ? 'success.module_enabled' : 'success.module_disabled', {
+        module_name: getPhrase(getFeatureLabelKey(result.featureName)),
       }),
     );
   },

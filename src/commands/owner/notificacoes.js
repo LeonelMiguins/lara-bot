@@ -1,5 +1,6 @@
 const config = require('../../config/config');
 const { loadOwnerSettings, setOwnerNotificationsEnabled } = require('../../services/ownerSettingsService');
+const { getPhrase } = require('../../services/messagePhraseService');
 const { commandPanel, createSection, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
 function formatStatus() {
@@ -33,15 +34,15 @@ module.exports = {
     if (!action || action === 'status' || action === 'list') {
       await client.sendMessage(
         chatId,
-        commandPanel('Notificacoes do dono', {
+        commandPanel(getPhrase('commands.notificacoes.title'), {
           sections: [
-            createSection('Status', [
-              `Atual: ${formatStatus()}`,
+            createSection(getPhrase('labels.status'), [
+              getPhrase('commands.notificacoes.current_line', { value: formatStatus() }),
             ]),
           ],
           footer: [
-            `Use *${commandPrefix}notificacoes on* para ligar.`,
-            `Use *${commandPrefix}notificacoes off* para desligar.`,
+            getPhrase('commands.notificacoes.usage_on', { prefix: commandPrefix }),
+            getPhrase('commands.notificacoes.usage_off', { prefix: commandPrefix }),
           ],
         }),
       );
@@ -51,9 +52,9 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        invalidUsage('Notificacoes do dono', [
-          `Use *${commandPrefix}notificacoes on* para ligar as notificacoes.`,
-          `Use *${commandPrefix}notificacoes off* para desligar as notificacoes.`,
+        invalidUsage(getPhrase('commands.notificacoes.title'), [
+          getPhrase('commands.notificacoes.usage_enable', { prefix: commandPrefix }),
+          getPhrase('commands.notificacoes.usage_disable', { prefix: commandPrefix }),
         ]),
       );
       return;
