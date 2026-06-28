@@ -1,4 +1,3 @@
-const helpCatalog = require('../config/command-help.json');
 const { commandPanel, createSection } = require('../utils/respond');
 
 function getScopeLabel(command) {
@@ -39,13 +38,14 @@ function normalizeUsage(example, commandPrefix) {
 }
 
 function getHelpEntry(command) {
-  return helpCatalog[command?.name] || null;
+  return command?.help || null;
 }
 
 function buildHelpMessage(command, commandPrefix) {
   const helpEntry = getHelpEntry(command);
-  const usage = (helpEntry?.usage || command?.menuExamples || command?.menuExample || [])
-    .flat ? (Array.isArray(helpEntry?.usage || command?.menuExamples) ? (helpEntry?.usage || command?.menuExamples) : [helpEntry?.usage || command?.menuExample]) : [];
+  const usage = Array.isArray(helpEntry?.usage)
+    ? helpEntry.usage
+    : [helpEntry?.usage || command?.menuExample].filter(Boolean);
   const normalizedUsage = usage
     .map((entry) => normalizeUsage(entry, commandPrefix))
     .filter(Boolean)

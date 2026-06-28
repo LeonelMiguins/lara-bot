@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { normalizeCommandDefinition, validateCommandDefinition } = require('./commandContract');
 
 function walk(dirPath, files = []) {
   for (const entry of fs.readdirSync(dirPath)) {
@@ -26,10 +27,9 @@ function loadCommands(rootDir) {
   const seenNames = new Set();
 
   for (const file of commandFiles) {
-    const command = require(file);
-    if (!command?.name || typeof command.execute !== 'function') {
-      throw new Error(`Comando invalido em ${file}`);
-    }
+    const rawCommand = require(file);
+    const command = normalizeCommandDefinition(rawCommand);
+    validateCommandDefinition(command, file);
 
     const scope = path.basename(path.dirname(file));
     command.scope = command.scope || scope;
