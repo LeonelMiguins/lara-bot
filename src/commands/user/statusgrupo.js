@@ -9,6 +9,7 @@ const FEATURE_LABELS = {
   farewell: 'Saida de membros',
   antiLink: 'Anti-link',
   antiFlood: 'Anti-flood',
+  commandReaction: 'Reacao em comandos',
 };
 
 function formatFeatureSummary(groupSettings) {

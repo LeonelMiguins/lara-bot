@@ -11,10 +11,11 @@ const FEATURE_LABELS = {
   farewell: 'Saida de membros',
   antiLink: 'Anti-link',
   antiFlood: 'Anti-flood',
+  commandReaction: 'Reacao em comandos',
 };
 
 function formatFeatureStatus(featureName, enabled) {
-  const emoji = enabled ? '🟢' : '🔴';
+  const emoji = enabled ? '✅' : '❌';
   const label = FEATURE_LABELS[featureName] || featureName;
   const state = enabled ? 'ligado' : 'desligado';
   return `${emoji} ${label}: ${state}`;
@@ -35,7 +36,7 @@ module.exports = {
       await client.sendMessage(chatId, commandPanel('Modulos do bot', {
         sections: [
           createSection(
-            'Modulos Automaticos',
+            'Status dos Modulos',
             getFeatureEntries(groupConfig).map(([featureName, enabled]) =>
               formatFeatureStatus(featureName, enabled),
             ),
@@ -45,7 +46,7 @@ module.exports = {
           `Use *${commandPrefix}modulos <nome> on* para ligar.`,
           `Use *${commandPrefix}modulos <nome> off* para desligar.`,
           '',
-          'Nomes aceitos: welcome, farewell, antiLink, antiFlood',
+          'Nomes aceitos: welcome, farewell, antiLink, antiFlood, commandReaction',
         ],
       }));
       return;
@@ -59,7 +60,7 @@ module.exports = {
         chatId,
         error(
           'Modulos do bot',
-          'Modulo desconhecido. Use: welcome, farewell, antiLink ou antiFlood.',
+          'Modulo desconhecido. Use: welcome, farewell, antiLink, antiFlood ou commandReaction.',
         ),
       );
       return;

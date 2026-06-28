@@ -3,4 +3,5 @@ module.exports = {
   farewell: true,
   antiLink: true,
   antiFlood: true,
+  commandReaction: true,
 };

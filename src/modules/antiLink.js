@@ -81,11 +81,18 @@ module.exports = function setupAntiLink(client) {
       }
     }
 
-    await client.sendMessage(
-      context.chatId,
-      moderation('Anti-link', `@${idToHandle(senderId)} ${blocked.reason}`),
-      { mentions: [senderId] },
-    );
+    try {
+      await client.sendMessage(
+        context.chatId,
+        moderation('Anti-link', `@${idToHandle(senderId)} ${blocked.reason}`),
+        { mentions: [senderId] },
+      );
+    } catch (error) {
+      logger.runtimeError('anti_link.notice_failed', error, logger.buildMessageMeta(context, {
+        participantId: senderId,
+        matched: blocked.matched,
+      }));
+    }
 
     logger.groupEvent('anti_link.blocked', context, {
       participantId: senderId,
@@ -97,15 +104,22 @@ module.exports = function setupAntiLink(client) {
       kicked: action === 'ban' && context.botIsAdmin,
     });
 
-    await ownerNotifications.notifyModerationEvent(client, 'Anti-link acionado', [
-      `Grupo: ${context.chatName || context.chatId}`,
-      `Membro: ${senderId}`,
-      `Motivo: ${blocked.reason}`,
-      `Correspondencia: ${blocked.matched}`,
-      `Escopo: ${targetMode === 'all' ? 'qualquer pessoa' : 'apenas usuarios comuns'}`,
-      `Acao: ${action === 'ban' ? 'apagar e banir' : 'apenas apagar'}`,
-      `Removido: ${(action === 'ban' && context.botIsAdmin) ? 'sim' : 'nao'}`,
-    ]);
+    try {
+      await ownerNotifications.notifyModerationEvent(client, 'Anti-link acionado', [
+        `Grupo: ${context.chatName || context.chatId}`,
+        `Membro: ${senderId}`,
+        `Motivo: ${blocked.reason}`,
+        `Correspondencia: ${blocked.matched}`,
+        `Escopo: ${targetMode === 'all' ? 'qualquer pessoa' : 'apenas usuarios comuns'}`,
+        `Acao: ${action === 'ban' ? 'apagar e banir' : 'apenas apagar'}`,
+        `Removido: ${(action === 'ban' && context.botIsAdmin) ? 'sim' : 'nao'}`,
+      ]);
+    } catch (error) {
+      logger.runtimeError('anti_link.owner_notice_failed', error, logger.buildMessageMeta(context, {
+        participantId: senderId,
+        matched: blocked.matched,
+      }));
+    }
 
     return true;
   };

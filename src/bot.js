@@ -42,6 +42,20 @@ const runtimeState = {
   pairingCodeRequested: false,
 };
 
+async function reactToCommandMessage(message, context) {
+  if (!context?.isGroup || !context?.groupSettings?.features?.commandReaction) {
+    return;
+  }
+
+  try {
+    await message.react('👍');
+  } catch (error) {
+    logger.runtimeWarn('command.reaction_failed', logger.buildMessageMeta(context, {
+      errorMessage: error?.message || String(error),
+    }));
+  }
+}
+
 function formatPhoneDisplay(value) {
   const digits = digitsOnly(value);
   return digits ? `+${digits}` : 'nao configurado';
@@ -392,6 +406,8 @@ async function startBot() {
         });
         return;
       }
+
+      await reactToCommandMessage(message, executionContext);
 
       logger.commandReceived(command.name, executionArgs, executionContext);
 
