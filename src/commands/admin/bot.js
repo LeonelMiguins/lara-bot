@@ -16,6 +16,16 @@ module.exports = {
     `${config.prefix}bot`,
     `${config.prefix}bot server`,
   ],
+  help: {
+    summary: 'Mostra informacoes do bot e, opcionalmente, do servidor.',
+    examples: [
+      '#bot',
+      '#bot server',
+    ],
+    notes: [
+      'O subcomando server mostra dados basicos do host atual.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, commandPrefix }) {

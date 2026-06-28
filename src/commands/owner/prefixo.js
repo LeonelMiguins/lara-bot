@@ -64,6 +64,21 @@ module.exports = {
     '#prefixo global !',
     '#prefixo grupo !',
   ],
+  help: {
+    summary: 'Mostra ou altera o prefixo global do bot e o prefixo especifico de um grupo.',
+    examples: [
+      '#prefixo status',
+      '#prefixo global !',
+      '#prefixo global reset',
+      '#prefixo grupo *',
+      '#prefixo grupo reset',
+      '#prefixo grupo ! --grupo 1203...@g.us',
+    ],
+    notes: [
+      'O prefixo global so pode ser alterado pelo dono do bot.',
+      'O prefixo do grupo pode ser alterado por admin dentro do grupo ou pelo dono no privado com --grupo.',
+    ],
+  },
   groupOnly: false,
   adminOnly: false,
   ownerOnly: false,

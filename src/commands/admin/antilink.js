@@ -36,6 +36,25 @@ module.exports = {
     `${config.prefix}antilink all|users`,
     `${config.prefix}antilink acao whatsapp apagar|banir`,
   ],
+  help: {
+    summary: 'Liga, desliga e configura o anti-link do grupo.',
+    examples: [
+      '#antilink',
+      '#antilink on',
+      '#antilink off',
+      '#antilink all',
+      '#antilink users',
+      '#antilink acao whatsapp apagar',
+      '#antilink acao adulto banir',
+      '#antilink reset whatsapp',
+      '#antilink reset modo',
+    ],
+    notes: [
+      'Modo all apaga mensagem de qualquer pessoa.',
+      'Modo users deixa administradores e dono do bot imunes.',
+      'As categorias aceitas sao: whatsapp, adulto e apostas.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupSettings, commandPrefix }) {

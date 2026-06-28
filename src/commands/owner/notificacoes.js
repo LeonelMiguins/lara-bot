@@ -12,6 +12,18 @@ module.exports = {
   aliases: ['notificacoesdono', 'privado'],
   description: 'Liga ou desliga as notificacoes privadas do dono.',
   menuExample: `${config.prefix}notificacoes on|off`,
+  help: {
+    summary: 'Liga ou desliga as notificacoes privadas enviadas ao dono do bot.',
+    examples: [
+      '#notificacoes',
+      '#notificacoes on',
+      '#notificacoes off',
+    ],
+    notes: [
+      'Comando exclusivo do dono do bot.',
+      'Controla avisos como acoes de moderacao e execucoes importantes.',
+    ],
+  },
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,

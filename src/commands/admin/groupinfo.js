@@ -6,6 +6,15 @@ module.exports = {
   aliases: ['infogroup'],
   description: 'Mostra informacoes do grupo.',
   menuExample: `${config.prefix}groupinfo`,
+  help: {
+    summary: 'Mostra um resumo completo do grupo atual.',
+    examples: [
+      '#groupinfo',
+    ],
+    notes: [
+      'Exibe nome, ID, quantidade de membros, admins e descricao do grupo.',
+    ],
+  },
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chat, participants, chatName }) {

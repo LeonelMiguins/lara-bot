@@ -12,6 +12,17 @@ module.exports = {
   aliases: ['welcome', 'bemvindo', 'bemvindos'],
   description: 'Liga ou desliga as boas-vindas automáticas do grupo.',
   menuExample: `${config.prefix}boasvindas on|off`,
+  help: {
+    summary: 'Liga ou desliga a mensagem automatica de boas-vindas do grupo.',
+    examples: [
+      '#boasvindas',
+      '#boasvindas on',
+      '#boasvindas off',
+    ],
+    notes: [
+      'O estado do modulo fica salvo por grupo.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupSettings, commandPrefix }) {

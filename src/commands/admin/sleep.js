@@ -6,6 +6,16 @@ module.exports = {
   aliases: ['grupo'],
   description: 'Fecha ou abre o grupo para mensagens.',
   menuExample: `${config.prefix}sleep on|off`,
+  help: {
+    summary: 'Fecha o grupo para apenas administradores ou reabre para todos os membros.',
+    examples: [
+      '#sleep on',
+      '#sleep off',
+    ],
+    notes: [
+      'Quando ligado, somente administradores conseguem enviar mensagens no grupo.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, chat, args, commandPrefix }) {

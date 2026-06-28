@@ -14,6 +14,18 @@ module.exports = {
   aliases: ['promote'],
   description: 'Promove um membro a administrador.',
   menuExample: `${config.prefix}adm @membro`,
+  help: {
+    summary: 'Promove um membro do grupo para administrador.',
+    examples: [
+      '#adm @membro',
+      '#adm',
+      '#adm 5511999999999',
+    ],
+    notes: [
+      'Voce pode marcar o membro, responder a mensagem dele ou informar o numero.',
+      'So funciona em grupos e exige permissao de administrador.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, message, chat, chatId, body, mentions, quotedMessage, participants, chatName, commandPrefix }) {

@@ -6,6 +6,19 @@ module.exports = {
   aliases: ['ajuda'],
   description: 'Mostra a ajuda detalhada de um comando.',
   menuExample: '#help <comando>',
+  help: {
+    summary: 'Mostra a ajuda detalhada de qualquer comando carregado pelo bot.',
+    examples: [
+      '#help menu',
+      '#help antilink',
+      '#ban help',
+      '#prefixo grupo help',
+    ],
+    notes: [
+      'Tambem funciona quando voce adiciona help ou ajuda no final de outro comando.',
+      'Aceita nome principal e aliases do comando.',
+    ],
+  },
   groupOnly: false,
   adminOnly: false,
   async execute({ client, chatId, args, commandRegistry, commandPrefix }) {

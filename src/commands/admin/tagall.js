@@ -5,6 +5,15 @@ module.exports = {
   aliases: ['hidetag'],
   description: 'Menciona todos os membros do grupo.',
   menuExample: `#tagall`,
+  help: {
+    summary: 'Marca todos os participantes do grupo em uma unica mensagem.',
+    examples: [
+      '#tagall',
+    ],
+    notes: [
+      'Use com cuidado para evitar spam e notificacoes excessivas.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, participants }) {

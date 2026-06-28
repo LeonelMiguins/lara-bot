@@ -14,6 +14,18 @@ module.exports = {
   aliases: ['kick'],
   description: 'Remove um membro do grupo.',
   menuExample: `${config.prefix}ban @membro`,
+  help: {
+    summary: 'Remove um membro do grupo.',
+    examples: [
+      '#ban @membro',
+      '#ban',
+      '#ban 5511999999999',
+    ],
+    notes: [
+      'Voce pode marcar o membro, responder a mensagem dele ou informar o numero.',
+      'O comando nao remove outros administradores.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, message, chat, chatId, body, participants, mentions, quotedMessage, chatName, commandPrefix }) {

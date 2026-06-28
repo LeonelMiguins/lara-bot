@@ -6,6 +6,16 @@ module.exports = {
   aliases: ['groups', 'listagrupos', 'todosgrupos'],
   description: 'Lista todos os grupos em que o bot esta inserido.',
   menuExample: `${config.prefix}grupos`,
+  help: {
+    summary: 'Lista todos os grupos onde o bot esta presente.',
+    examples: [
+      '#grupos',
+    ],
+    notes: [
+      'Comando exclusivo do dono do bot.',
+      'A lista ajuda no uso de comandos privados com --grupo <ID_DO_GRUPO>.',
+    ],
+  },
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,

@@ -29,6 +29,15 @@ module.exports = {
   aliases: ['grupostatus', 'status'],
   description: 'Mostra um resumo rapido do status atual do grupo.',
   menuExample: `#statusgrupo`,
+  help: {
+    summary: 'Mostra um resumo rapido do grupo, incluindo membros, admins e modulos ativos.',
+    examples: [
+      '#statusgrupo',
+    ],
+    notes: [
+      'Exibe tambem o prefixo ativo, o estado do anti-flood e se o link pode ser gerado.',
+    ],
+  },
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chat, chatName, participants, groupSettings, botIsAdmin, commandPrefix }) {

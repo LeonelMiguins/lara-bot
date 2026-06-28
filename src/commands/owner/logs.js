@@ -12,6 +12,18 @@ module.exports = {
   aliases: ['log'],
   description: 'Liga ou desliga a gravacao de logs do bot.',
   menuExample: `${config.prefix}logs on|off`,
+  help: {
+    summary: 'Liga ou desliga os logs operacionais gravados e exibidos pelo bot.',
+    examples: [
+      '#logs',
+      '#logs on',
+      '#logs off',
+    ],
+    notes: [
+      'Comando exclusivo do dono do bot.',
+      'Logs de conexao continuam aparecendo no terminal mesmo com os logs desligados.',
+    ],
+  },
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,

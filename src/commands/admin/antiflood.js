@@ -27,6 +27,22 @@ module.exports = {
     `${config.prefix}antiflood on|off`,
     `${config.prefix}antiflood limite 8`,
   ],
+  help: {
+    summary: 'Mostra e ajusta a protecao contra flood por repeticao de mensagens.',
+    examples: [
+      '#antiflood',
+      '#antiflood on',
+      '#antiflood off',
+      '#antiflood limite 8',
+      '#antiflood janela 15',
+      '#antiflood minimo 2',
+      '#antiflood reset',
+    ],
+    notes: [
+      'O limite controla quantas mensagens repetidas disparam a protecao.',
+      'A janela e definida em segundos.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupSettings, commandPrefix }) {

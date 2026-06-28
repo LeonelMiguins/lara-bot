@@ -19,6 +19,20 @@ module.exports = {
     `${config.prefix}regras`,
     `${config.prefix}regras add <texto>`,
   ],
+  help: {
+    summary: 'Mostra as regras do grupo e permite editar a lista quando usado por administradores.',
+    examples: [
+      '#regras',
+      '#regras list',
+      '#regras add Respeite todos os membros.',
+      '#regras del 2',
+      '#regras reset',
+    ],
+    notes: [
+      'Qualquer membro pode consultar as regras.',
+      'Somente administradores podem adicionar, remover ou resetar.',
+    ],
+  },
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chatName, groupSettings, senderIsAdmin, args, commandPrefix }) {

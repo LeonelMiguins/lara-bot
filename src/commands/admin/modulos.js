@@ -29,6 +29,21 @@ module.exports = {
     `${config.prefix}modulos`,
     `${config.prefix}modulos antiFlood on`,
   ],
+  help: {
+    summary: 'Lista os modulos automaticos do grupo e permite ligar ou desligar cada um.',
+    examples: [
+      '#modulos',
+      '#modulos welcome on',
+      '#modulos farewell off',
+      '#modulos antiLink on',
+      '#modulos antiFlood off',
+      '#modulos commandReaction on',
+    ],
+    notes: [
+      'Os nomes tecnicos aceitos sao: welcome, farewell, antiLink, antiFlood e commandReaction.',
+      'As alteracoes ficam salvas por grupo.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupConfig, commandPrefix }) {

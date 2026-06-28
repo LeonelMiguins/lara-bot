@@ -34,6 +34,19 @@ module.exports = {
   menuExamples: [
     `${config.prefix}blacklist`,
   ],
+  help: {
+    summary: 'Lista a blacklist do grupo e permite remover ou restaurar entradas.',
+    examples: [
+      '#blacklist',
+      '#blacklist del adulto 1',
+      '#blacklist del apostas bet365',
+      '#blacklist reset adulto',
+    ],
+    notes: [
+      'Novas palavras-chave devem ser adicionadas direto no JSON do grupo.',
+      'As categorias aceitas sao: whatsapp, adulto e apostas.',
+    ],
+  },
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, args, groupSettings, commandPrefix }) {

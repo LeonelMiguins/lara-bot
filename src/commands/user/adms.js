@@ -5,6 +5,15 @@ module.exports = {
   aliases: ['admins'],
   description: 'Menciona todos os administradores do grupo.',
   menuExample: `#adms`,
+  help: {
+    summary: 'Lista e menciona todos os administradores do grupo.',
+    examples: [
+      '#adms',
+    ],
+    notes: [
+      'Qualquer membro do grupo pode usar esse comando.',
+    ],
+  },
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, participants }) {

@@ -43,37 +43,35 @@ function getHelpEntry(command) {
 
 function buildHelpMessage(command, commandPrefix) {
   const helpEntry = getHelpEntry(command);
-  const usage = Array.isArray(helpEntry?.usage)
-    ? helpEntry.usage
-    : [helpEntry?.usage || command?.menuExample].filter(Boolean);
-  const normalizedUsage = usage
+  const examples = Array.isArray(helpEntry?.examples)
+    ? helpEntry.examples
+    : [helpEntry?.examples || helpEntry?.usage || command?.menuExample].filter(Boolean);
+  const normalizedExamples = examples
     .map((entry) => normalizeUsage(entry, commandPrefix))
     .filter(Boolean)
     .map((entry) => `⤷ \`${entry}\``);
 
   const sections = [
-    createSection('Comando', [
-      `Nome: ${command.name}`,
-      `Permissao: ${getPermissionLabel(command)}`,
-      `Uso: ${getScopeLabel(command)}`,
+    createSection('Resumo', [
+      helpEntry?.summary || command.description,
+    ]),
+    createSection('Permissao', [
+      getPermissionLabel(command),
+    ]),
+    createSection('Local de uso', [
+      getScopeLabel(command),
     ]),
   ];
 
-  if (helpEntry?.summary || command?.description) {
-    sections.push(createSection('Para que serve', [
-      helpEntry?.summary || command.description,
-    ]));
-  }
-
-  if (normalizedUsage.length) {
-    sections.push(createSection('Como usar', normalizedUsage));
+  if (normalizedExamples.length) {
+    sections.push(createSection('Exemplos', normalizedExamples));
   }
 
   if (Array.isArray(helpEntry?.notes) && helpEntry.notes.length) {
     sections.push(createSection('Observacoes', helpEntry.notes));
   }
 
-  return commandPanel(`Ajuda do comando ${command.name}`, {
+  return commandPanel(`Ajuda: ${command.name}`, {
     sections,
   });
 }

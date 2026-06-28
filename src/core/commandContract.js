@@ -13,19 +13,19 @@ function ensureArray(value) {
 }
 
 function buildDefaultHelp(command) {
-  const usage = ensureArray(command.menuExamples);
+  const examples = ensureArray(command.menuExamples);
 
-  if (!usage.length && command.menuExample) {
-    usage.push(command.menuExample);
+  if (!examples.length && command.menuExample) {
+    examples.push(command.menuExample);
   }
 
-  if (!usage.length && command.name) {
-    usage.push(`#${command.name}`);
+  if (!examples.length && command.name) {
+    examples.push(`#${command.name}`);
   }
 
   return {
     summary: command.description || '',
-    usage,
+    examples,
     notes: [],
   };
 }
@@ -37,7 +37,13 @@ function normalizeHelp(command) {
 
   return {
     summary: commandHelp.summary || catalogHelp.summary || fallbackHelp.summary,
-    usage: ensureArray(commandHelp.usage || catalogHelp.usage || fallbackHelp.usage),
+    examples: ensureArray(
+      commandHelp.examples
+      || commandHelp.usage
+      || catalogHelp.examples
+      || catalogHelp.usage
+      || fallbackHelp.examples,
+    ),
     notes: ensureArray(commandHelp.notes || catalogHelp.notes || fallbackHelp.notes),
   };
 }
@@ -80,6 +86,14 @@ function validateCommandDefinition(command, file) {
 
   if (!command.help?.summary) {
     throw new Error(`Comando sem help.summary em ${file}`);
+  }
+
+  if (!Array.isArray(command.help.examples)) {
+    throw new Error(`Comando sem help.examples em ${file}`);
+  }
+
+  if (!Array.isArray(command.help.notes)) {
+    throw new Error(`Comando sem help.notes em ${file}`);
   }
 }
 
