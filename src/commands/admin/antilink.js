@@ -7,7 +7,7 @@ const {
   setGroupFeature,
   updateAntiLinkAction,
 } = require('../../services/groupSettingsService');
-const { error, info, success, warning } = require('../../utils/respond');
+const { error, info, invalidUsage, success } = require('../../utils/respond');
 
 function formatStatus(groupSettings) {
   const enabled = Boolean(groupSettings?.features?.antiLink);
@@ -22,9 +22,13 @@ module.exports = {
   name: 'antilink',
   aliases: ['antilinks'],
   description: 'Liga ou desliga o anti-link do grupo.',
+  menuExamples: [
+    `${config.prefix}antilink on|off`,
+    `${config.prefix}antilink acao whatsapp apagar|banir`,
+  ],
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args, groupSettings }) {
+  async execute({ client, chatId, args, groupSettings, commandPrefix }) {
     const action = String(args[0] || '').toLowerCase();
     const antiLinkSettings = getAntiLinkSettings(groupSettings);
 
@@ -39,9 +43,9 @@ module.exports = {
             `Conteudo adulto: ${formatAction(antiLinkSettings.adultSites)}`,
             `Apostas: ${formatAction(antiLinkSettings.betsSites)}`,
             '',
-            `Use *${config.prefix}antilink on* para ligar.`,
-            `Use *${config.prefix}antilink off* para desligar.`,
-            `Use *${config.prefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
+            `Use *${commandPrefix}antilink on* para ligar.`,
+            `Use *${commandPrefix}antilink off* para desligar.`,
+            `Use *${commandPrefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
           ].join('\n'),
         ),
       );
@@ -63,10 +67,10 @@ module.exports = {
       if (!mode) {
         await client.sendMessage(
           chatId,
-          warning(
-            'Anti-link do grupo',
-            `Use *${config.prefix}antilink acao <categoria> <apagar|banir>*.`,
-          ),
+          invalidUsage('Anti-link do grupo', [
+            `Use *${commandPrefix}antilink acao <categoria> <apagar|banir>*.`,
+            'Categorias aceitas: whatsapp, adulto, apostas.',
+          ]),
         );
         return;
       }
@@ -75,7 +79,9 @@ module.exports = {
       if (!normalizedMode) {
         await client.sendMessage(
           chatId,
-          warning('Anti-link do grupo', 'Use apenas *apagar* ou *banir* para a acao.'),
+          invalidUsage('Anti-link do grupo', [
+            'Use apenas *apagar* ou *banir* para a acao.',
+          ]),
         );
         return;
       }
@@ -109,13 +115,11 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        warning(
-          'Anti-link do grupo',
-          [
-            `Use *${config.prefix}antilink on* para ligar ou *${config.prefix}antilink off* para desligar.`,
-            `Use *${config.prefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
-          ].join('\n'),
-        ),
+        invalidUsage('Anti-link do grupo', [
+          `Use *${commandPrefix}antilink on* para ligar o modulo.`,
+          `Use *${commandPrefix}antilink off* para desligar o modulo.`,
+          `Use *${commandPrefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
+        ]),
       );
       return;
     }

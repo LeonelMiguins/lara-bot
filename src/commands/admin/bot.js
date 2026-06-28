@@ -1,6 +1,6 @@
 const os = require('os');
 const config = require('../../config/config');
-const { info, warning } = require('../../utils/respond');
+const { info, invalidUsage } = require('../../utils/respond');
 
 function formatUptime(seconds) {
   const hours = Math.floor(seconds / 3600);
@@ -12,9 +12,13 @@ module.exports = {
   name: 'bot',
   aliases: [],
   description: 'Mostra informacoes do bot.',
+  menuExamples: [
+    `${config.prefix}bot`,
+    `${config.prefix}bot server`,
+  ],
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args }) {
+  async execute({ client, chatId, args, commandPrefix }) {
     const subcommand = (args[0] || '').toLowerCase();
 
     if (!subcommand) {
@@ -27,7 +31,7 @@ module.exports = {
           `Numero: wa.me/${botNumber}`,
           `Dono: ${config.owner.name}`,
           '',
-          `Use *${config.prefix}bot server* para ver o status do host.`,
+          `Use *${commandPrefix}bot server* para ver o status do host.`,
         ].join('\n')),
       );
       return;
@@ -36,7 +40,10 @@ module.exports = {
     if (subcommand !== 'server') {
       await client.sendMessage(
         chatId,
-        warning('Comando bot', `Subcomando invalido. Use *${config.prefix}bot* ou *${config.prefix}bot server*.`),
+        invalidUsage('Comando bot', [
+          `Use *${commandPrefix}bot* para ver os dados do bot.`,
+          `Use *${commandPrefix}bot server* para ver os dados do servidor.`,
+        ]),
       );
       return;
     }

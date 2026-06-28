@@ -5,7 +5,7 @@ const {
   removeGroupRule,
   resetGroupRules,
 } = require('../../services/groupSettingsService');
-const { error, info, success, warning } = require('../../utils/respond');
+const { denied, info, invalidUsage, success } = require('../../utils/respond');
 
 function formatRules(groupSettings) {
   return getRuleEntries(groupSettings)
@@ -17,9 +17,13 @@ module.exports = {
   name: 'regras',
   aliases: ['rules'],
   description: 'Mostra as regras do grupo.',
+  menuExamples: [
+    `${config.prefix}regras`,
+    `${config.prefix}regras add <texto>`,
+  ],
   groupOnly: true,
   adminOnly: false,
-  async execute({ client, chatId, chatName, groupSettings, senderIsAdmin, args }) {
+  async execute({ client, chatId, chatName, groupSettings, senderIsAdmin, args, commandPrefix }) {
     if (!args.length) {
       await client.sendMessage(chatId, info(`Regras de ${chatName || 'grupo'}`, formatRules(groupSettings)));
       return;
@@ -28,7 +32,9 @@ module.exports = {
     if (!senderIsAdmin) {
       await client.sendMessage(
         chatId,
-        error('Regras do grupo', 'Apenas administradores podem editar as regras.'),
+        denied('Regras do grupo', 'Apenas administradores podem editar as regras.', [
+          'Use esse comando com uma conta administradora do grupo.',
+        ]),
       );
       return;
     }
@@ -40,7 +46,9 @@ module.exports = {
       if (!text) {
         await client.sendMessage(
           chatId,
-          warning('Regras do grupo', `Use *${config.prefix}regras add <texto da regra>*.`),
+          invalidUsage('Regras do grupo', [
+            `Use *${commandPrefix}regras add <texto da regra>*.`,
+          ]),
         );
         return;
       }
@@ -57,7 +65,10 @@ module.exports = {
       if (!Number.isInteger(index) || index < 0 || index >= rules.length) {
         await client.sendMessage(
           chatId,
-          warning('Regras do grupo', `Use *${config.prefix}regras del <numero>*. Exemplo: *${config.prefix}regras del 2*.`),
+          invalidUsage('Regras do grupo', [
+            `Use *${commandPrefix}regras del <numero>*.`,
+            `Exemplo: *${commandPrefix}regras del 2*.`,
+          ]),
         );
         return;
       }
@@ -80,15 +91,12 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      warning(
-        'Regras do grupo',
-        [
-          `Use *${config.prefix}regras* para ver as regras.`,
-          `Use *${config.prefix}regras add <texto>* para adicionar.`,
-          `Use *${config.prefix}regras del <numero>* para remover.`,
-          `Use *${config.prefix}regras reset* para restaurar o padrao.`,
-        ].join('\n'),
-      ),
+      invalidUsage('Regras do grupo', [
+        `Use *${commandPrefix}regras* para ver as regras.`,
+        `Use *${commandPrefix}regras add <texto>* para adicionar.`,
+        `Use *${commandPrefix}regras del <numero>* para remover.`,
+        `Use *${commandPrefix}regras reset* para restaurar o padrao.`,
+      ]),
     );
   },
 };

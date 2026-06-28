@@ -1,9 +1,11 @@
+const config = require('../../config/config');
 const { info } = require('../../utils/respond');
 
 module.exports = {
   name: 'groupinfo',
   aliases: ['infogroup'],
   description: 'Mostra informacoes do grupo.',
+  menuExample: `${config.prefix}groupinfo`,
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chat, participants, chatName }) {

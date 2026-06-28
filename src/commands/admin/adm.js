@@ -1,7 +1,7 @@
 const config = require('../../config/config');
 const ownerNotifications = require('../../services/ownerNotificationService');
 const { resolveParticipant } = require('../../services/whatsappIdentityService');
-const { error, success, warning } = require('../../utils/respond');
+const { error, invalidUsage, success, warning } = require('../../utils/respond');
 const { getParticipantId, normalizeChatId, toContactId } = require('../../utils/wweb');
 
 function extractTargetFromText(text) {
@@ -13,9 +13,10 @@ module.exports = {
   name: 'adm',
   aliases: ['promote'],
   description: 'Promove um membro a administrador.',
+  menuExample: `${config.prefix}adm @membro`,
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, message, chat, chatId, body, mentions, quotedMessage, participants, chatName }) {
+  async execute({ client, message, chat, chatId, body, mentions, quotedMessage, participants, chatName, commandPrefix }) {
     const target = normalizeChatId(
       mentions[0] || quotedMessage?.author || quotedMessage?.from || extractTargetFromText(body),
     );
@@ -23,7 +24,10 @@ module.exports = {
     if (!target) {
       await client.sendMessage(
         chatId,
-        warning('Promover administrador', `Marque um membro ou responda a mensagem dele com *${config.prefix}adm*.`),
+        invalidUsage('Promover administrador', [
+          `Marque um membro e use *${commandPrefix}adm @membro*.`,
+          `Ou responda a mensagem do membro usando apenas *${commandPrefix}adm*.`,
+        ]),
       );
       return;
     }

@@ -5,7 +5,7 @@ const {
   setGroupFeature,
   updateAntiFloodSettings,
 } = require('../../services/groupSettingsService');
-const { info, success, warning } = require('../../utils/respond');
+const { info, invalidUsage, success, warning } = require('../../utils/respond');
 
 function formatAntiFlood(groupSettings) {
   const settings = getAntiFloodSettings(groupSettings);
@@ -23,9 +23,13 @@ module.exports = {
   name: 'antiflood',
   aliases: ['flood'],
   description: 'Mostra e edita os limites do anti-flood.',
+  menuExamples: [
+    `${config.prefix}antiflood on|off`,
+    `${config.prefix}antiflood limite 8`,
+  ],
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args, groupSettings }) {
+  async execute({ client, chatId, args, groupSettings, commandPrefix }) {
     if (!args.length || String(args[0]).toLowerCase() === 'list') {
       await client.sendMessage(
         chatId,
@@ -34,12 +38,12 @@ module.exports = {
           [
             formatAntiFlood(groupSettings),
             '',
-            `Use *${config.prefix}antiflood on* para ligar.`,
-            `Use *${config.prefix}antiflood off* para desligar.`,
-            `Use *${config.prefix}antiflood limite <numero>* para alterar o limite.`,
-            `Use *${config.prefix}antiflood janela <segundos>* para alterar a janela.`,
-            `Use *${config.prefix}antiflood minimo <numero>* para alterar o tamanho minimo.`,
-            `Use *${config.prefix}antiflood reset* para restaurar o padrao.`,
+            `Use *${commandPrefix}antiflood on* para ligar.`,
+            `Use *${commandPrefix}antiflood off* para desligar.`,
+            `Use *${commandPrefix}antiflood limite <numero>* para alterar o limite.`,
+            `Use *${commandPrefix}antiflood janela <segundos>* para alterar a janela.`,
+            `Use *${commandPrefix}antiflood minimo <numero>* para alterar o tamanho minimo.`,
+            `Use *${commandPrefix}antiflood reset* para restaurar o padrao.`,
           ].join('\n'),
         ),
       );
@@ -71,7 +75,13 @@ module.exports = {
     if (!Number.isFinite(value)) {
       await client.sendMessage(
         chatId,
-        warning('Anti-flood do grupo', 'Informe um valor numerico valido.'),
+        invalidUsage(
+          'Anti-flood do grupo',
+          [
+            `Use *${commandPrefix}antiflood ${action} <numero>* com um valor numerico valido.`,
+          ],
+          'O valor informado nao e um numero valido.',
+        ),
       );
       return;
     }
@@ -111,18 +121,15 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      warning(
-        'Anti-flood do grupo',
-        [
-          `Use *${config.prefix}antiflood* para ver a configuracao.`,
-          `Use *${config.prefix}antiflood on* para ligar.`,
-          `Use *${config.prefix}antiflood off* para desligar.`,
-          `Use *${config.prefix}antiflood limite <numero>* para alterar o limite.`,
-          `Use *${config.prefix}antiflood janela <segundos>* para alterar a janela.`,
-          `Use *${config.prefix}antiflood minimo <numero>* para alterar o minimo.`,
-          `Use *${config.prefix}antiflood reset* para restaurar o padrao.`,
-        ].join('\n'),
-      ),
+      invalidUsage('Anti-flood do grupo', [
+        `Use *${commandPrefix}antiflood* para ver a configuracao.`,
+        `Use *${commandPrefix}antiflood on* para ligar.`,
+        `Use *${commandPrefix}antiflood off* para desligar.`,
+        `Use *${commandPrefix}antiflood limite <numero>* para alterar o limite.`,
+        `Use *${commandPrefix}antiflood janela <segundos>* para alterar a janela.`,
+        `Use *${commandPrefix}antiflood minimo <numero>* para alterar o minimo.`,
+        `Use *${commandPrefix}antiflood reset* para restaurar o padrao.`,
+      ]),
     );
   },
 };

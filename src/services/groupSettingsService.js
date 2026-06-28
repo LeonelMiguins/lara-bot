@@ -39,6 +39,7 @@ function createDefaultSettings(groupId) {
     groupId,
     createdAt: now,
     updatedAt: now,
+    prefixOverride: '',
     features: clone(config.features || {}),
     antiFlood: clone(config.antiFlood || {}),
     antiLink: clone(config.antiLink || {}),
@@ -55,6 +56,7 @@ function normalizeSettings(groupId, data = {}) {
     ...data,
     groupId,
     schemaVersion: 1,
+    prefixOverride: typeof data.prefixOverride === 'string' ? data.prefixOverride.trim() : '',
     features: {
       ...defaults.features,
       ...(data.features || {}),

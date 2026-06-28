@@ -5,10 +5,11 @@ module.exports = {
   name: 'grupos',
   aliases: ['groups', 'listagrupos', 'todosgrupos'],
   description: 'Lista todos os grupos em que o bot esta inserido.',
+  menuExample: `${config.prefix}grupos`,
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,
-  async execute({ client, chatId }) {
+  async execute({ client, chatId, commandPrefix }) {
     const chats = await client.getChats();
     const groups = chats.filter((chat) => chat.isGroup);
 
@@ -32,7 +33,7 @@ module.exports = {
           '',
           ...lines,
           '',
-          `Exemplo: *${config.prefix}antilink --grupo <ID_DO_GRUPO> on*`,
+          `Exemplo: *${commandPrefix}antilink --grupo <ID_DO_GRUPO> on*`,
         ].join('\n'),
       ),
     );

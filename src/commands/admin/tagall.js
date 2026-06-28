@@ -4,6 +4,7 @@ module.exports = {
   name: 'tagall',
   aliases: ['hidetag'],
   description: 'Menciona todos os membros do grupo.',
+  menuExample: `#tagall`,
   groupOnly: true,
   adminOnly: true,
   async execute({ client, chatId, participants }) {

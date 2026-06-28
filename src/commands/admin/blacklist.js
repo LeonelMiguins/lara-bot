@@ -7,7 +7,7 @@ const {
   removeBlacklistEntry,
   resetBlacklistCategory,
 } = require('../../services/groupSettingsService');
-const { error, info, success, warning } = require('../../utils/respond');
+const { error, info, invalidUsage, success } = require('../../utils/respond');
 
 function formatCategoryName(category) {
   return getBlacklistCategoryMeta()[category]?.label || category;
@@ -32,9 +32,13 @@ module.exports = {
   name: 'blacklist',
   aliases: ['bloqueios'],
   description: 'Lista e edita a blacklist do grupo.',
+  menuExamples: [
+    `${config.prefix}blacklist`,
+    `${config.prefix}blacklist add adulto site.com`,
+  ],
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args, groupSettings }) {
+  async execute({ client, chatId, args, groupSettings, commandPrefix }) {
     if (!args.length || String(args[0]).toLowerCase() === 'list') {
       await client.sendMessage(
         chatId,
@@ -43,9 +47,9 @@ module.exports = {
           [
             formatBlacklist(groupSettings),
             '',
-            `Use *${config.prefix}blacklist add <categoria> <dominio>* para adicionar.`,
-            `Use *${config.prefix}blacklist del <categoria> <numero|dominio>* para remover.`,
-            `Use *${config.prefix}blacklist reset <categoria>* para restaurar o padrao.`,
+            `Use *${commandPrefix}blacklist add <categoria> <dominio>* para adicionar.`,
+            `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
+            `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
             'Categorias: whatsapp, adulto, apostas',
           ].join('\n'),
         ),
@@ -69,7 +73,9 @@ module.exports = {
       if (!value) {
         await client.sendMessage(
           chatId,
-          warning('Blacklist do grupo', `Use *${config.prefix}blacklist add ${args[1] || '<categoria>'} <dominio>*.`),
+          invalidUsage('Blacklist do grupo', [
+            `Use *${commandPrefix}blacklist add ${args[1] || '<categoria>'} <dominio>*.`,
+          ]),
         );
         return;
       }
@@ -89,7 +95,9 @@ module.exports = {
       if (!matcher) {
         await client.sendMessage(
           chatId,
-          warning('Blacklist do grupo', `Use *${config.prefix}blacklist del ${args[1] || '<categoria>'} <numero|dominio>*.`),
+          invalidUsage('Blacklist do grupo', [
+            `Use *${commandPrefix}blacklist del ${args[1] || '<categoria>'} <numero|dominio>*.`,
+          ]),
         );
         return;
       }
@@ -122,15 +130,12 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      warning(
-        'Blacklist do grupo',
-        [
-          `Use *${config.prefix}blacklist* para listar.`,
-          `Use *${config.prefix}blacklist add <categoria> <dominio>* para adicionar.`,
-          `Use *${config.prefix}blacklist del <categoria> <numero|dominio>* para remover.`,
-          `Use *${config.prefix}blacklist reset <categoria>* para restaurar o padrao.`,
-        ].join('\n'),
-      ),
+      invalidUsage('Blacklist do grupo', [
+        `Use *${commandPrefix}blacklist* para listar.`,
+        `Use *${commandPrefix}blacklist add <categoria> <dominio>* para adicionar.`,
+        `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
+        `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
+      ]),
     );
   },
 };

@@ -4,6 +4,7 @@ module.exports = {
   name: 'link',
   aliases: ['invite'],
   description: 'Mostra o link de convite do grupo.',
+  menuExample: `#link`,
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, chat, chatName, botIsAdmin }) {

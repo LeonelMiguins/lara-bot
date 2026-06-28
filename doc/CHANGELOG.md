@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.1 - 2026-06-27
+
+- criação do comando `#prefixo`
+- prefixo global persistente em `data/system/owner-settings.json`
+- prefixo por grupo persistente em `data/groups/*.json`
+- menu dinâmico e mensagens de ajuda usando o prefixo ativo
+- `#statusgrupo` agora mostra o prefixo ativo
+- atualização da documentação para o novo fluxo de prefixo
+
 ## 2.1.0 - 2026-06-26
 
 - migração consolidada para `whatsapp-web.js`

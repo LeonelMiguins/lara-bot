@@ -27,9 +27,10 @@ module.exports = {
   name: 'statusgrupo',
   aliases: ['grupostatus', 'status'],
   description: 'Mostra um resumo rapido do status atual do grupo.',
+  menuExample: `#statusgrupo`,
   groupOnly: true,
   adminOnly: false,
-  async execute({ client, chatId, chat, chatName, participants, groupSettings, botIsAdmin }) {
+  async execute({ client, chatId, chat, chatName, participants, groupSettings, botIsAdmin, commandPrefix }) {
     const admins = participants.filter(
       (participant) => participant.isAdmin || participant.isSuperAdmin,
     ).length;
@@ -43,6 +44,7 @@ module.exports = {
           `Grupo: ${chatName || chat.name || 'Sem nome'}`,
           `Membros: ${participants.length}`,
           `Admins: ${admins}`,
+          `Prefixo ativo: ${commandPrefix}`,
           `Modulos ligados: ${formatFeatureSummary(groupSettings)}`,
           `Link liberado: ${botIsAdmin ? 'sim' : 'nao'}`,
           `Anti-flood: ${groupSettings?.features?.antiFlood ? 'ligado' : 'desligado'}`,

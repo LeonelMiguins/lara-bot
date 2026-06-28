@@ -4,7 +4,7 @@ const {
   isKnownFeature,
   setGroupFeature,
 } = require('../../services/groupSettingsService');
-const { error, info, success, warning } = require('../../utils/respond');
+const { error, info, invalidUsage, success } = require('../../utils/respond');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
@@ -24,9 +24,13 @@ module.exports = {
   name: 'modulos',
   aliases: ['modules', 'features'],
   description: 'Lista e controla os modulos automáticos do bot.',
+  menuExamples: [
+    `${config.prefix}modulos`,
+    `${config.prefix}modulos antiFlood on`,
+  ],
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args, groupConfig }) {
+  async execute({ client, chatId, args, groupConfig, commandPrefix }) {
     if (!args.length) {
       const body = [
         '*Modulos automáticos*',
@@ -35,8 +39,8 @@ module.exports = {
           formatFeatureStatus(featureName, enabled),
         ),
         '',
-        `Use *${config.prefix}modulos <nome> on* para ligar.`,
-        `Use *${config.prefix}modulos <nome> off* para desligar.`,
+        `Use *${commandPrefix}modulos <nome> on* para ligar.`,
+        `Use *${commandPrefix}modulos <nome> off* para desligar.`,
         '',
         'Nomes aceitos: welcome, farewell, antiLink, antiFlood',
       ].join('\n');
@@ -62,10 +66,10 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        warning(
-          'Modulos do bot',
-          `Use *${config.prefix}modulos ${featureName} on* ou *${config.prefix}modulos ${featureName} off*.`,
-        ),
+        invalidUsage('Modulos do bot', [
+          `Use *${commandPrefix}modulos ${featureName} on* para ligar esse modulo.`,
+          `Use *${commandPrefix}modulos ${featureName} off* para desligar esse modulo.`,
+        ]),
       );
       return;
     }

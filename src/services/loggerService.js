@@ -1,12 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('../config/config');
+const { loadOwnerSettings } = require('./ownerSettingsService');
 const { ensureDirectory, idToHandle } = require('../utils/wweb');
 
 const LOG_FILE_NAME = 'bot.log';
 
 function getLogFilePath() {
   return path.resolve(config.paths.logDir, LOG_FILE_NAME);
+}
+
+function logsEnabled() {
+  return Boolean(loadOwnerSettings().logs?.enabled);
 }
 
 function serializeMeta(meta = {}) {
@@ -21,6 +26,10 @@ function serializeMeta(meta = {}) {
 }
 
 function write(level, event, meta = {}) {
+  if (!logsEnabled()) {
+    return;
+  }
+
   ensureDirectory(config.paths.logDir);
 
   const timestamp = new Date().toISOString();
@@ -127,6 +136,7 @@ module.exports = {
   getLogFilePath,
   groupEvent,
   info,
+  logsEnabled,
   runtimeError,
   runtimeEvent,
   runtimeWarn,

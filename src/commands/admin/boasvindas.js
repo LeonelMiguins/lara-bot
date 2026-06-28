@@ -1,6 +1,6 @@
 const config = require('../../config/config');
 const { setGroupFeature } = require('../../services/groupSettingsService');
-const { info, success, warning } = require('../../utils/respond');
+const { info, invalidUsage, success } = require('../../utils/respond');
 
 function formatStatus(groupSettings) {
   const enabled = Boolean(groupSettings?.features?.welcome);
@@ -11,9 +11,10 @@ module.exports = {
   name: 'boasvindas',
   aliases: ['welcome', 'bemvindo', 'bemvindos'],
   description: 'Liga ou desliga as boas-vindas automáticas do grupo.',
+  menuExample: `${config.prefix}boasvindas on|off`,
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, args, groupSettings }) {
+  async execute({ client, chatId, args, groupSettings, commandPrefix }) {
     const action = String(args[0] || '').toLowerCase();
 
     if (!action || action === 'list' || action === 'status') {
@@ -24,8 +25,8 @@ module.exports = {
           [
             `Status atual: ${formatStatus(groupSettings)}`,
             '',
-            `Use *${config.prefix}boasvindas on* para ligar.`,
-            `Use *${config.prefix}boasvindas off* para desligar.`,
+            `Use *${commandPrefix}boasvindas on* para ligar.`,
+            `Use *${commandPrefix}boasvindas off* para desligar.`,
           ].join('\n'),
         ),
       );
@@ -35,10 +36,10 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        warning(
-          'Boas-vindas do grupo',
-          `Use *${config.prefix}boasvindas on* para ligar ou *${config.prefix}boasvindas off* para desligar.`,
-        ),
+        invalidUsage('Boas-vindas do grupo', [
+          `Use *${commandPrefix}boasvindas on* para ligar.`,
+          `Use *${commandPrefix}boasvindas off* para desligar.`,
+        ]),
       );
       return;
     }

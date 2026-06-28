@@ -1,6 +1,6 @@
 const config = require('../../config/config');
 const { loadOwnerSettings, setOwnerNotificationsEnabled } = require('../../services/ownerSettingsService');
-const { info, success, warning } = require('../../utils/respond');
+const { info, invalidUsage, success } = require('../../utils/respond');
 
 function formatStatus() {
   const enabled = Boolean(loadOwnerSettings().notifications?.enabled);
@@ -11,10 +11,11 @@ module.exports = {
   name: 'notificacoes',
   aliases: ['notificacoesdono', 'privado'],
   description: 'Liga ou desliga as notificacoes privadas do dono.',
+  menuExample: `${config.prefix}notificacoes on|off`,
   groupOnly: false,
   adminOnly: false,
   ownerOnly: true,
-  async execute({ client, chatId, args }) {
+  async execute({ client, chatId, args, commandPrefix }) {
     const action = String(args[0] || '').toLowerCase();
 
     if (!action || action === 'status' || action === 'list') {
@@ -25,8 +26,8 @@ module.exports = {
           [
             `Status atual: ${formatStatus()}`,
             '',
-            `Use *${config.prefix}notificacoes on* para ligar.`,
-            `Use *${config.prefix}notificacoes off* para desligar.`,
+            `Use *${commandPrefix}notificacoes on* para ligar.`,
+            `Use *${commandPrefix}notificacoes off* para desligar.`,
           ].join('\n'),
         ),
       );
@@ -36,10 +37,10 @@ module.exports = {
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
-        warning(
-          'Notificacoes do dono',
-          `Use *${config.prefix}notificacoes on* para ligar ou *${config.prefix}notificacoes off* para desligar.`,
-        ),
+        invalidUsage('Notificacoes do dono', [
+          `Use *${commandPrefix}notificacoes on* para ligar as notificacoes.`,
+          `Use *${commandPrefix}notificacoes off* para desligar as notificacoes.`,
+        ]),
       );
       return;
     }

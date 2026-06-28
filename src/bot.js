@@ -10,13 +10,19 @@ const setupFarewell = require('./modules/farewell');
 const setupWelcome = require('./modules/welcome');
 const { loadGroupSettings } = require('./services/groupSettingsService');
 const logger = require('./services/loggerService');
+const { setCommandCatalog } = require('./services/menuService');
 const ownerNotifications = require('./services/ownerNotificationService');
+const { getEffectivePrefix } = require('./services/prefixService');
 const {
   findParticipantById,
   isAdminParticipant,
   resolveUserAliases,
 } = require('./services/whatsappIdentityService');
-const { error: errorMessage } = require('./utils/respond');
+const {
+  denied,
+  failure: failureMessage,
+  unavailable,
+} = require('./utils/respond');
 const { digitsOnly } = require('./utils/text');
 const {
   ensureDirectory,
@@ -116,6 +122,8 @@ async function buildChatExecutionContext(client, chat, senderId, extra = {}) {
     );
   }
 
+  const commandPrefix = getEffectivePrefix({ isGroup, groupSettings });
+
   return {
     chat,
     chatId,
@@ -128,6 +136,7 @@ async function buildChatExecutionContext(client, chat, senderId, extra = {}) {
     participants,
     groupConfig: groupSettings,
     groupSettings,
+    commandPrefix,
     mentions: extra.mentions || [],
     quotedMessage: extra.quotedMessage || null,
     ownerIsOperator: Boolean(extra.ownerIsOperator),
@@ -181,7 +190,7 @@ async function resolveExecutionContext(client, message, command, args, baseConte
   const parsed = parseTargetGroupArgs(args);
   if (!parsed.targetGroupId) {
     return {
-      error: `Use *${config.prefix}grupos* para listar os grupos e *--grupo <ID_DO_GRUPO>* para escolher o alvo.`,
+      error: `Use *${baseContext.commandPrefix}grupos* para listar os grupos e *--grupo <ID_DO_GRUPO>* para escolher o alvo.`,
     };
   }
 
@@ -210,7 +219,7 @@ async function resolveExecutionContext(client, message, command, args, baseConte
   return {
     context,
     args: parsed.args,
-    body: `${config.prefix}${command.name}${parsed.args.length ? ` ${parsed.args.join(' ')}` : ''}`,
+    body: `${context.commandPrefix}${command.name}${parsed.args.length ? ` ${parsed.args.join(' ')}` : ''}`,
   };
 }
 
@@ -224,6 +233,7 @@ async function startBot() {
   }
 
   const commands = loadCommands(path.join(__dirname, 'commands'));
+  setCommandCatalog(commands.catalog || []);
   const client = createClient();
   const handleAntiFlood = setupAntiFlood(client);
   const handleAntiLink = setupAntiLink(client);
@@ -310,11 +320,13 @@ async function startBot() {
       }
 
       const body = String(message.body || '').trim();
-      if (!body.startsWith(config.prefix)) {
+      const activePrefix = context.commandPrefix || config.prefix;
+
+      if (!body.startsWith(activePrefix)) {
         return;
       }
 
-      const parts = body.slice(config.prefix.length).trim().split(/\s+/).filter(Boolean);
+      const parts = body.slice(activePrefix.length).trim().split(/\s+/).filter(Boolean);
       if (!parts.length) {
         return;
       }
@@ -329,7 +341,12 @@ async function startBot() {
       const execution = await resolveExecutionContext(client, message, command, parts, context);
       if (execution.error) {
         logger.commandRejected(command.name, 'target_context_missing', context);
-        await client.sendMessage(context.chatId, errorMessage('Comando indisponivel', execution.error));
+        await client.sendMessage(
+          context.chatId,
+          unavailable('Comando indisponivel', execution.error, [
+            `Use *${context.commandPrefix}menu* para ver os comandos disponiveis.`,
+          ]),
+        );
         return;
       }
 
@@ -342,13 +359,24 @@ async function startBot() {
 
       if (command.ownerOnly && !executionContext.senderIsOwner) {
         logger.commandRejected(command.name, 'owner_only', executionContext);
-        await client.sendMessage(context.chatId, errorMessage('Permissao negada', 'Apenas o dono do bot pode usar esse comando.'));
+        await client.sendMessage(
+          context.chatId,
+          denied('Permissao negada', 'Apenas o dono do bot pode usar esse comando.', [
+            'Use esse comando no numero principal configurado como dono.',
+          ]),
+        );
         return;
       }
 
       if (command.groupOnly && !executionContext.isGroup) {
         logger.commandRejected(command.name, 'group_only', executionContext);
-        await client.sendMessage(context.chatId, errorMessage('Comando indisponivel', 'Esse comando so pode ser usado em grupos.'));
+        await client.sendMessage(
+          context.chatId,
+          unavailable('Comando indisponivel', 'Esse comando so pode ser usado em grupos.', [
+            'Envie esse comando dentro de um grupo.',
+            `Se voce for o dono, use *${context.commandPrefix}grupos* e *--grupo <ID_DO_GRUPO>* no privado.`,
+          ]),
+        );
         return;
       }
 
@@ -357,7 +385,13 @@ async function startBot() {
           participants: executionContext.participants
             .map((participant) => `${getParticipantId(participant)}:${isAdminParticipant(participant) ? 'admin' : 'membro'}`),
         });
-        await client.sendMessage(context.chatId, errorMessage('Permissao negada', 'Apenas administradores podem usar esse comando.'));
+        await client.sendMessage(
+          context.chatId,
+          denied('Permissao negada', 'Apenas administradores podem usar esse comando.', [
+            'Confirme se o seu numero aparece como administrador no grupo.',
+            'Se voce for o dono do bot, tambem pode usar o comando no privado com --grupo <ID_DO_GRUPO>.',
+          ]),
+        );
         return;
       }
 
@@ -374,7 +408,12 @@ async function startBot() {
     } catch (runtimeError) {
       logger.commandFailed(activeCommandName, runtimeError, activeContext);
       try {
-        await message.reply(errorMessage('Falha no comando', 'Ocorreu um erro ao executar esse comando.'));
+        await message.reply(
+          failureMessage('Falha no comando', 'Ocorreu um erro ao executar esse comando.', [
+            'Tente novamente em alguns instantes.',
+            `Se o problema continuar, confira *${activeContext.commandPrefix || config.prefix}logs* no privado do dono.`,
+          ]),
+        );
       } catch {}
     }
   });

@@ -12,6 +12,13 @@ O prefixo padrão é:
 #
 ```
 
+Hoje esse prefixo pode ser alterado sem editar arquivo:
+
+```text
+#prefixo global !
+#prefixo grupo ?
+```
+
 ### Tipos de comando
 
 - `Usuário`: qualquer membro pode usar
@@ -165,6 +172,41 @@ Mostra:
 - RAM total
 - sistema operacional
 - uptime do host
+
+---
+
+## Comando de prefixo
+
+### `#prefixo`
+
+- Tipo: `Dono` para `global`
+- Tipo: `Admin` ou `Dono` para `grupo`
+- Local: `Grupo e Privado`
+- Alias: `#prefix`, `#setprefix`
+- Função: mostra ou altera o prefixo global do bot e o prefixo específico de um grupo
+
+Como usar:
+
+```text
+#prefixo status
+#prefixo global !
+#prefixo global reset
+#prefixo grupo ?
+#prefixo grupo reset
+```
+
+No privado do dono, também funciona com grupo alvo:
+
+```text
+#prefixo grupo ! --grupo 1203...@g.us
+#prefixo grupo reset --grupo 1203...@g.us
+```
+
+Regras:
+
+- `global`: só o dono pode alterar
+- `grupo`: admin do grupo ou dono no privado
+- se o grupo não tiver prefixo próprio, ele herda o prefixo global
 
 ---
 
@@ -412,6 +454,29 @@ Quando ligadas, o bot pode te avisar sobre:
 
 ---
 
+### `#logs`
+
+- Tipo: `Dono`
+- Local: `Privado`
+- Alias: `#log`
+- Função: liga ou desliga a gravação de logs do bot
+
+Como usar:
+
+```text
+#logs
+#logs status
+#logs on
+#logs off
+```
+
+Observação:
+
+- o estado fica salvo em `data/system/owner-settings.json`
+- quando desligado, o bot não grava em `logs/bot.log`
+
+---
+
 ## Comandos de usuário
 
 ### `#menu`
@@ -587,5 +652,7 @@ Tudo do membro comum, mais:
 Tudo acima, e no privado:
 
 - `#grupos`
+- `#logs`
 - `#notificacoes`
+- `#prefixo`
 - comandos com `--grupo <ID>`

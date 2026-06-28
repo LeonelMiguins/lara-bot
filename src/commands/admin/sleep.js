@@ -1,19 +1,23 @@
 const config = require('../../config/config');
-const { success, warning } = require('../../utils/respond');
+const { invalidUsage, success } = require('../../utils/respond');
 
 module.exports = {
   name: 'sleep',
   aliases: ['grupo'],
   description: 'Fecha ou abre o grupo para mensagens.',
+  menuExample: `${config.prefix}sleep on|off`,
   groupOnly: true,
   adminOnly: true,
-  async execute({ client, chatId, chat, args }) {
+  async execute({ client, chatId, chat, args, commandPrefix }) {
     const mode = (args[0] || 'on').toLowerCase();
 
     if (mode !== 'on' && mode !== 'off') {
       await client.sendMessage(
         chatId,
-        warning('Modo silencioso', `Use *${config.prefix}sleep on* para fechar ou *${config.prefix}sleep off* para abrir o grupo.`),
+        invalidUsage('Modo silencioso', [
+          `Use *${commandPrefix}sleep on* para fechar o grupo.`,
+          `Use *${commandPrefix}sleep off* para reabrir o grupo.`,
+        ]),
       );
       return;
     }

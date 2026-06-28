@@ -10,6 +10,10 @@ function clone(value) {
 
 function createDefaultOwnerSettings() {
   return {
+    prefix: config.prefix,
+    logs: {
+      enabled: false,
+    },
     notifications: {
       enabled: false,
       commandEvents: true,
@@ -24,6 +28,11 @@ function normalizeOwnerSettings(data = {}) {
   return {
     ...defaults,
     ...data,
+    prefix: typeof data.prefix === 'string' && data.prefix.trim() ? data.prefix.trim() : defaults.prefix,
+    logs: {
+      ...defaults.logs,
+      ...(data.logs || {}),
+    },
     notifications: {
       ...defaults.notifications,
       ...(data.notifications || {}),
@@ -67,10 +76,18 @@ function setOwnerNotificationsEnabled(enabled) {
   });
 }
 
+function setOwnerLogsEnabled(enabled) {
+  return updateOwnerSettings((current) => {
+    current.logs.enabled = Boolean(enabled);
+    return current;
+  });
+}
+
 module.exports = {
   createDefaultOwnerSettings,
   loadOwnerSettings,
   saveOwnerSettings,
+  setOwnerLogsEnabled,
   setOwnerNotificationsEnabled,
   updateOwnerSettings,
 };

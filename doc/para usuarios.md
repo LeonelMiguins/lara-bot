@@ -17,7 +17,23 @@ O prefixo padrão é:
 #
 ```
 
-Se quiser mudar, edite [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js).
+Agora você pode trocar isso pelo próprio bot.
+
+Comandos:
+
+```text
+#prefixo status
+#prefixo global !
+#prefixo global reset
+#prefixo grupo ?
+#prefixo grupo reset
+```
+
+Regras:
+
+- `global`: apenas o dono do bot
+- `grupo`: admin do grupo ou dono via privado com `--grupo`
+- se o grupo não tiver prefixo próprio, ele usa o prefixo global
 
 ## Comandos de grupo
 
@@ -153,7 +169,10 @@ Editar:
 O dono do bot pode operar no privado usando:
 
 - `#grupos`
+- `#logs on|off`
 - `#notificacoes on|off`
+- `#prefixo status`
+- `#prefixo global !`
 - `--grupo <ID_DO_GRUPO>`
 
 Exemplo:
@@ -177,6 +196,22 @@ Liga e desliga com:
 ```text
 #notificacoes on
 #notificacoes off
+```
+
+## Logs
+
+A gravação de logs do bot também pode ser ligada ou desligada pelo dono:
+
+```text
+#logs on
+#logs off
+#logs status
+```
+
+Quando ativados, os logs ficam em:
+
+```text
+logs/bot.log
 ```
 
 ## Se a sessão quebrar

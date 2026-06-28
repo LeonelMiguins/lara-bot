@@ -27,6 +27,7 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 - comandos administrativos prontos para grupo
 - módulos automáticos com `on/off` por grupo
 - regras, blacklist e anti-flood editáveis pelo próprio bot
+- prefixo global e por grupo editável pelo próprio bot
 - suporte ao dono no privado com `--grupo <ID_DO_GRUPO>`
 - notificações privadas do dono com `on/off`
 - logs estruturados em arquivo
@@ -80,7 +81,11 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 
 ```text
 #grupos
+#logs on|off
 #notificacoes on|off
+#prefixo status
+#prefixo global !
+#prefixo grupo ? --grupo 1203...@g.us
 #antilink --grupo 1203...@g.us on
 #boasvindas --grupo 1203...@g.us off
 #antiflood --grupo 1203...@g.us limite 8
@@ -107,6 +112,7 @@ data/groups/
 Esse arquivo guarda:
 
 - módulos ligados e desligados
+- prefixo próprio do grupo, se existir
 - regras do grupo
 - blacklist por categoria
 - ação do anti-link por categoria
@@ -144,6 +150,7 @@ src/
 - [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
 - [ownerNotificationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerNotificationService.js)
 - [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
+- [prefixService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/prefixService.js)
 - [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
 - [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
 
@@ -165,6 +172,24 @@ Para validar a base:
 ```bash
 npm run smoke
 ```
+
+## 🔠 Prefixo do bot
+
+O prefixo padrão da base continua sendo `#`, mas agora ele pode ser alterado sem mexer no código:
+
+```text
+#prefixo status
+#prefixo global !
+#prefixo global reset
+#prefixo grupo ?
+#prefixo grupo reset
+```
+
+Regras:
+
+- `prefixo global`: apenas o dono do bot
+- `prefixo grupo`: admin do grupo ou dono no privado com `--grupo`
+- quando o grupo não tem prefixo próprio, ele herda o prefixo global
 
 ## 🔐 Sessão e dados
 
@@ -192,7 +217,15 @@ Os logs ficam em:
 logs/bot.log
 ```
 
-Eles registram:
+Por padrão, a gravação fica desligada. Para controlar:
+
+```text
+#logs on
+#logs off
+#logs status
+```
+
+Quando ligados, eles registram:
 
 - comandos recebidos e concluídos
 - rejeições por permissão ou contexto

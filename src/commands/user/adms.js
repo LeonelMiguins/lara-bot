@@ -4,6 +4,7 @@ module.exports = {
   name: 'adms',
   aliases: ['admins'],
   description: 'Menciona todos os administradores do grupo.',
+  menuExample: `#adms`,
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId, participants }) {

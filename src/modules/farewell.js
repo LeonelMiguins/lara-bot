@@ -1,6 +1,6 @@
-const config = require('../config/config');
 const { loadGroupSettings } = require('../services/groupSettingsService');
 const logger = require('../services/loggerService');
+const { getEffectivePrefix } = require('../services/prefixService');
 const { info } = require('../utils/respond');
 
 module.exports = function setupFarewell(client) {
@@ -8,6 +8,7 @@ module.exports = function setupFarewell(client) {
     try {
       const chat = await notification.getChat();
       const groupSettings = loadGroupSettings(chat.id._serialized);
+      const commandPrefix = getEffectivePrefix({ isGroup: true, groupSettings });
       if (!groupSettings.features?.farewell) {
         return;
       }
@@ -21,7 +22,7 @@ module.exports = function setupFarewell(client) {
           [
             `*${displayName}* saiu do *${chat.name || 'grupo'}*.`,
             '',
-            `Use *${config.prefix}regras* para consultar as regras do grupo.`,
+            `Use *${commandPrefix}regras* para consultar as regras do grupo.`,
           ].join('\n'),
         );
 

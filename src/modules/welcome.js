@@ -1,6 +1,6 @@
-const config = require('../config/config');
 const { loadGroupSettings } = require('../services/groupSettingsService');
 const logger = require('../services/loggerService');
+const { getEffectivePrefix } = require('../services/prefixService');
 const { info } = require('../utils/respond');
 
 module.exports = function setupWelcome(client) {
@@ -8,6 +8,7 @@ module.exports = function setupWelcome(client) {
     try {
       const chat = await notification.getChat();
       const groupSettings = loadGroupSettings(chat.id._serialized);
+      const commandPrefix = getEffectivePrefix({ isGroup: true, groupSettings });
       if (!groupSettings.features?.welcome) {
         return;
       }
@@ -22,8 +23,8 @@ module.exports = function setupWelcome(client) {
             `Ola, *${displayName}*!`,
             `Seja bem-vindo(a) ao *${chat.name || 'grupo'}*.`,
             '',
-            `Use *${config.prefix}menu* para ver os comandos.`,
-            `Use *${config.prefix}regras* para ler as regras do grupo.`,
+            `Use *${commandPrefix}menu* para ver os comandos.`,
+            `Use *${commandPrefix}regras* para ler as regras do grupo.`,
           ].join('\n'),
         );
 

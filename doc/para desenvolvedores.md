@@ -72,6 +72,7 @@ Aqui vive a lógica mais importante da base:
 - [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
 - [ownerNotificationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerNotificationService.js)
 - [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
+- [prefixService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/prefixService.js)
 - [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
 - [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
 
@@ -112,6 +113,7 @@ data/groups/
 Esse arquivo inclui:
 
 - `features`
+- `prefixOverride`
 - `antiFlood`
 - `antiLink`
 - `blacklist`
@@ -124,6 +126,12 @@ Preferências do dono:
 ```text
 data/system/
 ```
+
+Esse diretório agora guarda também:
+
+- prefixo global persistente do bot
+- estado das notificações privadas
+- estado da gravação de logs
 
 ### Logs
 
