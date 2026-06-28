@@ -7,6 +7,7 @@ const {
   renderRodape,
   renderTitle,
 } = require('../services/messageRenderService');
+const { getPhrase } = require('../services/messagePhraseService');
 
 function frame({ title, body, tone = 'INFO', forceTone } = {}) {
   return renderBloco({
@@ -119,6 +120,36 @@ function moderation(title, body) {
   return frame({ title, body, tone: 'MOD', forceTone: true });
 }
 
+function phrase(key, variables = {}, options = {}) {
+  const {
+    tone = '',
+    forceTone = false,
+  } = options;
+
+  return frame({
+    title: '',
+    body: getPhrase(key, variables),
+    tone,
+    forceTone,
+  });
+}
+
+function phraseInfo(key, variables = {}) {
+  return phrase(key, variables, { tone: 'INFO', forceTone: true });
+}
+
+function phraseSuccess(key, variables = {}) {
+  return phrase(key, variables, { tone: 'OK', forceTone: true });
+}
+
+function phraseWarning(key, variables = {}) {
+  return phrase(key, variables, { tone: 'ALERTA', forceTone: true });
+}
+
+function phraseError(key, variables = {}) {
+  return phrase(key, variables, { tone: 'ERRO', forceTone: true });
+}
+
 function denied(title, reason, actions = []) {
   return error(title, buildPatternBody({
     summary: 'Voce nao pode usar este comando agora.',
@@ -163,6 +194,11 @@ module.exports = {
   info,
   invalidUsage,
   moderation,
+  phrase,
+  phraseError,
+  phraseInfo,
+  phraseSuccess,
+  phraseWarning,
   renderCabecalho,
   renderCommand,
   renderMsg,

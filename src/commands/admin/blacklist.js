@@ -1,6 +1,5 @@
 const config = require('../../config/config');
 const {
-  addBlacklistEntry,
   getBlacklistCategoryMeta,
   getBlacklistEntries,
   normalizeBlacklistCategory,
@@ -31,10 +30,9 @@ function formatBlacklist(groupSettings) {
 module.exports = {
   name: 'blacklist',
   aliases: ['bloqueios'],
-  description: 'Lista e edita a blacklist do grupo.',
+  description: 'Lista a blacklist do grupo e permite remover entradas existentes.',
   menuExamples: [
     `${config.prefix}blacklist`,
-    `${config.prefix}blacklist add adulto site.com`,
   ],
   groupOnly: true,
   adminOnly: true,
@@ -47,9 +45,9 @@ module.exports = {
           [
             formatBlacklist(groupSettings),
             '',
-            `Use *${commandPrefix}blacklist add <categoria> <dominio>* para adicionar.`,
             `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
             `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
+            'Para adicionar novas palavras-chave, edite o JSON do grupo diretamente.',
             'Categorias: whatsapp, adulto, apostas',
           ].join('\n'),
         ),
@@ -64,26 +62,6 @@ module.exports = {
       await client.sendMessage(
         chatId,
         error('Blacklist do grupo', 'Categoria invalida. Use: whatsapp, adulto ou apostas.'),
-      );
-      return;
-    }
-
-    if (action === 'add') {
-      const value = args.slice(2).join(' ').trim().toLowerCase();
-      if (!value) {
-        await client.sendMessage(
-          chatId,
-          invalidUsage('Blacklist do grupo', [
-            `Use *${commandPrefix}blacklist add ${args[1] || '<categoria>'} <dominio>*.`,
-          ]),
-        );
-        return;
-      }
-
-      addBlacklistEntry(chatId, category, value);
-      await client.sendMessage(
-        chatId,
-        success('Blacklist do grupo', `${formatCategoryName(category)} atualizada com sucesso.`),
       );
       return;
     }
@@ -132,9 +110,9 @@ module.exports = {
       chatId,
       invalidUsage('Blacklist do grupo', [
         `Use *${commandPrefix}blacklist* para listar.`,
-        `Use *${commandPrefix}blacklist add <categoria> <dominio>* para adicionar.`,
         `Use *${commandPrefix}blacklist del <categoria> <numero|dominio>* para remover.`,
         `Use *${commandPrefix}blacklist reset <categoria>* para restaurar o padrao.`,
+        'Novas palavras-chave devem ser adicionadas direto no JSON do grupo.',
       ]),
     );
   },

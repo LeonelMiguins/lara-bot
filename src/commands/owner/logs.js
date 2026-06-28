@@ -1,7 +1,7 @@
 const config = require('../../config/config');
 const { getLogFilePath, logsEnabled } = require('../../services/loggerService');
 const { setOwnerLogsEnabled } = require('../../services/ownerSettingsService');
-const { commandPanel, createSection, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
 function formatStatus() {
   return logsEnabled() ? '🟢 Ligados' : '🔴 Desligados';
@@ -54,10 +54,9 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      success(
-        'Logs do bot',
-        `A gravacao de logs agora está ${enabled ? 'ligada' : 'desligada'}. Logs de conexao continuam visiveis no terminal.`,
-      ),
+      phraseSuccess(enabled ? 'success.command_enabled' : 'success.command_disabled', {
+        command_name: 'logs',
+      }),
     );
   },
 };

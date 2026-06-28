@@ -1,6 +1,6 @@
 const config = require('../../config/config');
 const { setGroupFeature } = require('../../services/groupSettingsService');
-const { info, invalidUsage, success } = require('../../utils/respond');
+const { info, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
 function formatStatus(groupSettings) {
   const enabled = Boolean(groupSettings?.features?.welcome);
@@ -49,10 +49,9 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      success(
-        'Boas-vindas do grupo',
-        `As boas-vindas agora estão ${enabled ? 'ligadas' : 'desligadas'}.`,
-      ),
+      phraseSuccess(enabled ? 'success.module_enabled' : 'success.module_disabled', {
+        module_name: 'Boas-vindas',
+      }),
     );
   },
 };

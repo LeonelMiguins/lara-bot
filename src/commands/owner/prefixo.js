@@ -88,6 +88,16 @@ module.exports = {
     const targetGroupSettings = targetGroupId ? loadGroupSettings(targetGroupId) : null;
     const currentGroupSettings = isGroup ? groupSettings : targetGroupSettings;
 
+    if (!isGroup && !senderIsOwner && ['global', 'grupo'].includes(scope)) {
+      await client.sendMessage(
+        chatId,
+        denied('Prefixo do bot', 'Apenas o dono do bot pode usar esse comando no privado.', [
+          'Use esse comando no numero principal configurado como dono.',
+        ]),
+      );
+      return;
+    }
+
     if (!parsed.args.length || scope === 'status' || scope === 'list') {
       await client.sendMessage(
         chatId,
@@ -156,10 +166,20 @@ module.exports = {
       if (!canManageGroupPrefix) {
         await client.sendMessage(
           chatId,
-          denied('Prefixo do grupo', 'Apenas administradores ou o dono do bot podem alterar o prefixo do grupo.', [
-            'Use esse comando com uma conta administradora do grupo.',
-            'Ou use o privado do dono com --grupo <ID_DO_GRUPO>.',
-          ]),
+          denied(
+            'Prefixo do grupo',
+            isGroup
+              ? 'Apenas administradores ou o dono do bot podem alterar o prefixo do grupo.'
+              : 'Apenas o dono do bot pode usar esse comando no privado.',
+            isGroup
+              ? [
+                  'Use esse comando com uma conta administradora do grupo.',
+                  'Ou use o privado do dono com --grupo <ID_DO_GRUPO>.',
+                ]
+              : [
+                  'Use esse comando no numero principal configurado como dono.',
+                ],
+          ),
         );
         return;
       }

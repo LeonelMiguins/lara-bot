@@ -12,6 +12,7 @@ const { loadGroupSettings } = require('./services/groupSettingsService');
 const logger = require('./services/loggerService');
 const { setCommandCatalog } = require('./services/menuService');
 const ownerNotifications = require('./services/ownerNotificationService');
+const { sendCommandHelp } = require('./services/commandHelpService');
 const { getEffectivePrefix } = require('./services/prefixService');
 const {
   findParticipantById,
@@ -19,9 +20,8 @@ const {
   resolveUserAliases,
 } = require('./services/whatsappIdentityService');
 const {
-  denied,
-  failure: failureMessage,
-  unavailable,
+  phraseError,
+  phraseWarning,
 } = require('./utils/respond');
 const { digitsOnly } = require('./utils/text');
 const {
@@ -66,9 +66,9 @@ function createClient() {
       args: config.puppeteer.args,
     },
     webVersionCache: {
-      type: 'local',
-      path: path.join(config.paths.webCacheDir, 'web-version-cache'),
-      strict: false,
+      type: config.webVersionCache?.type || 'none',
+      path: path.join(process.cwd(), config.webVersionCache?.path || path.join(config.paths.webCacheDir, 'web-version-cache')),
+      strict: Boolean(config.webVersionCache?.strict),
     },
     pairWithPhoneNumber:
       config.pairing.mode === 'phone' && config.pairing.experimentalPhoneNumber
@@ -373,9 +373,7 @@ async function startBot() {
         logger.commandRejected(command.name, 'target_context_missing', context);
         await client.sendMessage(
           context.chatId,
-          unavailable('Comando indisponivel', execution.error, [
-            `Use *${context.commandPrefix}menu* para ver os comandos disponiveis.`,
-          ]),
+          phraseWarning('common.command_unavailable'),
         );
         return;
       }
@@ -385,15 +383,23 @@ async function startBot() {
       const executionBody = execution.body;
       activeContext = executionContext;
 
+      if (command.name !== 'help' && executionArgs.length && ['help', 'ajuda'].includes(String(executionArgs[executionArgs.length - 1]).toLowerCase())) {
+        await sendCommandHelp({
+          client,
+          chatId: context.chatId,
+          command,
+          commandPrefix: executionContext.commandPrefix,
+        });
+        return;
+      }
+
       logger.commandReceived(command.name, executionArgs, executionContext);
 
       if (command.ownerOnly && !executionContext.senderIsOwner) {
         logger.commandRejected(command.name, 'owner_only', executionContext);
         await client.sendMessage(
           context.chatId,
-          denied('Permissao negada', 'Apenas o dono do bot pode usar esse comando.', [
-            'Use esse comando no numero principal configurado como dono.',
-          ]),
+          phraseError('common.owner_only'),
         );
         return;
       }
@@ -402,10 +408,7 @@ async function startBot() {
         logger.commandRejected(command.name, 'group_only', executionContext);
         await client.sendMessage(
           context.chatId,
-          unavailable('Comando indisponivel', 'Esse comando so pode ser usado em grupos.', [
-            'Envie esse comando dentro de um grupo.',
-            `Se voce for o dono, use *${context.commandPrefix}grupos* e *--grupo <ID_DO_GRUPO>* no privado.`,
-          ]),
+          phraseError('common.group_only'),
         );
         return;
       }
@@ -417,10 +420,7 @@ async function startBot() {
         });
         await client.sendMessage(
           context.chatId,
-          denied('Permissao negada', 'Apenas administradores podem usar esse comando.', [
-            'Confirme se o seu numero aparece como administrador no grupo.',
-            'Se voce for o dono do bot, tambem pode usar o comando no privado com --grupo <ID_DO_GRUPO>.',
-          ]),
+          phraseError('common.admin_only'),
         );
         return;
       }
@@ -431,18 +431,24 @@ async function startBot() {
         message,
         args: executionArgs,
         body: executionBody,
+        commandRegistry: commands,
         ...executionContext,
       });
-      logger.commandCompleted(command.name, Date.now() - startedAt, executionContext);
-      await ownerNotifications.notifyCommandExecuted(client, command.name, executionContext, Date.now() - startedAt);
+      const durationMs = Date.now() - startedAt;
+      logger.commandCompleted(command.name, durationMs, executionContext);
+
+      try {
+        await ownerNotifications.notifyCommandExecuted(client, command.name, executionContext, durationMs);
+      } catch (notificationError) {
+        logger.runtimeError('owner_notification.command_failed', notificationError, logger.buildMessageMeta(executionContext, {
+          command: command.name,
+        }));
+      }
     } catch (runtimeError) {
       logger.commandFailed(activeCommandName, runtimeError, activeContext);
       try {
         await message.reply(
-          failureMessage('Falha no comando', 'Ocorreu um erro ao executar esse comando.', [
-            'Tente novamente em alguns instantes.',
-            `Se o problema continuar, confira *${activeContext.commandPrefix || config.prefix}logs* no privado do dono.`,
-          ]),
+          phraseError('common.execution_failed'),
         );
       } catch {}
     }

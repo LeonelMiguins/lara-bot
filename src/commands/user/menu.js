@@ -2,7 +2,7 @@ const { buildMenuText } = require('../../services/menuService');
 
 module.exports = {
   name: 'menu',
-  aliases: ['help'],
+  aliases: [],
   description: 'Mostra o menu principal.',
   menuExample: `#menu`,
   groupOnly: false,

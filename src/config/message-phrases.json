@@ -1,0 +1,24 @@
+{
+  "common": {
+    "command_unavailable": "❗ `comando nao pode ser executado!`",
+    "command_invalid": "❗ `comando invalido ou incompleto!`",
+    "admin_only": "❌ `apenas administradores podem usar esse comando`",
+    "owner_only": "❌ `apenas o dono pode usar esse comando`",
+    "group_only": "❌ `esse comando so pode ser usado em grupos`",
+    "execution_failed": "❌ `ocorreu um erro ao executar esse comando`"
+  },
+  "success": {
+    "command_enabled": "✅ `o comando {command_name} foi ativado com sucesso`",
+    "command_disabled": "❌ `o comando {command_name} foi desativado com sucesso`",
+    "module_enabled": "✅ `o modulo {module_name} foi ativado com sucesso`",
+    "module_disabled": "❌ `o modulo {module_name} foi desativado com sucesso`",
+    "setting_updated": "✅ `{setting_name} atualizado com sucesso`",
+    "entry_removed": "✅ `entrada removida com sucesso`",
+    "rules_restored": "✅ `as regras padrao foram restauradas com sucesso`"
+  },
+  "info": {
+    "edit_json_only": "ℹ️ `novas palavras-chave devem ser adicionadas direto no json do grupo`",
+    "use_owner_private": "ℹ️ `use esse comando no numero principal configurado como dono`",
+    "use_group_context": "ℹ️ `envie esse comando dentro de um grupo`"
+  }
+}

@@ -4,7 +4,7 @@ const {
   isKnownFeature,
   setGroupFeature,
 } = require('../../services/groupSettingsService');
-const { commandPanel, createSection, error, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, error, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
 const FEATURE_LABELS = {
   welcome: 'Boas-vindas',
@@ -81,10 +81,9 @@ module.exports = {
 
     await client.sendMessage(
       chatId,
-      success(
-        'Modulos do bot',
-        `${FEATURE_LABELS[featureName] || featureName} agora está ${enabled ? 'ligado' : 'desligado'}.`,
-      ),
+      phraseSuccess(enabled ? 'success.module_enabled' : 'success.module_disabled', {
+        module_name: FEATURE_LABELS[featureName] || featureName,
+      }),
     );
   },
 };

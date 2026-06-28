@@ -314,20 +314,12 @@ Ações aceitas:
 - Tipo: `Admin`
 - Local: `Grupo`
 - Alias: `#bloqueios`
-- Função: lista e edita a blacklist por categoria
+- Função: lista a blacklist por categoria e permite remover entradas existentes
 
 Como usar:
 
 ```text
 #blacklist
-```
-
-Adicionar:
-
-```text
-#blacklist add whatsapp chat.whatsapp.com
-#blacklist add adulto exemploadulto.com
-#blacklist add apostas exemplobet.com
 ```
 
 Remover por número:
@@ -355,6 +347,10 @@ Categorias aceitas:
 - `whatsapp`
 - `adulto`
 - `apostas`
+
+Observação:
+
+- novas palavras-chave devem ser adicionadas direto no JSON do grupo em `data/groups/`
 
 ---
 

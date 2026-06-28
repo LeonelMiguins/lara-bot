@@ -18,7 +18,7 @@ module.exports = {
       return;
     }
 
-    const text = admins.map((jid) => `@${jid.split('@')[0]}`).join(' ');
+    const text = admins.map((jid) => `⤷ @${jid.split('@')[0]}\n`).join(' ');
     await client.sendMessage(chatId, commandPanel('Administradores', {
       sections: [
         createSection('Administracao', [text]),

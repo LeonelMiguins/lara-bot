@@ -1,0 +1,98 @@
+{
+  "menu": {
+    "summary": "Mostra o menu principal do bot.",
+    "usage": ["#menu"],
+    "notes": ["Use para ver rapidamente os comandos disponiveis."]
+  },
+  "help": {
+    "summary": "Mostra a ajuda detalhada de um comando.",
+    "usage": ["#help <comando>", "#<comando> help", "#<comando> <parametros> help"],
+    "notes": ["Tambem funciona com aliases do comando."]
+  },
+  "adms": {
+    "summary": "Menciona todos os administradores do grupo.",
+    "usage": ["#adms"]
+  },
+  "link": {
+    "summary": "Mostra o link de convite do grupo.",
+    "usage": ["#link"],
+    "notes": ["O bot precisa ser administrador para gerar o link."]
+  },
+  "regras": {
+    "summary": "Mostra e gerencia as regras do grupo.",
+    "usage": ["#regras", "#regras add <texto>", "#regras del <numero>", "#regras reset"],
+    "notes": ["Qualquer membro pode ver as regras.", "Somente administradores podem editar."]
+  },
+  "statusgrupo": {
+    "summary": "Mostra um resumo do status atual do grupo.",
+    "usage": ["#statusgrupo"]
+  },
+  "adm": {
+    "summary": "Promove um membro para administrador do grupo.",
+    "usage": ["#adm @membro", "#adm", "#adm 5511999999999"],
+    "notes": ["Tambem funciona respondendo a mensagem do membro."]
+  },
+  "antiflood": {
+    "summary": "Controla a protecao contra flood por repeticao.",
+    "usage": ["#antiflood", "#antiflood on", "#antiflood off", "#antiflood limite 8", "#antiflood janela 15", "#antiflood minimo 2", "#antiflood reset"]
+  },
+  "antilink": {
+    "summary": "Controla o modulo anti-link do grupo.",
+    "usage": ["#antilink", "#antilink on", "#antilink off", "#antilink all", "#antilink users", "#antilink acao whatsapp apagar", "#antilink acao whatsapp banir"],
+    "notes": ["Modo all apaga de qualquer pessoa.", "Modo users deixa admins e dono imunes."]
+  },
+  "ban": {
+    "summary": "Remove um membro do grupo.",
+    "usage": ["#ban @membro", "#ban", "#ban 5511999999999"],
+    "notes": ["Tambem funciona respondendo a mensagem do membro."]
+  },
+  "blacklist": {
+    "summary": "Lista a blacklist do grupo e remove entradas existentes.",
+    "usage": ["#blacklist", "#blacklist del adulto 1", "#blacklist reset adulto"],
+    "notes": ["Novas palavras-chave devem ser adicionadas direto no JSON do grupo."]
+  },
+  "boasvindas": {
+    "summary": "Liga ou desliga a mensagem automatica de boas-vindas.",
+    "usage": ["#boasvindas on", "#boasvindas off"]
+  },
+  "bot": {
+    "summary": "Mostra informacoes do bot e do servidor.",
+    "usage": ["#bot", "#bot server"]
+  },
+  "groupinfo": {
+    "summary": "Mostra informacoes do grupo atual.",
+    "usage": ["#groupinfo"]
+  },
+  "modulos": {
+    "summary": "Lista e liga/desliga os modulos automaticos do grupo.",
+    "usage": ["#modulos", "#modulos welcome on", "#modulos farewell off", "#modulos antiLink on", "#modulos antiFlood off"]
+  },
+  "sleep": {
+    "summary": "Fecha ou reabre o grupo para mensagens.",
+    "usage": ["#sleep on", "#sleep off"]
+  },
+  "tagall": {
+    "summary": "Menciona todos os membros do grupo.",
+    "usage": ["#tagall"]
+  },
+  "grupos": {
+    "summary": "Lista todos os grupos em que o bot esta.",
+    "usage": ["#grupos"],
+    "notes": ["Comando exclusivo do dono."]
+  },
+  "logs": {
+    "summary": "Liga ou desliga os logs operacionais do bot.",
+    "usage": ["#logs", "#logs on", "#logs off"],
+    "notes": ["Comando exclusivo do dono.", "Logs de conexao continuam visiveis no terminal."]
+  },
+  "notificacoes": {
+    "summary": "Liga ou desliga as notificacoes privadas do dono.",
+    "usage": ["#notificacoes", "#notificacoes on", "#notificacoes off"],
+    "notes": ["Comando exclusivo do dono."]
+  },
+  "prefixo": {
+    "summary": "Mostra ou altera o prefixo global e por grupo.",
+    "usage": ["#prefixo status", "#prefixo global !", "#prefixo global reset", "#prefixo grupo *", "#prefixo grupo reset"],
+    "notes": ["Prefixo global: so o dono.", "Prefixo do grupo: admin do grupo ou dono no privado com --grupo."]
+  }
+}

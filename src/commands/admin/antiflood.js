@@ -58,7 +58,7 @@ module.exports = {
       await client.sendMessage(
         chatId,
         success(
-          'Anti-flood do grupo',
+          '→ *Anti-flood do grupo*',
           `O anti-flood agora está ${enabled ? 'ligado' : 'desligado'}.`,
         ),
       );

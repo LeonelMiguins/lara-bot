@@ -156,13 +156,16 @@ Listar:
 #blacklist
 ```
 
-Editar:
+Remover ou restaurar:
 
 ```text
-#blacklist add adulto exemplo.com
 #blacklist del adulto 1
 #blacklist reset adulto
 ```
+
+Para adicionar novas palavras-chave:
+
+- edite direto o JSON do grupo em `data/groups/`
 
 ## Dono no privado
 

@@ -1,6 +1,6 @@
 const config = require('../../config/config');
 const { loadOwnerSettings, setOwnerNotificationsEnabled } = require('../../services/ownerSettingsService');
-const { commandPanel, createSection, invalidUsage, success } = require('../../utils/respond');
+const { commandPanel, createSection, invalidUsage, phraseSuccess } = require('../../utils/respond');
 
 function formatStatus() {
   const enabled = Boolean(loadOwnerSettings().notifications?.enabled);
@@ -51,10 +51,9 @@ module.exports = {
     setOwnerNotificationsEnabled(enabled);
     await client.sendMessage(
       chatId,
-      success(
-        'Notificacoes do dono',
-        `As notificacoes privadas agora estao ${enabled ? 'ligadas' : 'desligadas'}.`,
-      ),
+      phraseSuccess(enabled ? 'success.command_enabled' : 'success.command_disabled', {
+        command_name: 'notificacoes',
+      }),
     );
   },
 };

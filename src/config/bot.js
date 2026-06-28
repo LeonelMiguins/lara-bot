@@ -3,6 +3,6 @@ module.exports = {
   prefix: '#',
   owner: {
     name: 'Leonel',
-    phone: '554591073900',
+    phone: '5542991181612',
   },
 };

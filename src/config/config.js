@@ -10,6 +10,7 @@ const antiLink = require('./antiLink');
 const links = require('./links');
 const groupRules = require('./rules');
 const messageStyle = require('./messageStyle');
+const webVersionCache = require('./webVersionCache');
 
 module.exports = {
   ...bot,
@@ -24,5 +25,6 @@ module.exports = {
   antiLink,
   groupRules,
   messageStyle,
+  webVersionCache,
   blacklist: links,
 };
