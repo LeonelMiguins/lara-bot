@@ -1,0 +1,554 @@
+[
+  {
+    "id": "animals.animals-dacing-ia",
+    "slug": "animais-dacando-ia",
+    "category": "animals",
+    "name": "Animais Dancando",
+    "description": "Pack de animais dançando para memes e reações leves.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "animals",
+      "dancing",
+      "meme",
+      "cute"
+    ],
+    "code": 145877,
+    "adult": false,
+    "stickerCount": 8,
+    "coverUrl": "./covers/animals--animais-dacando-ia.webp",
+    "updatedAt": "2026-06-28T01:44:14.734Z"
+  },
+  {
+    "id": "animals.animals1",
+    "slug": "animals1",
+    "category": "animals",
+    "name": "Pedro Pedro Pedro!!",
+    "description": "Pack de animais dançando para memes e reações leves.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "animals",
+      "dancing",
+      "meme",
+      "cute"
+    ],
+    "code": 145871,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/animals--animals1.webp",
+    "updatedAt": "2026-06-28T01:44:14.981Z"
+  },
+  {
+    "id": "animals.cats1",
+    "slug": "cats1",
+    "category": "animals",
+    "name": "Gatinhos Pack 1",
+    "description": "Gatinhos engraçados para respostas rápidas e reações fofas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "animals",
+      "cats",
+      "cute",
+      "reaction"
+    ],
+    "code": 843365,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/animals--cats1.webp",
+    "updatedAt": "2026-06-28T01:44:15.130Z"
+  },
+  {
+    "id": "animals.dogs1",
+    "slug": "dogs1",
+    "category": "animals",
+    "name": "Cachorrinhos Pack 1",
+    "description": "Cachorrinhos expressivos para conversas, humor e reação.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "animals",
+      "dogs",
+      "cute",
+      "reaction"
+    ],
+    "code": 100967,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/animals--dogs1.webp",
+    "updatedAt": "2026-06-28T01:44:15.263Z"
+  },
+  {
+    "id": "animals.funnycats",
+    "slug": "funnycats",
+    "category": "animals",
+    "name": "Funny Cats",
+    "description": "Gatos engraçados com energia de meme e reação.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "animals",
+      "cats",
+      "funny",
+      "reaction"
+    ],
+    "code": 788337,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/animals--funnycats.webp",
+    "updatedAt": "2026-06-28T01:44:15.559Z"
+  },
+  {
+    "id": "animals.rigbycat",
+    "slug": "rigbycat",
+    "category": "animals",
+    "name": "Gatinho Linguinha",
+    "description": "Gatinho fofo mostrando a linguinha para respostas divertidas.",
+    "author": "Isabella",
+    "tags": [
+      "animals",
+      "cats",
+      "cute",
+      "reaction"
+    ],
+    "code": 442109,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/animals--rigbycat.webp",
+    "updatedAt": "2026-06-28T01:44:16.012Z"
+  },
+  {
+    "id": "anime.anigirls2",
+    "slug": "anigirls2",
+    "category": "anime",
+    "name": "Anime Girls Pack 1",
+    "description": "Pack de garotas de anime para reações e respostas visuais.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "girls",
+      "cute",
+      "reaction"
+    ],
+    "code": 272167,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/anime--anigirls2.webp",
+    "updatedAt": "2026-06-28T01:44:16.254Z"
+  },
+  {
+    "id": "anime.anime1",
+    "slug": "anime1",
+    "category": "anime",
+    "name": "Anime Pack 1",
+    "description": "Reações e expressões de anime para conversas rápidas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "reaction",
+      "expressions",
+      "stickers"
+    ],
+    "code": 833328,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/anime--anime1.webp",
+    "updatedAt": "2026-06-28T01:44:16.516Z"
+  },
+  {
+    "id": "anime.anime2",
+    "slug": "anime2",
+    "category": "anime",
+    "name": "Anime Pack 2",
+    "description": "Coleção variada de figurinhas de anime para reação.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "reaction",
+      "expressions",
+      "cute"
+    ],
+    "code": 339457,
+    "adult": false,
+    "stickerCount": 11,
+    "coverUrl": "./covers/anime--anime2.webp",
+    "updatedAt": "2026-06-28T01:44:16.779Z"
+  },
+  {
+    "id": "anime.anime3",
+    "slug": "anime3",
+    "category": "anime",
+    "name": "Anime Pack 3",
+    "description": "Pack de anime com foco em humor e reações visuais.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "reaction",
+      "funny",
+      "memes"
+    ],
+    "code": 449045,
+    "adult": false,
+    "stickerCount": 11,
+    "coverUrl": "./covers/anime--anime3.webp",
+    "updatedAt": "2026-06-28T01:44:16.929Z"
+  },
+  {
+    "id": "anime.beijos-em-animes",
+    "slug": "beijos-em-animes",
+    "category": "anime",
+    "name": "Beijos Em Animes",
+    "description": "Pack de figurinhas Beijos Em Animes.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "beijos",
+      "em",
+      "animes",
+      "stickers"
+    ],
+    "code": 453626,
+    "adult": false,
+    "stickerCount": 14,
+    "coverUrl": "./covers/anime--beijos-em-animes.webp",
+    "updatedAt": "2026-06-28T01:44:17.129Z"
+  },
+  {
+    "id": "anime.dormindo.2",
+    "slug": "dormindo-anime-2",
+    "category": "anime",
+    "name": "Personagens anime dormindo 2",
+    "description": "ah mimir novamnete zzz....",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "reaction",
+      "expressions",
+      "cute"
+    ],
+    "code": 339357,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/anime--dormindo-anime-2.webp",
+    "updatedAt": "2026-06-28T01:44:17.511Z"
+  },
+  {
+    "id": "anime.dormindo",
+    "slug": "dormindo-anime",
+    "category": "anime",
+    "name": "Personagens anime dormindo",
+    "description": "ah mimir zzz....",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "reaction",
+      "expressions",
+      "cute"
+    ],
+    "code": 339457,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/anime--dormindo-anime.webp",
+    "updatedAt": "2026-06-28T01:44:17.348Z"
+  },
+  {
+    "id": "anime.friren1",
+    "slug": "friren1",
+    "category": "anime",
+    "name": "Frieren Pack 1",
+    "description": "Figurinhas da Frieren para reações suaves e expressivas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "frieren",
+      "reaction",
+      "cute"
+    ],
+    "code": 873405,
+    "adult": false,
+    "stickerCount": 11,
+    "coverUrl": "./covers/anime--friren1.webp",
+    "updatedAt": "2026-06-28T01:44:17.687Z"
+  },
+  {
+    "id": "anime.killua1",
+    "slug": "killua1",
+    "category": "anime",
+    "name": "Killua Pack 1",
+    "description": "Expressões e cenas do Killua para respostas rápidas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "anime",
+      "killua",
+      "hunterxhunter",
+      "reaction"
+    ],
+    "code": 271353,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/anime--killua1.webp",
+    "updatedAt": "2026-06-28T01:44:17.830Z"
+  },
+  {
+    "id": "memes.altoem",
+    "slug": "altoem",
+    "category": "memes",
+    "name": "Pack alto em 🔍😏",
+    "description": "Meme do 'alto em' para zoeira e respostas curtas.",
+    "author": "Isabella",
+    "tags": [
+      "memes",
+      "brazil",
+      "reaction",
+      "text"
+    ],
+    "code": 845243,
+    "adult": false,
+    "stickerCount": 13,
+    "coverUrl": "./covers/memes--altoem.webp",
+    "updatedAt": "2026-06-28T01:44:17.991Z"
+  },
+  {
+    "id": "memes.bolsolula",
+    "slug": "bolsolula",
+    "category": "memes",
+    "name": "Bolsolula Dancinha",
+    "description": "Meme político em clima de dança e ironia.",
+    "author": "Isabella",
+    "tags": [
+      "memes",
+      "brazil",
+      "politics",
+      "dancing"
+    ],
+    "code": 328162,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/memes--bolsolula.webp",
+    "updatedAt": "2026-06-28T01:44:18.258Z"
+  },
+  {
+    "id": "memes.emoji1",
+    "slug": "emoji1",
+    "category": "memes",
+    "name": "Emoji Pack 1",
+    "description": "Emojis em formato de figurinha para reações rápidas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "memes",
+      "emoji",
+      "reaction",
+      "expressions"
+    ],
+    "code": 952045,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/memes--emoji1.webp",
+    "updatedAt": "2026-06-28T01:44:18.422Z"
+  },
+  {
+    "id": "memes.frog1",
+    "slug": "frog1",
+    "category": "memes",
+    "name": "Frog Reactions",
+    "description": "Pack de sapinho com expressões perfeitas para reação.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "memes",
+      "frog",
+      "reaction",
+      "funny"
+    ],
+    "code": 527581,
+    "adult": false,
+    "stickerCount": 12,
+    "coverUrl": "./covers/memes--frog1.webp",
+    "updatedAt": "2026-06-28T01:44:18.740Z"
+  },
+  {
+    "id": "memes.pixelemoji",
+    "slug": "pixelemoji",
+    "category": "memes",
+    "name": "Pixel Emoji",
+    "description": "Emojis em pixel art para respostas nostálgicas e rápidas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "memes",
+      "emoji",
+      "pixel",
+      "reaction"
+    ],
+    "code": 893547,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/memes--pixelemoji.webp",
+    "updatedAt": "2026-06-28T01:44:18.911Z"
+  },
+  {
+    "id": "memes.sigma1",
+    "slug": "sigma1",
+    "category": "memes",
+    "name": "Sigma Pack 1",
+    "description": "Figurinhas com clima sigma para meme e ironia.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "memes",
+      "sigma",
+      "reaction",
+      "funny"
+    ],
+    "code": 956324,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/memes--sigma1.webp",
+    "updatedAt": "2026-06-28T01:44:19.098Z"
+  },
+  {
+    "id": "memes.sonic1",
+    "slug": "sonic1",
+    "category": "memes",
+    "name": "Sonic Meme Pack",
+    "description": "Pack do Sonic com energia de meme e gaming.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "memes",
+      "sonic",
+      "gaming",
+      "reaction"
+    ],
+    "code": 356325,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/memes--sonic1.webp",
+    "updatedAt": "2026-06-28T01:44:19.267Z"
+  },
+  {
+    "id": "people.coreaninha",
+    "slug": "coreaninha",
+    "category": "people",
+    "name": "Coreaninha Fofa ❤️🇰🇷",
+    "description": "Pack fofo de reações com estética coreana.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "korean",
+      "cute",
+      "reaction"
+    ],
+    "code": 181061,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/people--coreaninha.webp",
+    "updatedAt": "2026-06-28T01:44:19.516Z"
+  },
+  {
+    "id": "people.girls1",
+    "slug": "girls1",
+    "category": "people",
+    "name": "Girls Pack 1",
+    "description": "Pack de retratos femininos para compor respostas e moodboards.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "portraits",
+      "cute",
+      "poses"
+    ],
+    "code": 707227,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/people--girls1.webp",
+    "updatedAt": "2026-06-28T01:44:19.640Z"
+  },
+  {
+    "id": "people.girlscut1",
+    "slug": "girlscut1",
+    "category": "people",
+    "name": "Girls Cut Pack 1",
+    "description": "Pack com retratos femininos em estilo recortado e expressivo.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "portraits",
+      "cute",
+      "poses"
+    ],
+    "code": 212565,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/people--girlscut1.webp",
+    "updatedAt": "2026-06-28T01:44:19.895Z"
+  },
+  {
+    "id": "people.loirinha1",
+    "slug": "loirinha1",
+    "category": "people",
+    "name": "Loirinha Pack 1",
+    "description": "Pack de retratos com foco em poses e estética leve.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "portraits",
+      "cute",
+      "poses"
+    ],
+    "code": 142180,
+    "adult": false,
+    "stickerCount": 10,
+    "coverUrl": "./covers/people--loirinha1.webp",
+    "updatedAt": "2026-06-28T01:44:20.166Z"
+  },
+  {
+    "id": "people.lullychan",
+    "slug": "lullychan",
+    "category": "people",
+    "name": "Lully Chan Pack",
+    "description": "Pack pessoal com estilo fofo e visual para respostas.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "creator",
+      "cute",
+      "reaction"
+    ],
+    "code": 983427,
+    "adult": false,
+    "stickerCount": 9,
+    "coverUrl": "./covers/people--lullychan.webp",
+    "updatedAt": "2026-06-28T01:44:20.426Z"
+  },
+  {
+    "id": "people.michael.jackson",
+    "slug": "michael-jackson",
+    "category": "people",
+    "name": "Michael jackson",
+    "description": "Pack de figurinhas do querido michael jackson",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "dancing",
+      "meme",
+      "funny"
+    ],
+    "code": 145877,
+    "adult": false,
+    "stickerCount": 8,
+    "coverUrl": "./covers/people--michael-jackson.webp",
+    "updatedAt": "2026-06-28T01:44:20.613Z"
+  },
+  {
+    "id": "people.sex-girls",
+    "slug": "sex-girls",
+    "category": "people",
+    "name": "sex girls",
+    "description": "Pack fofo de reações com estética coreana.",
+    "author": "Leonel Miguins",
+    "tags": [
+      "people",
+      "korean",
+      "cute",
+      "reaction"
+    ],
+    "code": 657408,
+    "adult": false,
+    "stickerCount": 8,
+    "coverUrl": "./covers/people--sex-girls.webp",
+    "updatedAt": "2026-06-28T01:44:20.899Z"
+  }
+]

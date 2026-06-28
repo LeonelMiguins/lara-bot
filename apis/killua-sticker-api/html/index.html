@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Killua Sticker API Catalog</title>
+    <style>
+      :root {
+        --bg: #f4efe4;
+        --paper: rgba(255, 250, 242, 0.88);
+        --panel: rgba(255, 255, 255, 0.8);
+        --line: rgba(46, 39, 33, 0.12);
+        --text: #241c17;
+        --muted: #6b5b50;
+        --accent: #d3542a;
+        --accent-2: #187b63;
+        --shadow: 0 18px 50px rgba(49, 34, 20, 0.14);
+        --radius: 26px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(211, 84, 42, 0.18), transparent 28%),
+          radial-gradient(circle at top right, rgba(24, 123, 99, 0.14), transparent 26%),
+          linear-gradient(180deg, #f7f1e7 0%, #efe5d4 100%);
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -40px -60px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(211, 84, 42, 0.12), transparent 65%);
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        font-size: 0.8rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent-2);
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 700px;
+        font-size: clamp(2.4rem, 4.6vw, 4.8rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+      }
+
+      .lead {
+        max-width: 700px;
+        margin: 18px 0 0;
+        font-size: 1.08rem;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .search,
+      .stats {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--panel);
+      }
+
+      .search input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 1rem;
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .stat-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .stat-label {
+        font-size: 0.74rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 22px 0 0;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.66);
+        color: var(--text);
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+      }
+
+      .chip:hover {
+        transform: translateY(-1px);
+        border-color: rgba(211, 84, 42, 0.38);
+      }
+
+      .chip.active {
+        background: var(--accent);
+        color: #fff8f1;
+        border-color: var(--accent);
+      }
+
+      .results-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 28px 0 18px;
+      }
+
+      .results-header h2 {
+        margin: 0;
+        font-size: clamp(1.5rem, 2vw, 2.1rem);
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 100%;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 252, 248, 0.88);
+        box-shadow: 0 12px 28px rgba(36, 28, 23, 0.08);
+        transform: translateY(10px);
+        opacity: 0;
+        animation: rise 0.45s ease forwards;
+      }
+
+      .cover {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        object-fit: cover;
+        background: linear-gradient(135deg, rgba(211, 84, 42, 0.12), rgba(24, 123, 99, 0.14));
+      }
+
+      .card-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(24, 123, 99, 0.1);
+        color: var(--accent-2);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        line-height: 1.05;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 0.96rem;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      .tag {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(36, 28, 23, 0.06);
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .empty {
+        padding: 28px;
+        border: 1px dashed var(--line);
+        border-radius: 24px;
+        text-align: center;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.48);
+      }
+
+      .footer {
+        margin-top: 28px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.92rem;
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 780px) {
+        .toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .results-header {
+          flex-direction: column;
+          align-items: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Killua Sticker API</p>
+        <h1>Catalogo publico de packs para bots, sites e automacoes.</h1>
+        <p class="lead">
+          Esta vitrine mostra os packs visiveis da biblioteca, com filtro de categoria e busca
+          rapida. Os packs +18 ficam de fora do catalogo publico.
+        </p>
+
+        <div class="toolbar">
+          <label class="search">
+            <input id="searchInput" type="search" placeholder="Buscar por nome, tag, categoria ou autor" />
+          </label>
+
+          <div class="stats">
+            <div class="stat-block">
+              <span class="stat-label">Packs visiveis</span>
+              <strong id="packCount" class="stat-value">0</strong>
+            </div>
+            <div class="stat-block">
+              <span class="stat-label">Categorias</span>
+              <strong id="categoryCount" class="stat-value">0</strong>
+            </div>
+            <div class="stat-block">
+              <span class="stat-label">Stickers</span>
+              <strong id="stickerCount" class="stat-value">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="filters" class="filters"></div>
+      </section>
+
+      <section>
+        <div class="results-header">
+          <h2 id="sectionTitle">Todos os packs</h2>
+          <div id="resultHint" class="hint"></div>
+        </div>
+        <div id="catalogGrid" class="grid"></div>
+        <div id="emptyState" class="empty" hidden>Nenhum pack encontrado para esse filtro.</div>
+      </section>
+
+      <p class="footer">Catalogo gerado a partir dos arquivos .kpack do projeto.</p>
+    </main>
+
+    <script>
+      const state = {
+        packs: [],
+        search: "",
+        category: "all",
+      };
+
+      const els = {
+        searchInput: document.getElementById("searchInput"),
+        filters: document.getElementById("filters"),
+        grid: document.getElementById("catalogGrid"),
+        empty: document.getElementById("emptyState"),
+        packCount: document.getElementById("packCount"),
+        categoryCount: document.getElementById("categoryCount"),
+        stickerCount: document.getElementById("stickerCount"),
+        sectionTitle: document.getElementById("sectionTitle"),
+        resultHint: document.getElementById("resultHint"),
+      };
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function buildFilters(packs) {
+        const categories = ["all", ...new Set(packs.map((pack) => pack.category))];
+
+        els.filters.innerHTML = categories
+          .map((category) => {
+            const active = state.category === category ? "active" : "";
+            const label = category === "all" ? "Tudo" : category;
+            return `<button class="chip ${active}" data-category="${escapeHtml(category)}">${escapeHtml(label)}</button>`;
+          })
+          .join("");
+
+        els.filters.querySelectorAll("[data-category]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.category = button.dataset.category;
+            buildFilters(state.packs);
+            render();
+          });
+        });
+      }
+
+      function getFilteredPacks() {
+        return state.packs.filter((pack) => {
+          const matchesCategory = state.category === "all" || pack.category === state.category;
+          const haystack = [
+            pack.name,
+            pack.category,
+            pack.description,
+            pack.author,
+            ...(pack.tags || []),
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+          const matchesSearch = haystack.includes(state.search.toLowerCase());
+          return matchesCategory && matchesSearch;
+        });
+      }
+
+      function renderStats(packs) {
+        const categories = new Set(packs.map((pack) => pack.category));
+        const stickerTotal = packs.reduce((total, pack) => total + (pack.stickerCount || 0), 0);
+
+        els.packCount.textContent = packs.length;
+        els.categoryCount.textContent = categories.size;
+        els.stickerCount.textContent = stickerTotal;
+      }
+
+      function renderGrid(packs) {
+        els.grid.innerHTML = packs
+          .map(
+            (pack, index) => `
+              <article class="card" style="animation-delay: ${Math.min(index * 0.03, 0.32)}s">
+                ${
+                  pack.coverUrl
+                    ? `<img class="cover" src="${escapeHtml(pack.coverUrl)}" alt="${escapeHtml(pack.name)}" loading="lazy" />`
+                    : `<div class="cover"></div>`
+                }
+                <div class="card-body">
+                  <div class="meta-row">
+                    <span class="pill">${escapeHtml(pack.category)}</span>
+                    <span class="count">${pack.stickerCount || 0} stickers</span>
+                  </div>
+                  <h3>${escapeHtml(pack.name)}</h3>
+                  <p>${escapeHtml(pack.description || "Sem descricao.")}</p>
+                  <div class="meta-row">
+                    <span class="count">Autor: ${escapeHtml(pack.author || "Desconhecido")}</span>
+                    <span class="count">ID: ${escapeHtml(pack.id)}</span>
+                  </div>
+                  <div class="tags">
+                    ${(pack.tags || [])
+                      .slice(0, 4)
+                      .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
+                      .join("")}
+                  </div>
+                </div>
+              </article>
+            `,
+          )
+          .join("");
+      }
+
+      function render() {
+        const filtered = getFilteredPacks();
+        const title =
+          state.category === "all" ? "Todos os packs" : `Categoria: ${state.category}`;
+
+        els.sectionTitle.textContent = title;
+        els.resultHint.textContent = `${filtered.length} pack(s) exibido(s)`;
+        els.empty.hidden = filtered.length > 0;
+        els.grid.hidden = filtered.length === 0;
+
+        renderGrid(filtered);
+      }
+
+      async function init() {
+        const response = await fetch("./catalog.json", { cache: "no-store" });
+        const packs = await response.json();
+
+        state.packs = packs.filter((pack) => !pack.adult && pack.category !== "+18");
+        renderStats(state.packs);
+        buildFilters(state.packs);
+        render();
+
+        els.searchInput.addEventListener("input", (event) => {
+          state.search = event.target.value.trim();
+          render();
+        });
+      }
+
+      init().catch(() => {
+        els.empty.hidden = false;
+        els.empty.textContent = "Nao foi possivel carregar o catalogo.";
+      });
+    </script>
+  </body>
+</html>

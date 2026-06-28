@@ -1,0 +1,7 @@
+{
+  "filters": {
+    "allowAdult": false,
+    "blockedCategories": [],
+    "blockedPackIds": []
+  }
+}
