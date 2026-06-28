@@ -26,6 +26,8 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 
 - comandos administrativos prontos para grupo
 - módulos automáticos com `on/off` por grupo
+- comandos finos com regra de negócio extraída para `services/commands/`
+- pipeline do bot separada em parser, contexto, permissão, execução e pós-execução
 - regras, blacklist e anti-flood editáveis pelo próprio bot
 - prefixo global e por grupo editável pelo próprio bot
 - suporte ao dono no privado com `--grupo <ID_DO_GRUPO>`
@@ -121,10 +123,13 @@ Esse arquivo guarda:
 Os padrões para novos grupos ficam em:
 
 - [src/config/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/bot.js)
-- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js)
+- [src/config/config.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/config.js)
 - [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js)
 - [src/config/antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiLink.js)
+- [src/config/features.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/features.js)
 - [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js)
+- [src/config/message-phrases.json](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/message-phrases.json)
+- [src/config/messageStyle.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/messageStyle.js)
 - [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js)
 
 ## 🧠 Arquitetura
@@ -140,9 +145,26 @@ src/
 ├─ core/
 ├─ modules/
 ├─ services/
+│  ├─ bot/
+│  ├─ commands/
 │  └─ storage/
 └─ utils/
 ```
+
+### Pipeline do bot
+
+O [src/bot.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/bot.js) agora atua mais como orquestrador. O fluxo principal foi quebrado em:
+
+- parser de comando:
+  [src/services/bot/commandParserService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandParserService.js)
+- resolução de contexto:
+  [src/services/bot/commandContextService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandContextService.js)
+- validação de permissão:
+  [src/services/bot/commandPermissionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandPermissionService.js)
+- execução:
+  [src/services/bot/commandExecutionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandExecutionService.js)
+- pós-execução:
+  [src/services/bot/commandPostExecutionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandPostExecutionService.js)
 
 ### Camada de serviços
 
@@ -152,7 +174,18 @@ src/
 - [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
 - [prefixService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/prefixService.js)
 - [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
+- [messageRenderService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/messageRenderService.js)
+- [messagePhraseService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/messagePhraseService.js)
 - [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
+
+### Serviços de comando
+
+Os comandos estão sendo enxugados para o padrão `args -> serviço -> resposta`. A regra de negócio já começou a sair dos handlers para:
+
+- [adminModerationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/adminModerationService.js)
+- [groupFeatureCommandService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/groupFeatureCommandService.js)
+- [groupProtectionCommandService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/groupProtectionCommandService.js)
+- [featureCatalogService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/featureCatalogService.js)
 
 ## 📦 Instalação rápida
 

@@ -24,10 +24,24 @@ Responsabilidades:
 
 - inicializar o `Client`
 - configurar `LocalAuth`
-- montar o contexto de execução
 - aceitar comandos de grupo e do dono no privado
 - despachar módulos automáticos
-- acionar logs e notificações
+- orquestrar a pipeline de execução
+
+### Pipeline atual do `bot.js`
+
+O fluxo principal foi quebrado em serviços menores:
+
+- parser:
+  [src/services/bot/commandParserService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandParserService.js)
+- resolução de contexto:
+  [src/services/bot/commandContextService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandContextService.js)
+- validação de permissão:
+  [src/services/bot/commandPermissionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandPermissionService.js)
+- execução:
+  [src/services/bot/commandExecutionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandExecutionService.js)
+- pós-execução:
+  [src/services/bot/commandPostExecutionService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/bot/commandPostExecutionService.js)
 
 ### Loader de comandos
 
@@ -40,6 +54,8 @@ Contrato de cada comando:
 - `name`
 - `aliases`
 - `description`
+- `menuExample`
+- `help`
 - `groupOnly`
 - `adminOnly`
 - `ownerOnly` opcional
@@ -68,13 +84,28 @@ Automatizações acionadas por eventos do WhatsApp:
 
 Aqui vive a lógica mais importante da base:
 
+- `bot/`:
+  pipeline de execução de mensagens e comandos
+- `commands/`:
+  regra de negócio extraída dos handlers
 - [groupSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/groupSettingsService.js)
 - [whatsappIdentityService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/whatsappIdentityService.js)
 - [ownerNotificationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerNotificationService.js)
 - [ownerSettingsService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/ownerSettingsService.js)
 - [prefixService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/prefixService.js)
 - [loggerService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/loggerService.js)
+- [messageRenderService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/messageRenderService.js)
+- [messagePhraseService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/messagePhraseService.js)
 - [storage/JsonFileStore.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/storage/JsonFileStore.js)
+
+#### `services/commands/`
+
+Serviços já extraídos para diminuir regra de negócio dentro dos comandos:
+
+- [adminModerationService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/adminModerationService.js)
+- [groupFeatureCommandService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/groupFeatureCommandService.js)
+- [groupProtectionCommandService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/groupProtectionCommandService.js)
+- [featureCatalogService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/commands/featureCatalogService.js)
 
 #### `utils/`
 
@@ -97,6 +128,8 @@ Arquivos-base:
 - [src/config/antiFlood.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiFlood.js)
 - [src/config/antiLink.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/antiLink.js)
 - [src/config/links.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/links.js)
+- [src/config/message-phrases.json](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/message-phrases.json)
+- [src/config/messageStyle.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/messageStyle.js)
 - [src/config/rules.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/rules.js)
 - [src/config/config.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/config.js)
 
@@ -143,9 +176,10 @@ logs/bot.log
 
 1. escolha a pasta correta em `src/commands`
 2. crie um arquivo `.js`
-3. exporte o objeto do comando
-4. use os serviços antes de criar lógica duplicada
-5. rode `npm run smoke`
+3. preencha o contrato mínimo do comando
+4. mantenha o handler fino: `args -> serviço -> resposta`
+5. use `src/services/commands/` antes de criar lógica duplicada
+6. rode `npm run smoke`
 
 Exemplo:
 
@@ -154,6 +188,12 @@ module.exports = {
   name: 'exemplo',
   aliases: ['alias'],
   description: 'Descricao do comando',
+  menuExample: '#exemplo',
+  help: {
+    summary: 'Resumo curto',
+    examples: ['#exemplo'],
+    notes: ['Observacao opcional'],
+  },
   groupOnly: true,
   adminOnly: false,
   async execute({ client, chatId }) {
@@ -172,7 +212,10 @@ module.exports = {
 
 ## Padrão de resposta
 
-As mensagens devem preferir [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js).
+As mensagens devem preferir [src/utils/respond.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/utils/respond.js), que hoje é uma camada fina sobre:
+
+- [src/services/messageRenderService.js](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/services/messageRenderService.js)
+- [src/config/message-phrases.json](/C:/Users/LEO/Documents/PROJETOS/lara-bot/src/config/message-phrases.json)
 
 Helpers disponíveis:
 
@@ -181,6 +224,10 @@ Helpers disponíveis:
 - `warning`
 - `error`
 - `moderation`
+- `phraseInfo`
+- `phraseSuccess`
+- `phraseWarning`
+- `phraseError`
 
 ## Identidade WhatsApp
 
@@ -205,6 +252,7 @@ Se você adicionar comandos de grupo, tente mantê-los compatíveis com esse flu
 - rode `npm run smoke` antes de concluir mudanças
 - não duplique regra de negócio que já existe em `services/`
 - mantenha comandos finos e serviços mais “inteligentes”
+- se tocar na pipeline do bot, preserve a separação entre parser, contexto, permissão, execução e pós-execução
 - preserve a configuração por grupo como fonte principal de comportamento
 - registre eventos importantes no logger
 

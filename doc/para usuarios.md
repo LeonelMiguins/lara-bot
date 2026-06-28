@@ -58,6 +58,7 @@ Regras:
 ### Usuário
 
 - `#menu`
+- `#help`
 - `#regras`
 - `#statusgrupo`
 - `#groupinfo`
@@ -90,6 +91,15 @@ Controla a mensagem automática quando alguém sai.
 ```text
 #modulos farewell on
 #modulos farewell off
+```
+
+### Reação em comandos
+
+Controla a reação automática do bot quando um comando é executado.
+
+```text
+#modulos commandReaction on
+#modulos commandReaction off
 ```
 
 ### Anti-link
@@ -146,6 +156,22 @@ Editar:
 #regras add Respeite todos os membros.
 #regras del 2
 #regras reset
+```
+
+## Ajuda de comandos
+
+Você pode pedir ajuda detalhada de qualquer comando com:
+
+```text
+#help menu
+#help antilink
+```
+
+Ou no final do próprio comando:
+
+```text
+#ban help
+#prefixo grupo help
 ```
 
 ## Blacklist

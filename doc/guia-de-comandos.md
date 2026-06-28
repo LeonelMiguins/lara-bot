@@ -242,6 +242,7 @@ Módulos aceitos:
 - `farewell`
 - `antiLink`
 - `antiFlood`
+- `commandReaction`
 
 ---
 
@@ -450,6 +451,29 @@ Quando ligadas, o bot pode te avisar sobre:
 
 ---
 
+### `#help`
+
+- Tipo: `Usuário`
+- Local: `Grupo e Privado`
+- Alias: `#ajuda`
+- Função: mostra ajuda detalhada de qualquer comando
+
+Como usar:
+
+```text
+#help menu
+#help antilink
+```
+
+Também funciona no fim de outro comando:
+
+```text
+#ban help
+#prefixo grupo help
+```
+
+---
+
 ### `#logs`
 
 - Tipo: `Dono`
@@ -479,7 +503,6 @@ Observação:
 
 - Tipo: `Usuário`
 - Local: `Grupo e Privado`
-- Alias: `#help`
 - Função: mostra o menu principal do bot
 
 Como usar:
@@ -621,6 +644,7 @@ Como usar:
 ### Membro comum
 
 - `#menu`
+- `#help`
 - `#regras`
 - `#statusgrupo`
 - `#groupinfo`
@@ -651,4 +675,5 @@ Tudo acima, e no privado:
 - `#logs`
 - `#notificacoes`
 - `#prefixo`
+- `#help`
 - comandos com `--grupo <ID>`
