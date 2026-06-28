@@ -7,6 +7,7 @@ const { loadCommands } = require('./core/commandLoader');
 const setupAntiFlood = require('./modules/antiFlood');
 const setupAntiLink = require('./modules/antiLink');
 const setupFarewell = require('./modules/farewell');
+const setupStickerAuto = require('./modules/stickerAuto');
 const setupWelcome = require('./modules/welcome');
 const {
   buildMessageContext,
@@ -96,6 +97,7 @@ async function startBot() {
   const handleAntiFlood = setupAntiFlood(client);
   const handleAntiLink = setupAntiLink(client);
   setupFarewell(client);
+  setupStickerAuto(client);
   setupWelcome(client);
 
   client.on('loading_screen', () => {

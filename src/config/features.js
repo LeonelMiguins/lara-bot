@@ -4,4 +4,5 @@ module.exports = {
   antiLink: true,
   antiFlood: true,
   commandReaction: true,
+  stickerAuto: false,
 };

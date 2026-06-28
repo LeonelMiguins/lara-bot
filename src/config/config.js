@@ -7,6 +7,7 @@ const puppeteer = require('./puppeteer');
 const features = require('./features');
 const antiFlood = require('./antiFlood');
 const antiLink = require('./antiLink');
+const stickers = require('./stickers');
 const links = require('./links');
 const groupRules = require('./rules');
 const messageStyle = require('./messageStyle');
@@ -23,6 +24,7 @@ module.exports = {
   features,
   antiFlood,
   antiLink,
+  stickers,
   groupRules,
   messageStyle,
   webVersionCache,

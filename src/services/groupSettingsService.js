@@ -43,6 +43,7 @@ function createDefaultSettings(groupId) {
     features: clone(config.features || {}),
     antiFlood: clone(config.antiFlood || {}),
     antiLink: clone(config.antiLink || {}),
+    stickers: clone(config.stickers || {}),
     blacklist: clone(config.blacklist || {}),
     groupRules: clone(config.groupRules || []),
   };
@@ -68,6 +69,10 @@ function normalizeSettings(groupId, data = {}) {
     antiLink: {
       ...defaults.antiLink,
       ...(data.antiLink || {}),
+    },
+    stickers: {
+      ...defaults.stickers,
+      ...(data.stickers || {}),
     },
     blacklist: {
       ...defaults.blacklist,
@@ -337,11 +342,29 @@ function resetAntiFloodSettings(groupId) {
   });
 }
 
+function getStickerSettings(groupSettings) {
+  return {
+    ...(config.stickers || {}),
+    ...(groupSettings?.stickers || {}),
+  };
+}
+
+function updateStickerSettings(groupId, patch) {
+  return updateGroupSettings(groupId, (current) => {
+    current.stickers = {
+      ...current.stickers,
+      ...patch,
+    };
+    return current;
+  });
+}
+
 module.exports = {
   addBlacklistEntry,
   addGroupRule,
   createDefaultSettings,
   getFeatureEntries,
+  getStickerSettings,
   getAntiFloodSettings,
   getAntiLinkSettings,
   getBlacklistCategoryMeta,
@@ -366,5 +389,6 @@ module.exports = {
   updateAntiLinkAction,
   updateAntiLinkTargetMode,
   updateAntiFloodSettings,
+  updateStickerSettings,
   updateGroupSettings,
 };

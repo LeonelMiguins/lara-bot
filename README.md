@@ -1,12 +1,12 @@
 <div align="center">
   <img src="./icons/ICON.jpg" alt="Lara Bot" width="240" />
 
-  <h1>LARA BOT BASE</h1>
+  <h1>LARA BOT DE FIGURINHAS</h1>
 
   <p>
     Base moderna para bots de <strong>WhatsApp</strong> com foco em
-    <strong>administração de grupos</strong>, <strong>módulos automáticos</strong>,
-    <strong>configuração por grupo</strong> e <strong>operação do dono no privado</strong>.
+    <strong>packs de figurinhas</strong>, <strong>automação por grupo</strong>,
+    <strong>configuração granular</strong> e <strong>operação do dono no privado</strong>.
   </p>
 
   <p>
@@ -24,6 +24,10 @@
 
 O projeto foi reestruturado para servir como fundação de outros bots. A base hoje entrega:
 
+- packs de figurinhas com integração local via `killua-sticker-api`
+- envio automático de packs aleatórios por grupo
+- controle por grupo de pedido de packs por membros comuns
+- bloqueio ou liberação de packs `+18` por grupo
 - comandos administrativos prontos para grupo
 - módulos automáticos com `on/off` por grupo
 - comandos finos com regra de negócio extraída para `services/commands/`
@@ -37,6 +41,11 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 
 ## 🚀 Recursos principais
 
+- ✅ Envio manual de pack aleatório com `#pack`
+- ✅ Envio manual de pack por categoria com `#pack <categoria>`
+- ✅ Envio automático de pack aleatório por tempo configurável
+- ✅ Bloqueio ou liberação de conteúdo `+18` por grupo
+- ✅ Permissão para membros comuns pedirem packs
 - ✅ Boas-vindas automáticas
 - ✅ Mensagem automática quando membro sai
 - ✅ Anti-link com ação por categoria: `apagar` ou `banir`
@@ -51,6 +60,11 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 ### Administração
 
 ```text
+#figurinhas
+#figurinhas auto on|off
+#figurinhas tempo 30
+#figurinhas membros on|off
+#figurinhas adulto on|off
 #ban @membro
 #adm @membro
 #sleep on|off
@@ -71,7 +85,11 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 ### Usuário
 
 ```text
+#pack
+#pack memes
+#pack categorias
 #menu
+#help
 #regras
 #statusgrupo
 #groupinfo
@@ -98,10 +116,61 @@ O projeto foi reestruturado para servir como fundação de outros bots. A base h
 
 | Módulo | O que faz | Controle |
 |---|---|---|
+| `stickerAuto` | envia pack aleatório automaticamente pelo tempo configurado | `#figurinhas auto on/off` |
 | `welcome` | envia mensagem quando alguém entra | `#boasvindas on/off` |
 | `farewell` | envia mensagem quando alguém sai | `#modulos farewell on/off` |
 | `antiLink` | apaga links proibidos e pode banir | `#antilink` |
 | `antiFlood` | remove quem flooda repetição | `#antiflood` |
+
+## 🧷 Sistema de figurinhas
+
+Esta branch usa a API local:
+
+- `apis/killua-sticker-api`
+
+Ela lê os packs `.kpack` da pasta:
+
+```text
+apis/killua-sticker-api/packs/
+```
+
+Hoje o bot já suporta:
+
+- packs aleatórios por comando
+- packs aleatórios por categoria
+- envio automático de pack por grupo
+- bloqueio de packs `+18` quando a configuração do grupo estiver desligada
+- liberação ou bloqueio de pedidos de pack por membros comuns
+
+### Comandos de figurinhas
+
+```text
+#figurinhas
+#figurinhas auto on
+#figurinhas auto off
+#figurinhas tempo 30
+#figurinhas membros on
+#figurinhas membros off
+#figurinhas adulto on
+#figurinhas adulto off
+#pack
+#pack anime
+#pack memes
+#pack categorias
+```
+
+### Regras importantes
+
+- `#figurinhas tempo <minutos>`: apenas o dono do bot
+- `#figurinhas membros on|off`: define se membros comuns podem pedir packs
+- `#figurinhas adulto on|off`: define se packs `+18` ficam visíveis no grupo
+- quando `adulto` estiver desligado, o automático e o manual ignoram packs `+18`
+
+## 🧪 Grupo de teste
+
+Você pode usar este grupo para testar os comandos da base:
+
+- [Entrar no grupo de teste](https://chat.whatsapp.com/FyMtfvXBZBPDPpl2TA5tER)
 
 ## 🗂️ Configuração por grupo
 

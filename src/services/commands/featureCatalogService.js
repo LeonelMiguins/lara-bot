@@ -4,6 +4,7 @@ const FEATURE_LABELS = {
   antiLink: 'modules.feature_anti_link',
   antiFlood: 'modules.feature_anti_flood',
   commandReaction: 'modules.feature_command_reaction',
+  stickerAuto: 'modules.feature_sticker_auto',
 };
 
 function getFeatureLabelKey(featureName) {

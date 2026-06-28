@@ -8,6 +8,8 @@
     "smoke": "node scripts/smoke-test.js"
   },
   "dependencies": {
+    "adm-zip": "^0.5.17",
+    "mime-types": "^3.0.2",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.34.1"
   }

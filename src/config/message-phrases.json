@@ -79,6 +79,7 @@
     "feature_anti_link": "Anti-link",
     "feature_anti_flood": "Anti-flood",
     "feature_command_reaction": "Reacao em comandos",
+    "feature_sticker_auto": "Pack automatico",
     "feature_none_enabled": "Nenhum modulo ligado"
   },
   "commands": {
@@ -213,8 +214,8 @@
     },
     "modulos": {
       "title": "Modulos do bot",
-      "unknown_module": "Modulo desconhecido. Use: welcome, farewell, antiLink, antiFlood ou commandReaction.",
-      "accepted_names": "Nomes aceitos: welcome, farewell, antiLink, antiFlood, commandReaction",
+      "unknown_module": "Modulo desconhecido. Use: welcome, farewell, antiLink, antiFlood, commandReaction ou stickerAuto.",
+      "accepted_names": "Nomes aceitos: welcome, farewell, antiLink, antiFlood, commandReaction, stickerAuto",
       "usage_on": "Use *{prefix}modulos <nome> on* para ligar.",
       "usage_off": "Use *{prefix}modulos <nome> off* para desligar.",
       "usage_module_on": "Use *{prefix}modulos {module} on* para ligar esse modulo.",
@@ -293,6 +294,45 @@
       "window_line": "Janela atual: {value}s",
       "state_on": "ligado",
       "state_off": "desligado"
+    },
+    "figurinhas": {
+      "title": "Configurar figurinhas",
+      "owner_time_only": "Apenas o dono do bot pode alterar o tempo automatico.",
+      "owner_time_action": "Use esse ajuste com o numero principal do dono ou no privado com --grupo.",
+      "status_auto": "Envio automatico: {value}",
+      "status_interval": "Intervalo automatico: {value} minutos",
+      "status_members": "Membros podem pedir packs: {value}",
+      "status_adult": "Conteudo +18 permitido: {value}",
+      "usage_auto_on": "Use *{prefix}figurinhas auto on* para ligar o envio automatico.",
+      "usage_auto_off": "Use *{prefix}figurinhas auto off* para desligar o envio automatico.",
+      "usage_time": "Use *{prefix}figurinhas tempo <minutos>* para ajustar o intervalo.",
+      "usage_members_on": "Use *{prefix}figurinhas membros on* para liberar pedidos de packs por membros.",
+      "usage_members_off": "Use *{prefix}figurinhas membros off* para bloquear pedidos de packs por membros.",
+      "usage_adult_on": "Use *{prefix}figurinhas adulto on* para permitir packs +18.",
+      "usage_adult_off": "Use *{prefix}figurinhas adulto off* para bloquear packs +18.",
+      "invalid_minutes": "Informe um intervalo em minutos entre 5 e 1440.",
+      "interval_updated": "Intervalo automatico atualizado para {value} minutos.",
+      "members_enabled": "Membros comuns agora podem pedir packs por comando.",
+      "members_disabled": "Membros comuns nao podem mais pedir packs por comando.",
+      "adult_enabled": "Packs +18 agora estao liberados neste grupo.",
+      "adult_disabled": "Packs +18 agora estao bloqueados neste grupo."
+    },
+    "pack": {
+      "title": "Enviar pack de figurinhas",
+      "members_blocked": "Somente administradores podem pedir packs neste grupo no momento.",
+      "members_blocked_action": "Peça para um administrador ligar a opcao de packs para membros.",
+      "no_pack": "Nao encontrei packs disponiveis com essa configuracao.",
+      "invalid_category": "Nao encontrei essa categoria de packs.",
+      "sending_random": "Enviando um pack aleatorio para o grupo.",
+      "sending_category": "Enviando um pack aleatorio da categoria *{category}*.",
+      "pack_header": "Pack sorteado: *{pack_name}*",
+      "pack_meta": "Categoria: {category} | Stickers: {count}",
+      "categories_title": "Categorias de figurinhas",
+      "categories_empty": "Nao encontrei categorias disponiveis.",
+      "categories_usage": "Use *{prefix}pack <categoria>* para pedir um pack especifico.",
+      "usage_random": "Use *{prefix}pack* para receber um pack aleatorio.",
+      "usage_category": "Use *{prefix}pack <categoria>* para pedir um pack de uma categoria.",
+      "usage_categories": "Use *{prefix}pack categorias* para ver as categorias disponiveis."
     }
   }
 }
