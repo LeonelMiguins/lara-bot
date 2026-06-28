@@ -256,6 +256,20 @@ function normalizeAntiLinkAction(action) {
   return '';
 }
 
+function normalizeAntiLinkTargetMode(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+
+  if (['all', 'todos', 'geral'].includes(normalized)) {
+    return 'all';
+  }
+
+  if (['users', 'user', 'usuarios', 'membros'].includes(normalized)) {
+    return 'users';
+  }
+
+  return '';
+}
+
 function updateAntiLinkAction(groupId, category, action) {
   const normalizedAction = normalizeAntiLinkAction(action);
   if (!normalizedAction) {
@@ -276,6 +290,31 @@ function resetAntiLinkAction(groupId, category) {
     current.antiLink = {
       ...current.antiLink,
       [category]: clone(config.antiLink?.[category] || 'delete'),
+    };
+    return current;
+  });
+}
+
+function updateAntiLinkTargetMode(groupId, targetMode) {
+  const normalizedTargetMode = normalizeAntiLinkTargetMode(targetMode);
+  if (!normalizedTargetMode) {
+    throw new Error('Modo invalido.');
+  }
+
+  return updateGroupSettings(groupId, (current) => {
+    current.antiLink = {
+      ...current.antiLink,
+      targetMode: normalizedTargetMode,
+    };
+    return current;
+  });
+}
+
+function resetAntiLinkTargetMode(groupId) {
+  return updateGroupSettings(groupId, (current) => {
+    current.antiLink = {
+      ...current.antiLink,
+      targetMode: clone(config.antiLink?.targetMode || 'users'),
     };
     return current;
   });
@@ -314,15 +353,18 @@ module.exports = {
   normalizeSettings,
   normalizeBlacklistCategory,
   normalizeAntiLinkAction,
+  normalizeAntiLinkTargetMode,
   removeBlacklistEntry,
   removeGroupRule,
   resetAntiFloodSettings,
   resetAntiLinkAction,
+  resetAntiLinkTargetMode,
   resetBlacklistCategory,
   resetGroupRules,
   saveGroupSettings,
   setGroupFeature,
   updateAntiLinkAction,
+  updateAntiLinkTargetMode,
   updateAntiFloodSettings,
   updateGroupSettings,
 };

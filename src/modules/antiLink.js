@@ -52,12 +52,13 @@ module.exports = function setupAntiLink(client) {
     }
     const antiLinkSettings = context.groupConfig.antiLink || config.antiLink || {};
     const action = antiLinkSettings[blocked.category] || 'delete';
+    const targetMode = antiLinkSettings.targetMode || 'users';
 
     const participantId = await resolveParticipantId(client, context.participants, context.senderId);
     const senderId = participantId || context.senderId;
     const chat = context.chat;
 
-    if (context.senderIsAdmin) {
+    if (targetMode === 'users' && (context.senderIsAdmin || context.senderIsOwner)) {
       return false;
     }
 
@@ -92,6 +93,7 @@ module.exports = function setupAntiLink(client) {
       reason: blocked.reason,
       matched: blocked.matched,
       action,
+      targetMode,
       kicked: action === 'ban' && context.botIsAdmin,
     });
 
@@ -100,6 +102,7 @@ module.exports = function setupAntiLink(client) {
       `Membro: ${senderId}`,
       `Motivo: ${blocked.reason}`,
       `Correspondencia: ${blocked.matched}`,
+      `Escopo: ${targetMode === 'all' ? 'qualquer pessoa' : 'apenas usuarios comuns'}`,
       `Acao: ${action === 'ban' ? 'apagar e banir' : 'apenas apagar'}`,
       `Removido: ${(action === 'ban' && context.botIsAdmin) ? 'sim' : 'nao'}`,
     ]);

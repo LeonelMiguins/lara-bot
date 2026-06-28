@@ -1,3 +1,4 @@
+const packageJson = require('../../package.json');
 const bot = require('./bot');
 const paths = require('./paths');
 const pairing = require('./pairing');
@@ -12,6 +13,7 @@ const messageStyle = require('./messageStyle');
 
 module.exports = {
   ...bot,
+  version: packageJson.version,
   authStrategy: 'local',
   paths,
   pairing,

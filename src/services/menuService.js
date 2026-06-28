@@ -64,9 +64,7 @@ function groupCommands({ senderIsOwner }) {
     }
 
     if (command.scope === 'owner') {
-      if (senderIsOwner) {
-        grouped.owner.push(command);
-      }
+      grouped.owner.push(command);
       continue;
     }
 

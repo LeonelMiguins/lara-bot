@@ -20,8 +20,9 @@ module.exports = {
       chatId,
       commandPanel('Link do grupo', {
         sections: [
-          createSection('Grupo', [
-            `Nome: ${chatName || chat.name || 'Sem nome'}`,
+          createSection('Link Do Grupo', [
+            `\n
+            Nome: ${chatName || chat.name || 'Sem nome'}`,
             inviteLink,
           ]),
         ],

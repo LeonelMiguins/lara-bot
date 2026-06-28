@@ -3,6 +3,7 @@ const path = require('path');
 const config = require('../config/config');
 const { loadOwnerSettings } = require('./ownerSettingsService');
 const { ensureDirectory, idToHandle } = require('../utils/wweb');
+const { nowLabel } = require('../utils/text');
 
 const LOG_FILE_NAME = 'bot.log';
 
@@ -25,20 +26,14 @@ function serializeMeta(meta = {}) {
   return entries.join(' ');
 }
 
-function write(level, event, meta = {}) {
-  if (!logsEnabled()) {
-    return;
-  }
-
-  ensureDirectory(config.paths.logDir);
-
+function formatLine(level, event, meta = {}) {
   const timestamp = new Date().toISOString();
-  const line = [timestamp, level.toUpperCase(), event, serializeMeta(meta)]
+  return [timestamp, level.toUpperCase(), event, serializeMeta(meta)]
     .filter(Boolean)
     .join(' ');
+}
 
-  fs.appendFileSync(getLogFilePath(), `${line}\n`, 'utf8');
-
+function writeToConsole(level, line) {
   if (level === 'error') {
     console.error(line);
     return;
@@ -50,6 +45,35 @@ function write(level, event, meta = {}) {
   }
 
   console.log(line);
+}
+
+function writeToFile(line) {
+  ensureDirectory(config.paths.logDir);
+  fs.appendFileSync(getLogFilePath(), `${line}\n`, 'utf8');
+}
+
+function write(level, event, meta = {}, options = {}) {
+  const {
+    requiresEnabled = true,
+    forceConsole = false,
+    forceFile = false,
+  } = options;
+
+  if (requiresEnabled && !logsEnabled()) {
+    return;
+  }
+
+  const line = formatLine(level, event, meta);
+  const shouldWriteFile = forceFile || !requiresEnabled || logsEnabled();
+  const shouldWriteConsole = forceConsole || !requiresEnabled || logsEnabled();
+
+  if (shouldWriteFile) {
+    writeToFile(line);
+  }
+
+  if (shouldWriteConsole) {
+    writeToConsole(level, line);
+  }
 }
 
 function buildMessageMeta(context = {}, extra = {}) {
@@ -126,12 +150,76 @@ function runtimeError(event, err, meta = {}) {
   error(event, err, meta);
 }
 
+function connectionEvent(event, meta = {}) {
+  write('info', event, meta, {
+    requiresEnabled: false,
+    forceConsole: true,
+    forceFile: false,
+  });
+}
+
+function connectionWarn(event, meta = {}) {
+  write('warn', event, meta, {
+    requiresEnabled: false,
+    forceConsole: true,
+    forceFile: false,
+  });
+}
+
+function connectionError(event, err, meta = {}) {
+  write('error', event, {
+    ...meta,
+    errorName: err?.name,
+    errorMessage: err?.message || String(err),
+  }, {
+    requiresEnabled: false,
+    forceConsole: true,
+    forceFile: false,
+  });
+}
+
+function connectionPanel(title, lines = [], options = {}) {
+  const {
+    level = 'info',
+  } = options;
+  const header = `╭━━〔 ${config.botName.toUpperCase()} | CONEXAO 〕`;
+  const bodyLines = Array.isArray(lines) ? lines : [lines];
+  const panelLines = [
+    `${nowLabel()} ${header}`,
+    title ? `┃ ${title}` : '┃',
+    '┃',
+    ...bodyLines
+      .map((line) => String(line || '').trim())
+      .filter(Boolean)
+      .map((line) => `┃ ${line}`),
+    '╰━━━━━━━━━━━━━━━━━━',
+  ];
+
+  const output = panelLines.join('\n');
+
+  if (level === 'error') {
+    console.error(output);
+    return;
+  }
+
+  if (level === 'warn') {
+    console.warn(output);
+    return;
+  }
+
+  console.log(output);
+}
+
 module.exports = {
   buildMessageMeta,
   commandCompleted,
   commandFailed,
   commandReceived,
   commandRejected,
+  connectionError,
+  connectionEvent,
+  connectionPanel,
+  connectionWarn,
   error,
   getLogFilePath,
   groupEvent,

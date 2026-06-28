@@ -26,6 +26,7 @@ module.exports = {
             createSection('Status', [
               `Atual: ${formatStatus()}`,
               `Arquivo: ${getLogFilePath()}`,
+              'Observacao: logs de conexao continuam aparecendo no terminal.',
             ]),
           ],
           footer: [
@@ -55,7 +56,7 @@ module.exports = {
       chatId,
       success(
         'Logs do bot',
-        `A gravacao de logs agora está ${enabled ? 'ligada' : 'desligada'}.`,
+        `A gravacao de logs agora está ${enabled ? 'ligada' : 'desligada'}. Logs de conexao continuam visiveis no terminal.`,
       ),
     );
   },

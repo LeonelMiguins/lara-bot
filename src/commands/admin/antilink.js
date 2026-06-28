@@ -2,10 +2,13 @@ const config = require('../../config/config');
 const {
   getAntiLinkSettings,
   normalizeAntiLinkAction,
+  normalizeAntiLinkTargetMode,
   normalizeBlacklistCategory,
   resetAntiLinkAction,
+  resetAntiLinkTargetMode,
   setGroupFeature,
   updateAntiLinkAction,
+  updateAntiLinkTargetMode,
 } = require('../../services/groupSettingsService');
 const { error, info, invalidUsage, success } = require('../../utils/respond');
 
@@ -18,12 +21,19 @@ function formatAction(action) {
   return action === 'ban' ? 'apagar e banir' : 'apenas apagar';
 }
 
+function formatTargetMode(targetMode) {
+  return targetMode === 'all'
+    ? 'all (apaga mensagem de qualquer um)'
+    : 'users (admins e dono ficam imunes)';
+}
+
 module.exports = {
   name: 'antilink',
   aliases: ['antilinks'],
   description: 'Liga ou desliga o anti-link do grupo.',
   menuExamples: [
     `${config.prefix}antilink on|off`,
+    `${config.prefix}antilink all|users`,
     `${config.prefix}antilink acao whatsapp apagar|banir`,
   ],
   groupOnly: true,
@@ -39,12 +49,15 @@ module.exports = {
           'Anti-link do grupo',
           [
             `Status atual: ${formatStatus(groupSettings)}`,
+            `Escopo atual: ${formatTargetMode(antiLinkSettings.targetMode)}`,
             `WhatsApp: ${formatAction(antiLinkSettings.whatsappGroupLinks)}`,
             `Conteudo adulto: ${formatAction(antiLinkSettings.adultSites)}`,
             `Apostas: ${formatAction(antiLinkSettings.betsSites)}`,
             '',
             `Use *${commandPrefix}antilink on* para ligar.`,
             `Use *${commandPrefix}antilink off* para desligar.`,
+            `Use *${commandPrefix}antilink all* para agir contra qualquer pessoa.`,
+            `Use *${commandPrefix}antilink users* para manter admins e dono imunes.`,
             `Use *${commandPrefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
           ].join('\n'),
         ),
@@ -96,10 +109,19 @@ module.exports = {
 
     if (action === 'reset') {
       const category = normalizeBlacklistCategory(args[1]);
-      if (!category) {
+      if (!category && String(args[1] || '').toLowerCase() !== 'modo') {
         await client.sendMessage(
           chatId,
           error('Anti-link do grupo', 'Categoria invalida. Use: whatsapp, adulto ou apostas.'),
+        );
+        return;
+      }
+
+      if (String(args[1] || '').toLowerCase() === 'modo') {
+        resetAntiLinkTargetMode(chatId);
+        await client.sendMessage(
+          chatId,
+          success('Anti-link do grupo', 'O escopo do anti-link voltou para o padrao da base.'),
         );
         return;
       }
@@ -112,12 +134,24 @@ module.exports = {
       return;
     }
 
+    const targetMode = normalizeAntiLinkTargetMode(action);
+    if (targetMode) {
+      updateAntiLinkTargetMode(chatId, targetMode);
+      await client.sendMessage(
+        chatId,
+        success('Anti-link do grupo', `O anti-link agora esta em modo *${targetMode}*.`),
+      );
+      return;
+    }
+
     if (action !== 'on' && action !== 'off') {
       await client.sendMessage(
         chatId,
         invalidUsage('Anti-link do grupo', [
           `Use *${commandPrefix}antilink on* para ligar o modulo.`,
           `Use *${commandPrefix}antilink off* para desligar o modulo.`,
+          `Use *${commandPrefix}antilink all* para apagar mensagem de qualquer um.`,
+          `Use *${commandPrefix}antilink users* para manter admins e dono imunes.`,
           `Use *${commandPrefix}antilink acao <categoria> <apagar|banir>* para definir a acao.`,
         ]),
       );

@@ -1,13 +1,19 @@
 const config = require('../config/config');
 const { loadOwnerSettings } = require('./ownerSettingsService');
+const { resolveUserAliases } = require('./whatsappIdentityService');
 const { info, moderation } = require('../utils/respond');
-const { normalizeChatId, normalizeUserId, toContactId } = require('../utils/wweb');
+const {
+  isSameWhatsAppId,
+  normalizeChatId,
+  normalizeUserId,
+  toContactId,
+} = require('../utils/wweb');
 
 function ownerContactId() {
   return normalizeUserId(toContactId(config.owner?.phone || ''));
 }
 
-function isOwnerUser(userId) {
+async function isOwnerUser(client, userId) {
   const normalizedUserId = normalizeUserId(userId);
   const ownerId = ownerContactId();
 
@@ -15,11 +21,20 @@ function isOwnerUser(userId) {
     return false;
   }
 
-  if (normalizedUserId === ownerId) {
-    return true;
+  const [userAliases, ownerAliases] = await Promise.all([
+    resolveUserAliases(client, normalizedUserId),
+    resolveUserAliases(client, ownerId),
+  ]);
+
+  for (const userAlias of userAliases) {
+    for (const ownerAlias of ownerAliases) {
+      if (isSameWhatsAppId(userAlias, ownerAlias)) {
+        return true;
+      }
+    }
   }
 
-  return normalizedUserId.split('@')[0] === ownerId.split('@')[0];
+  return false;
 }
 
 async function sendOwnerMessage(client, text) {
@@ -51,7 +66,7 @@ async function notifyCommandExecuted(client, commandName, context, durationMs) {
     return false;
   }
 
-  if (isOwnerUser(context?.senderId)) {
+  if (context?.senderIsOwner) {
     return false;
   }
 

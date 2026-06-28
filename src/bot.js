@@ -42,6 +42,20 @@ const runtimeState = {
   pairingCodeRequested: false,
 };
 
+function formatPhoneDisplay(value) {
+  const digits = digitsOnly(value);
+  return digits ? `+${digits}` : 'nao configurado';
+}
+
+function formatCommandList(commands) {
+  const names = (commands?.catalog || [])
+    .map((command) => command.name)
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right, 'pt-BR'));
+
+  return names.length ? names.join(', ') : 'nenhum';
+}
+
 function createClient() {
   ensureDirectory(config.paths.authDir);
   ensureDirectory(config.paths.webCacheDir);
@@ -80,7 +94,7 @@ function createClient() {
 
 async function buildMessageContext(message) {
   const senderId = normalizeUserId(await getSenderId(message));
-  const senderIsOwner = ownerNotifications.isOwnerUser(senderId);
+  const senderIsOwner = await ownerNotifications.isOwnerUser(message.client, senderId);
   const { chat } = await getChatMetadata(message);
   const mentions = await getMentionedIds(message);
   const quotedMessage = await getQuotedMessage(message);
@@ -234,6 +248,13 @@ async function startBot() {
 
   const commands = loadCommands(path.join(__dirname, 'commands'));
   setCommandCatalog(commands.catalog || []);
+  logger.connectionPanel('Inicializacao do bot', [
+    `Bot: ${config.botName} v${config.version}`,
+    `Dono configurado: ${formatPhoneDisplay(config.owner?.phone)}`,
+    `Prefixo padrao: ${config.prefix}`,
+    `Comandos carregados: ${(commands.catalog || []).length}`,
+    `Lista: ${formatCommandList(commands)}`,
+  ]);
   const client = createClient();
   const handleAntiFlood = setupAntiFlood(client);
   const handleAntiLink = setupAntiLink(client);
@@ -243,48 +264,77 @@ async function startBot() {
   client.on('loading_screen', () => {
     if (!runtimeState.announcedWaitingForQr) {
       runtimeState.announcedWaitingForQr = true;
-      logger.runtimeEvent('client.loading');
+      logger.connectionPanel('Carregando sessao', [
+        'Iniciando a conexao com o WhatsApp Web.',
+        'Aguarde os proximos eventos de autenticacao.',
+      ]);
     }
   });
 
   client.on('qr', (qr) => {
     runtimeState.announcedWaitingForQr = false;
     runtimeState.pairingCodeRequested = false;
-    logger.runtimeEvent('client.qr.generated');
+    logger.connectionPanel('QR Code disponivel', [
+      `Bot: ${config.botName} v${config.version}`,
+      `Dono configurado: ${formatPhoneDisplay(config.owner?.phone)}`,
+      'Escaneie o QR Code abaixo com o WhatsApp que vai operar o bot.',
+    ]);
     qrcode.generate(qr, { small: true });
   });
 
   client.on('code', (code) => {
     runtimeState.pairingCodeRequested = true;
-    logger.runtimeEvent('client.pairing_code.generated', { code });
+    logger.connectionEvent('client.pairing_code.generated', { code });
   });
 
   client.on('authenticated', () => {
     runtimeState.reconnectAttempts = 0;
-    logger.runtimeEvent('client.authenticated');
+    logger.connectionPanel('Sessao autenticada', [
+      'Autenticacao aceita pelo WhatsApp.',
+      'Finalizando a sincronizacao da sessao...',
+    ]);
   });
 
   client.on('ready', () => {
     runtimeState.reconnectAttempts = 0;
     runtimeState.announcedWaitingForQr = false;
-    logger.runtimeEvent('client.ready', { botName: config.botName });
+    logger.connectionPanel('Bot conectado com sucesso', [
+      `Bot: ${config.botName} v${config.version}`,
+      `Numero do bot: ${formatPhoneDisplay(client.info?.wid?.user)}`,
+      `Dono configurado: ${formatPhoneDisplay(config.owner?.phone)}`,
+      `Comandos carregados: ${(commands.catalog || []).length}`,
+      'Sessao pronta para receber comandos.',
+    ]);
   });
 
   client.on('auth_failure', (message) => {
-    logger.runtimeWarn('client.auth_failure', { message });
+    logger.connectionPanel('Falha de autenticacao', [
+      'O WhatsApp recusou a sessao atual.',
+      `Detalhe: ${message || 'motivo nao informado'}`,
+    ], {
+      level: 'warn',
+    });
   });
 
   client.on('disconnected', async (reason) => {
     const maxReconnectAttempts = config.connection.maxReconnectAttempts ?? 6;
     const reconnectDelayMs = config.connection.reconnectDelayMs ?? 3000;
 
-    logger.runtimeWarn('client.disconnected', { reason });
+    logger.connectionPanel('Conexao encerrada', [
+      `Motivo: ${reason || 'nao informado'}`,
+      `Tentativa de reconexao: ${runtimeState.reconnectAttempts + 1}/${maxReconnectAttempts}`,
+    ], {
+      level: 'warn',
+    });
 
     runtimeState.reconnectAttempts += 1;
     if (runtimeState.reconnectAttempts >= maxReconnectAttempts) {
       runtimeState.stopReconnect = true;
-      logger.runtimeWarn('client.reconnect_limit_reached', {
-        maxReconnectAttempts,
+      logger.connectionPanel('Limite de reconexao atingido', [
+        `Total de tentativas: ${maxReconnectAttempts}`,
+        'Verifique a sessao, a internet ou refaca a autenticacao.',
+      ], {
+        level: 'warn',
       });
       return;
     }
@@ -422,6 +472,11 @@ async function startBot() {
 }
 
 startBot().catch((error) => {
-  logger.runtimeError('client.start_fatal', error);
+  logger.connectionPanel('Falha fatal ao iniciar', [
+    `Erro: ${error?.message || String(error)}`,
+    'O processo foi interrompido antes da conexao completar.',
+  ], {
+    level: 'error',
+  });
   process.exitCode = 1;
 });
