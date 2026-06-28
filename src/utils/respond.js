@@ -1,57 +1,19 @@
-const config = require('../config/config');
-
-function getMessageStyle() {
-  return config.messageStyle || {};
-}
-
-function buildHeaderLabel(tone, forceTone) {
-  const style = getMessageStyle();
-  const showToneByDefault = Boolean(style.header?.showToneByDefault);
-  const shouldShowTone = forceTone ?? showToneByDefault;
-
-  if (shouldShowTone && tone) {
-    return `${config.botName.toUpperCase()} | ${tone}`;
-  }
-
-  return config.botName.toUpperCase();
-}
+const {
+  normalizeLines,
+  renderBloco,
+  renderCabecalho,
+  renderCommand,
+  renderMsg,
+  renderRodape,
+  renderTitle,
+} = require('../services/messageRenderService');
 
 function frame({ title, body, tone = 'INFO', forceTone } = {}) {
-  const style = getMessageStyle();
-  const headerLeft = style.header?.left || '╭━━〔';
-  const headerRight = style.header?.right || '〕';
-  const footer = style.header?.footer || '╰━━━━━━━━━━━━━━━━━━';
-  const headerLabel = buildHeaderLabel(tone, forceTone);
-  const lines = [
-    `${headerLeft} ${headerLabel} ${headerRight}`,
-  ];
-
-  if (title) {
-    lines.push(title);
-    lines.push('');
-  }
-
-  for (const line of String(body || '').split('\n')) {
-    lines.push(line);
-  }
-
-  lines.push(footer);
-  return lines.join('\n');
-}
-
-function normalizeLines(value) {
-  if (Array.isArray(value)) {
-    return value
-      .flatMap((item) => normalizeLines(item))
-      .filter(Boolean);
-  }
-
-  const text = String(value || '').trim();
-  if (!text) {
-    return [];
-  }
-
-  return text.split('\n');
+  return renderBloco({
+    header: { tone, forceTone },
+    title,
+    body,
+  });
 }
 
 function buildPatternBody({ summary, reason, actions = [] }) {
@@ -65,7 +27,7 @@ function buildPatternBody({ summary, reason, actions = [] }) {
     if (lines.length) {
       lines.push('');
     }
-    lines.push('*Motivo*');
+    lines.push(renderTitle('Motivo'));
     lines.push(...normalizeLines(reason));
   }
 
@@ -74,7 +36,7 @@ function buildPatternBody({ summary, reason, actions = [] }) {
     if (lines.length) {
       lines.push('');
     }
-    lines.push('*Como corrigir*');
+    lines.push(renderTitle('Como corrigir'));
     lines.push(...normalizedActions.map((action) => `- ${action}`));
   }
 
@@ -89,9 +51,6 @@ function createSection(title, lines = []) {
 }
 
 function buildSectionedBody({ lead = [], sections = [], footer = [] }) {
-  const style = getMessageStyle();
-  const sectionPrefix = style.sections?.prefix || '→';
-  const wrapBold = style.sections?.wrapBold !== false;
   const lines = [];
   const normalizedLead = normalizeLines(lead);
 
@@ -112,11 +71,11 @@ function buildSectionedBody({ lead = [], sections = [], footer = [] }) {
     }
 
     if (title) {
-      lines.push(wrapBold ? `${sectionPrefix} *${title}:*` : `${sectionPrefix} ${title}:`);
+      lines.push(renderTitle(title));
     }
 
     if (content.length) {
-      lines.push(...content);
+      lines.push(...renderMsg(content));
     }
   }
 
@@ -204,6 +163,11 @@ module.exports = {
   info,
   invalidUsage,
   moderation,
+  renderCabecalho,
+  renderCommand,
+  renderMsg,
+  renderRodape,
+  renderTitle,
   success,
   unavailable,
   warning,

@@ -1,11 +1,10 @@
 const config = require('../config/config');
-
-const FEATURE_LABELS = {
-  welcome: 'Boas-vindas automáticas',
-  farewell: 'Mensagem automática quando um membro sai',
-  antiLink: 'Anti-link para grupos, apostas e conteúdo adulto',
-  antiFlood: 'Anti-flood para repetição',
-};
+const {
+  renderCabecalho,
+  renderCommand,
+  renderRodape,
+  renderTitle,
+} = require('./messageRenderService');
 
 let commandCatalog = [];
 
@@ -18,9 +17,6 @@ function getCommandCatalog() {
 }
 
 function formatUsage(command, commandPrefix) {
-  const menuStyle = config.messageStyle?.menu || {};
-  const commandLinePrefix = menuStyle.commandPrefix || '⤷';
-  const wrapCommandInCode = menuStyle.wrapCommandInCode !== false;
   const normalizeExample = (example) => {
     const value = String(example || '').trim();
     if (!value) {
@@ -38,16 +34,16 @@ function formatUsage(command, commandPrefix) {
     return command.menuExamples
       .map(normalizeExample)
       .filter(Boolean)
-      .map((example) => `${commandLinePrefix} ${wrapCommandInCode ? `\`${example}\`` : example}`);
+      .map((example) => renderCommand(example));
   }
 
   if (typeof command.menuExample === 'string' && command.menuExample.trim()) {
     const example = normalizeExample(command.menuExample);
-    return [`${commandLinePrefix} ${wrapCommandInCode ? `\`${example}\`` : example}`];
+    return [renderCommand(example)];
   }
 
   const fallbackCommand = `${commandPrefix}${command.name}`;
-  return [`${commandLinePrefix} ${wrapCommandInCode ? `\`${fallbackCommand}\`` : fallbackCommand}`];
+  return [renderCommand(fallbackCommand)];
 }
 
 function groupCommands({ senderIsOwner }) {
@@ -84,35 +80,25 @@ function sortCommands(commands) {
 }
 
 function buildMenuText({ senderIsOwner = false, commandPrefix = config.prefix }) {
-  const messageStyle = config.messageStyle || {};
-  const menuStyle = messageStyle.menu || {};
-  const headerLeft = messageStyle.header?.left || '╭━━〔';
-  const headerRight = messageStyle.header?.right || '〕';
-  const footer = messageStyle.header?.footer || '╰━━━━━━━━━━━━━━━━━━';
-  const sectionPrefix = messageStyle.sections?.prefix || '→';
+  const menuStyle = config.messageStyle?.menu || {};
   const headerLabel = menuStyle.headerLabel || 'LARA BOT MENU';
-  const commandLinePrefix = menuStyle.commandPrefix || '⤷';
-  const wrapCommandInCode = menuStyle.wrapCommandInCode !== false;
   const grouped = groupCommands({ senderIsOwner });
-  const lines = [`${headerLeft} ${headerLabel} ${headerRight}`, ''];
+  const lines = [renderCabecalho({ label: headerLabel }), ''];
 
   if (grouped.admin.length) {
-    lines.push(`${sectionPrefix} *Administracao:*`);
+    lines.push(renderTitle('Administracao'));
     for (const command of sortCommands(grouped.admin)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
     lines.push('');
   }
 
-  lines.push(`${sectionPrefix} *Automaticos:*`);
-  lines.push(`${commandLinePrefix} ${wrapCommandInCode ? `\`🟢/🔴 Controle por ${commandPrefix}modulos\`` : `🟢/🔴 Controle por ${commandPrefix}modulos`}`);
-  for (const featureName of Object.keys(config.features || {})) {
-    lines.push(`${commandLinePrefix} ${FEATURE_LABELS[featureName] || featureName}`);
-  }
+  lines.push(renderTitle('Modulos Automaticos'));
+  lines.push(renderCommand(`${commandPrefix}modulos`));
   lines.push('');
 
   if (grouped.user.length) {
-    lines.push(`${sectionPrefix} *Usuarios:*`);
+    lines.push(renderTitle('Usuarios'));
     for (const command of sortCommands(grouped.user)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
@@ -120,7 +106,7 @@ function buildMenuText({ senderIsOwner = false, commandPrefix = config.prefix })
   }
 
   if (grouped.owner.length) {
-    lines.push(`${sectionPrefix} *Dono:*`);
+    lines.push(renderTitle('Dono'));
     for (const command of sortCommands(grouped.owner)) {
       lines.push(...formatUsage(command, commandPrefix));
     }
@@ -128,7 +114,7 @@ function buildMenuText({ senderIsOwner = false, commandPrefix = config.prefix })
     lines.pop();
   }
 
-  lines.push(footer);
+  lines.push(renderRodape());
 
   return lines.join('\n');
 }

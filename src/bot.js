@@ -47,15 +47,6 @@ function formatPhoneDisplay(value) {
   return digits ? `+${digits}` : 'nao configurado';
 }
 
-function formatCommandList(commands) {
-  const names = (commands?.catalog || [])
-    .map((command) => command.name)
-    .filter(Boolean)
-    .sort((left, right) => left.localeCompare(right, 'pt-BR'));
-
-  return names.length ? names.join(', ') : 'nenhum';
-}
-
 function createClient() {
   ensureDirectory(config.paths.authDir);
   ensureDirectory(config.paths.webCacheDir);
@@ -253,7 +244,6 @@ async function startBot() {
     `Dono configurado: ${formatPhoneDisplay(config.owner?.phone)}`,
     `Prefixo padrao: ${config.prefix}`,
     `Comandos carregados: ${(commands.catalog || []).length}`,
-    `Lista: ${formatCommandList(commands)}`,
   ]);
   const client = createClient();
   const handleAntiFlood = setupAntiFlood(client);
@@ -264,10 +254,6 @@ async function startBot() {
   client.on('loading_screen', () => {
     if (!runtimeState.announcedWaitingForQr) {
       runtimeState.announcedWaitingForQr = true;
-      logger.connectionPanel('Carregando sessao', [
-        'Iniciando a conexao com o WhatsApp Web.',
-        'Aguarde os proximos eventos de autenticacao.',
-      ]);
     }
   });
 
@@ -289,20 +275,14 @@ async function startBot() {
 
   client.on('authenticated', () => {
     runtimeState.reconnectAttempts = 0;
-    logger.connectionPanel('Sessao autenticada', [
-      'Autenticacao aceita pelo WhatsApp.',
-      'Finalizando a sincronizacao da sessao...',
-    ]);
   });
 
   client.on('ready', () => {
     runtimeState.reconnectAttempts = 0;
     runtimeState.announcedWaitingForQr = false;
     logger.connectionPanel('Bot conectado com sucesso', [
-      `Bot: ${config.botName} v${config.version}`,
       `Numero do bot: ${formatPhoneDisplay(client.info?.wid?.user)}`,
-      `Dono configurado: ${formatPhoneDisplay(config.owner?.phone)}`,
-      `Comandos carregados: ${(commands.catalog || []).length}`,
+      `Bot: ${config.botName} v${config.version}`,
       'Sessao pronta para receber comandos.',
     ]);
   });
